@@ -1,0 +1,171 @@
+{
+  "seed": 101,
+  "clean_control": false,
+  "method": "Ours-wo-Coordinator",
+  "downstream": {
+    "train_rows": 82332,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.5212,
+      "rare4_recall": 0.282,
+      "binary_attack_f1": 0.9249,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8621,
+        "Generic": 0.976,
+        "Exploits": 0.6426,
+        "Fuzzers": 0.4216,
+        "DoS": 0.3934,
+        "Reconnaissance": 0.8041,
+        "Analysis": 0.0759,
+        "Backdoor": 0.1089,
+        "Shellcode": 0.4721,
+        "Worms": 0.455
+      },
+      "per_class_recall": {
+        "Normal": 0.9519,
+        "Generic": 0.9716,
+        "Exploits": 0.5376,
+        "Fuzzers": 0.2977,
+        "DoS": 0.4874,
+        "Reconnaissance": 0.7259,
+        "Analysis": 0.1515,
+        "Backdoor": 0.197,
+        "Shellcode": 0.4104,
+        "Worms": 0.3692
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4625,
+      "rare4_recall": 0.1708,
+      "binary_attack_f1": 0.9137,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8518,
+        "Generic": 0.9886,
+        "Exploits": 0.6711,
+        "Fuzzers": 0.3098,
+        "DoS": 0.3654,
+        "Reconnaissance": 0.8194,
+        "Analysis": 0.0,
+        "Backdoor": 0.1032,
+        "Shellcode": 0.4675,
+        "Worms": 0.0478
+      },
+      "per_class_recall": {
+        "Normal": 0.9814,
+        "Generic": 0.9808,
+        "Exploits": 0.6698,
+        "Fuzzers": 0.1908,
+        "DoS": 0.4063,
+        "Reconnaissance": 0.738,
+        "Analysis": 0.0,
+        "Backdoor": 0.0561,
+        "Shellcode": 0.4501,
+        "Worms": 0.1769
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 0.0,
+    "unit_drift_recall": 0.0,
+    "unit_drift_factor_acc": 0.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 0.0,
+    "noise_node_detected": 0,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.0,
+    "noise_sample_recall": 0.0,
+    "noise_sample_f1": 0.0,
+    "dirty_rows_remediated": 0,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Empty LLM response; expected JSON object."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+      },
+      {
+        "action": "drop_column",
+        "col": "ingest_flag_val",
+        "evidence": "Unmapped column ingest_flag_val has mi_norm=1.00019 (mi=1.63059) vs next feature sbytes mi_norm=0.25003, indicating a local label-leakage shortcut artifact."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 4,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 25777,
+      "node_2": 23936,
+      "node_3": 8684,
+      "node_4": 23935
+    },
+    "merged_rows": 82332,
+    "merged_cols": 39,
+    "steps": [
+      {
+        "action": "drop_column",
+        "col": "ingest_flag_val",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "Unmapped column ingest_flag_val has mi_norm=1.00019 (mi=1.63059) vs next feature sbytes mi_norm=0.25003, indicating a local label-leakage shortcut artifact."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Empty LLM response; expected JSON object."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+      }
+    ],
+    "cl_flagged_counts": {}
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 11,
+      "prompt_tokens": 22933,
+      "completion_tokens": 23662,
+      "total_tokens": 46595,
+      "total_latency_s": 171.255,
+      "json_retries": 7
+    },
+    "coord_query_rounds": 0,
+    "llm_elapsed_s": 224.292,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 5.596
+}

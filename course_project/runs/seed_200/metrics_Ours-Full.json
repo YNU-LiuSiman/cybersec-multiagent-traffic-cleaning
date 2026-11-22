@@ -1,0 +1,196 @@
+{
+  "seed": 200,
+  "clean_control": true,
+  "method": "Ours-Full",
+  "downstream": {
+    "train_rows": 81385,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.495,
+      "rare4_recall": 0.168,
+      "binary_attack_f1": 0.9239,
+      "n_features": 35,
+      "per_class_f1": {
+        "Normal": 0.8637,
+        "Generic": 0.9824,
+        "Exploits": 0.6889,
+        "Fuzzers": 0.3665,
+        "DoS": 0.3534,
+        "Reconnaissance": 0.7866,
+        "Analysis": 0.0363,
+        "Backdoor": 0.1177,
+        "Shellcode": 0.4322,
+        "Worms": 0.3222
+      },
+      "per_class_recall": {
+        "Normal": 0.9691,
+        "Generic": 0.9811,
+        "Exploits": 0.678,
+        "Fuzzers": 0.2694,
+        "DoS": 0.3646,
+        "Reconnaissance": 0.736,
+        "Analysis": 0.029,
+        "Backdoor": 0.0882,
+        "Shellcode": 0.3319,
+        "Worms": 0.2231
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4744,
+      "rare4_recall": 0.1722,
+      "binary_attack_f1": 0.9217,
+      "n_features": 35,
+      "per_class_f1": {
+        "Normal": 0.8609,
+        "Generic": 0.9871,
+        "Exploits": 0.648,
+        "Fuzzers": 0.3685,
+        "DoS": 0.4298,
+        "Reconnaissance": 0.8166,
+        "Analysis": 0.0114,
+        "Backdoor": 0.0969,
+        "Shellcode": 0.4805,
+        "Worms": 0.0444
+      },
+      "per_class_recall": {
+        "Normal": 0.9704,
+        "Generic": 0.9835,
+        "Exploits": 0.5828,
+        "Fuzzers": 0.2404,
+        "DoS": 0.6,
+        "Reconnaissance": 0.7392,
+        "Analysis": 0.0065,
+        "Backdoor": 0.0636,
+        "Shellcode": 0.4342,
+        "Worms": 0.1846
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": true,
+    "false_remediation_actions": 1,
+    "clean_false_remediation": 1,
+    "node_d_false_remediation": 1
+  },
+  "plan": {
+    "diagnosis_summary": "All four nodes are schema-, row-health- and conservation-clean: `export_shard_code` is a shared benign export metadata column present on every node (mi_norm≈0, no missing canonical columns anywhere), all primary byte/packet identities are exact (median_rel_err 0.0-0.0029, ratio 1.0) and the mild sub-unity sload/dload auxiliary ratios (~0.90/0.876) are identical across all four nodes, confirming common data semantics rather than a per-node unit fault (compare_anchor_quantiles flagged_scale_shifts={}). No cross-node MI shortcut exists (worst outlier ct_dst_sport_ltm robust_z=1.03, gap 0.021, and it is high on three nodes, not one), so node_2's rare-class Non-IID composition and all rare-class concentration are legitimate. Only node_2 shows a genuine localized label-quality fault: with rare classes exempted and ct_dst_sport_ltm excluded, its suspected_noise_rate is 0.110 vs 0.0414/0.0446/0.0438, high_conf_conflict_rate 0.0684 vs ~0.023, mean_self_confidence 0.644 vs ~0.816 and cv_macro_f1 0.545 vs ~0.705, elevated across common classes (DoS 0.338, Fuzzers 0.259, Exploits 0.191).",
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ],
+    "actions": [
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "evidence": "suspected_noise_rate 0.110 vs peer 0.0414-0.0446, high_conf_conflict_rate 0.0684 vs 0.0222-0.0231, mean_self_confidence 0.644 vs 0.814-0.817, cv_macro_f1 0.545 vs 0.703-0.711 after excluding ct_dst_sport_ltm and exempting rare classes."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "clean row_health, exact primary conservation (ratio 1.0), no flagged scale shifts (max |log10| 0.132 on sload), and baseline label metrics (noise 0.0414, conf 0.8168); export_shard_code is shared benign metadata, not an alias."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "clean row_health, sbytes/dbytes laws exact (median_rel_err 0.0/0.0029), no flagged scale shifts, baseline label metrics (noise 0.0446, conf 0.8162, cv_macro_f1 0.7103); export_shard_code mi_norm=0.0 shared on all nodes."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "clean row_health, sbytes=spkts x smean exact (median_rel_err 0.0, violation_rate 0.0), no flagged scale shifts, baseline label metrics (noise 0.0438, conf 0.8137, cv_macro_f1 0.7035); ct_dst_sport_ltm is not a shortcut (robust_z 1.03, high on node_1/3/4 too)."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 4,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 23936,
+      "node_2": 7737,
+      "node_3": 25777,
+      "node_4": 23935
+    },
+    "merged_rows": 81385,
+    "merged_cols": 37,
+    "steps": [
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "disable_rare_exempt": false,
+        "rows_removed": 947,
+        "rows_remaining": 7737,
+        "cl_stats": {
+          "n_evaluated": 8684,
+          "suspected_noise_count": 947,
+          "suspected_noise_rate": 0.1091,
+          "high_conf_conflict_count": 583,
+          "high_conf_conflict_rate": 0.0671,
+          "mean_self_confidence": 0.6455,
+          "cv_macro_f1": 0.5453,
+          "per_class_suspected_rate": {
+            "Analysis": 0.0,
+            "Backdoor": 0.0,
+            "DoS": 0.3483,
+            "Exploits": 0.1901,
+            "Fuzzers": 0.2558,
+            "Normal": 0.0454,
+            "Reconnaissance": 0.1786,
+            "Shellcode": 0.0,
+            "Worms": 0.0
+          }
+        },
+        "evidence": "suspected_noise_rate 0.110 vs peer 0.0414-0.0446, high_conf_conflict_rate 0.0684 vs 0.0222-0.0231, mean_self_confidence 0.644 vs 0.814-0.817, cv_macro_f1 0.545 vs 0.703-0.711 after excluding ct_dst_sport_ltm and exempting rare classes."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "clean row_health, exact primary conservation (ratio 1.0), no flagged scale shifts (max |log10| 0.132 on sload), and baseline label metrics (noise 0.0414, conf 0.8168); export_shard_code is shared benign metadata, not an alias."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "clean row_health, sbytes/dbytes laws exact (median_rel_err 0.0/0.0029), no flagged scale shifts, baseline label metrics (noise 0.0446, conf 0.8162, cv_macro_f1 0.7103); export_shard_code mi_norm=0.0 shared on all nodes."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "clean row_health, sbytes=spkts x smean exact (median_rel_err 0.0, violation_rate 0.0), no flagged scale shifts, baseline label metrics (noise 0.0438, conf 0.8137, cv_macro_f1 0.7035); ct_dst_sport_ltm is not a shortcut (robust_z 1.03, high on node_1/3/4 too)."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_2": 947
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 10,
+      "prompt_tokens": 44888,
+      "completion_tokens": 6582,
+      "total_tokens": 51470,
+      "total_latency_s": 51.08,
+      "json_retries": 0
+    },
+    "coord_query_rounds": 1,
+    "llm_elapsed_s": 117.128,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 10.814
+}

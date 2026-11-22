@@ -1,0 +1,5 @@
+method,n_eval,unit_drift_P,unit_drift_R,unit_factor_acc,shortcut_exact_acc,residual_alias_acc,noise_node_recall,noise_node_fp_sum,noise_sample_f1,dirty_rows_remediated,node_d_false_remediation_sum,clean_control_fpr,avg_tokens,avg_coord_rounds,avg_llm_elapsed_s
+Static-Pipeline,10,0.2652,1.0,0.6083,1.0,0.0,1.0,10,0.7947,1.0,100,1.0,0.0,0.0,0.0
+Ours-wo-Coordinator,10,0.0,0.0,0.0,1.0,0.0,0.1,7,0.0808,0.0,5,1.0,41149.7,0.0,172.62
+Ours-wo-Anchor,10,0.9,0.9,0.9,0.9,0.9,0.7,0,0.5554,0.9,0,1.0,68564.7,0.7,127.23
+Ours-Full,10,1.0,1.0,1.0,1.0,1.0,1.0,0,0.7947,1.0,0,1.0,63362.3,1.2,136.35

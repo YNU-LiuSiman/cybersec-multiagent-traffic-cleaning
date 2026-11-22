@@ -1,0 +1,37 @@
+{
+  "diagnosis_summary": "Node_2 is the only actionable fault: its label indicators are uniformly ~2.5x worse than peers across all non-exempt classes (noise 0.1091 vs ~0.042, conflict 0.0671 vs ~0.022, confidence 0.6455 vs ~0.815, cv_macro_f1 0.5453 vs ~0.71), indicating localized label corruption. Its flagged quantile shifts are legitimate Non-IID, not unit drift: positive-only medians match peers (tcprtt p50_pos 0.1039 vs 0.1059/0.1061, djit 129.7 vs 130.4/130.8) and conservation ratios stay at 1.0/0.901/0.876 like healthy nodes. export_shard_code is a benign cross-node metadata column (MI 0.0-0.005, no missing canonical counterpart) so it is not renamed or dropped, and no feature shows single-node-only MI, so there is no shortcut column.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "local_cl_clean",
+      "node": "node_2",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "suspected_noise_rate 0.1091 vs peers 0.0421/0.0440/0.0427, high_conf_conflict_rate 0.0671 vs 0.0223/0.0211/0.0220, mean_self_confidence 0.6455 vs 0.8171/0.8168/0.8139, cv_macro_f1 0.5453 vs 0.7116/0.7127/0.7083; elevation uniform across non-exempt classes (DoS 0.3483 vs 0.1565/0.1652/0.1615, Normal 0.0454 vs 0.0197)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "row_health corrupted 0/23936, conservation primary ratio 1.0, label noise 0.0421 / conflict 0.0223 / confidence 0.8171 in line with peers; export_shard_code MI 0.0 and no missing canonical column."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "row_health corrupted 0/25777, conservation primary ratio 1.0 with auxiliary 0.9011/0.8760, label noise 0.0440 / conflict 0.0211 / confidence 0.8168 baseline; export_shard_code MI 0.0 and no missing canonical column."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "row_health corrupted 0/23935, benign-anchor medians match reference (sbytes ratio 0.994, sload 0.984), label noise 0.0427 / conflict 0.0220 / confidence 0.8139 baseline; export_shard_code MI 0.00107."
+    }
+  ]
+}

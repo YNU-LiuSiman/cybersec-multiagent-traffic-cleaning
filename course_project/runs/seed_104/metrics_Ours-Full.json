@@ -1,0 +1,269 @@
+{
+  "seed": 104,
+  "clean_control": false,
+  "method": "Ours-Full",
+  "downstream": {
+    "train_rows": 76895,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.518,
+      "rare4_recall": 0.2225,
+      "binary_attack_f1": 0.927,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8665,
+        "Generic": 0.9805,
+        "Exploits": 0.6459,
+        "Fuzzers": 0.4422,
+        "DoS": 0.4373,
+        "Reconnaissance": 0.8171,
+        "Analysis": 0.0454,
+        "Backdoor": 0.1062,
+        "Shellcode": 0.4414,
+        "Worms": 0.398
+      },
+      "per_class_recall": {
+        "Normal": 0.9587,
+        "Generic": 0.9813,
+        "Exploits": 0.5358,
+        "Fuzzers": 0.315,
+        "DoS": 0.6223,
+        "Reconnaissance": 0.7358,
+        "Analysis": 0.0405,
+        "Backdoor": 0.181,
+        "Shellcode": 0.361,
+        "Worms": 0.3077
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4648,
+      "rare4_recall": 0.1361,
+      "binary_attack_f1": 0.9177,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8561,
+        "Generic": 0.9885,
+        "Exploits": 0.6621,
+        "Fuzzers": 0.3427,
+        "DoS": 0.4178,
+        "Reconnaissance": 0.8238,
+        "Analysis": 0.0,
+        "Backdoor": 0.0806,
+        "Shellcode": 0.3856,
+        "Worms": 0.0909
+      },
+      "per_class_recall": {
+        "Normal": 0.9753,
+        "Generic": 0.983,
+        "Exploits": 0.6155,
+        "Fuzzers": 0.2201,
+        "DoS": 0.5577,
+        "Reconnaissance": 0.7497,
+        "Analysis": 0.0,
+        "Backdoor": 0.043,
+        "Shellcode": 0.3169,
+        "Worms": 0.1846
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 1.0,
+    "unit_drift_recall": 1.0,
+    "unit_drift_factor_acc": 1.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 1.0,
+    "noise_node_detected": 1,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.9159,
+    "noise_sample_recall": 0.7231,
+    "noise_sample_f1": 0.8082,
+    "dirty_rows_remediated": 1,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "node_1's only fault is a metadata-like shortcut column export_shard_code (mi_norm 1.0002 locally vs 0.0034-0.0057 on peers, robust_z 49.7), which masked genuine localized label noise: with it excluded, node_1 shows 20.8% suspected noise and 12.4% high-confidence conflicts at mean self-confidence 0.457 versus node_3/node_4 baselines of 4.1-4.5% noise and 0.82 confidence. node_2's mild metric elevation (10.9% noise) is explained by legitimate Non-IID concentration of all four globally rare classes, and node_3 is fully healthy. node_4 has three recoverable schema-alias faults (timing columns matched by quantiles), a systematic 1/8 byte-unit drift (bit-vs-byte) confirmed by both benign anchors and conservation ratio 0.125, and 467 corrupted rows.",
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ],
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "evidence": "mi_norm on node_1 = 1.0002 (exceeds label entropy 1.62512 nats) vs 0.0053/0.0034/0.0057 on node_2/3/4, robust_z 49.73: local shortcut artifact, not physical signal."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "evidence": "With export_shard_code excluded, node_1 shows suspected_noise_rate 0.2076, high_conf_conflict_rate 0.1238, mean_self_confidence 0.4568 and cv_macro_f1 0.4791 vs peer baselines 0.0409-0.0445, 0.0226-0.0241, 0.8175-0.8190 and 0.7144-0.7189."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Row health clean, conservation ratios 1.0, and CL metrics (noise 0.1086, confidence 0.6457) are attributable to legitimate Non-IID concentration of globally rare Analysis/Backdoor/Shellcode/Worms (100% share, 0.0 suspected rate) rather than corruption."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Schema unmapped column is only the dropped export_shard_code (mi_norm 0.0034), row health clean, all conservation ratios 1.0, and best CL baseline (noise 0.0445, confidence 0.8190); elevated sbytes/smean MI is shared by peers (robust_z 0.67-0.70)."
+      },
+      {
+        "action": "rename_columns",
+        "node": "node_4",
+        "mapping": {
+          "handshake_roundtrip_val": "tcprtt",
+          "syn_reply_interval": "synack",
+          "tx_gap_millis": "sinpkt"
+        },
+        "evidence": "handshake_roundtrip_val p50/p90/zero_frac 0.000706/0.205861/0.2957 matches tcprtt refs 0.000703/0.199060/0.2983; syn_reply_interval 0.000553/0.110345/0.2957 matches synack 0.000551/0.108208/0.2983; tx_gap_millis 16.336/156.254/0.0023 is the only remaining column matching sinpkt 12.951/150.872/0.0020."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_4",
+        "rule": "nan_or_negative_physical",
+        "evidence": "row_health reports 467 corrupted rows (1.951%): 234 rows with NaN (dbytes/sload 117 each) and 233 with physically impossible negative dur/spkts/sbytes."
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "sbytes",
+          "dbytes",
+          "sload",
+          "dload"
+        ],
+        "factor": 8.0,
+        "evidence": "Benign-anchor medians are 1/8 of reference (sbytes 115 vs 911 ratio 0.1262, dbytes 44.25 vs 354 ratio 0.125, sload 0.1033, dload 0.1458) and both primary conservation laws give median_ratio_lhs_over_rhs 0.125 on 100% of rows, matching an exact binary bit-to-byte conversion."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 7,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 18965,
+      "node_2": 8684,
+      "node_3": 25777,
+      "node_4": 23469
+    },
+    "merged_rows": 76895,
+    "merged_cols": 36,
+    "steps": [
+      {
+        "action": "rename_columns",
+        "node": "node_4",
+        "applied_mapping": {
+          "handshake_roundtrip_val": "tcprtt",
+          "syn_reply_interval": "synack",
+          "tx_gap_millis": "sinpkt"
+        },
+        "evidence": "handshake_roundtrip_val p50/p90/zero_frac 0.000706/0.205861/0.2957 matches tcprtt refs 0.000703/0.199060/0.2983; syn_reply_interval 0.000553/0.110345/0.2957 matches synack 0.000551/0.108208/0.2983; tx_gap_millis 16.336/156.254/0.0023 is the only remaining column matching sinpkt 12.951/150.872/0.0020."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_4",
+        "rule": "nan_or_negative_physical",
+        "rows_removed": 467,
+        "rows_remaining": 23469,
+        "evidence": "row_health reports 467 corrupted rows (1.951%): 234 rows with NaN (dbytes/sload 117 each) and 233 with physically impossible negative dur/spkts/sbytes."
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "sbytes",
+          "dbytes",
+          "sload",
+          "dload"
+        ],
+        "factor": 8.0,
+        "evidence": "Benign-anchor medians are 1/8 of reference (sbytes 115 vs 911 ratio 0.1262, dbytes 44.25 vs 354 ratio 0.125, sload 0.1033, dload 0.1458) and both primary conservation laws give median_ratio_lhs_over_rhs 0.125 on 100% of rows, matching an exact binary bit-to-byte conversion."
+      },
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "mi_norm on node_1 = 1.0002 (exceeds label entropy 1.62512 nats) vs 0.0053/0.0034/0.0057 on node_2/3/4, robust_z 49.73: local shortcut artifact, not physical signal."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "disable_rare_exempt": false,
+        "rows_removed": 4970,
+        "rows_remaining": 18965,
+        "cl_stats": {
+          "n_evaluated": 23935,
+          "suspected_noise_count": 4970,
+          "suspected_noise_rate": 0.2076,
+          "high_conf_conflict_count": 2963,
+          "high_conf_conflict_rate": 0.1238,
+          "mean_self_confidence": 0.4568,
+          "cv_macro_f1": 0.4791,
+          "per_class_suspected_rate": {
+            "DoS": 0.412,
+            "Exploits": 0.2646,
+            "Fuzzers": 0.3346,
+            "Generic": 0.1391,
+            "Normal": 0.0787,
+            "Reconnaissance": 0.5065
+          }
+        },
+        "evidence": "With export_shard_code excluded, node_1 shows suspected_noise_rate 0.2076, high_conf_conflict_rate 0.1238, mean_self_confidence 0.4568 and cv_macro_f1 0.4791 vs peer baselines 0.0409-0.0445, 0.0226-0.0241, 0.8175-0.8190 and 0.7144-0.7189."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Row health clean, conservation ratios 1.0, and CL metrics (noise 0.1086, confidence 0.6457) are attributable to legitimate Non-IID concentration of globally rare Analysis/Backdoor/Shellcode/Worms (100% share, 0.0 suspected rate) rather than corruption."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Schema unmapped column is only the dropped export_shard_code (mi_norm 0.0034), row health clean, all conservation ratios 1.0, and best CL baseline (noise 0.0445, confidence 0.8190); elevated sbytes/smean MI is shared by peers (robust_z 0.67-0.70)."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_1": 4970
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 10,
+      "prompt_tokens": 48642,
+      "completion_tokens": 13656,
+      "total_tokens": 62298,
+      "total_latency_s": 89.392,
+      "json_retries": 0
+    },
+    "coord_query_rounds": 1,
+    "llm_elapsed_s": 148.337,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 6.86
+}

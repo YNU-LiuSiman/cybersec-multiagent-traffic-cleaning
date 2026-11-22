@@ -1,0 +1,29 @@
+{
+  "seed": 201,
+  "clean_control": true,
+  "role_to_node": {
+    "A": "node_1",
+    "B": "node_4",
+    "C": "node_2",
+    "D": "node_3"
+  },
+  "node_to_role": {
+    "node_1": "A",
+    "node_4": "B",
+    "node_2": "C",
+    "node_3": "D"
+  },
+  "shortcut_col": "tap_priority_metric",
+  "shortcut_corrupted_node": null,
+  "unit_drift": null,
+  "residual_aliases": {},
+  "dirty_rows": null,
+  "label_noise": null,
+  "hard_negative_node": "node_3",
+  "rare4_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ]
+}

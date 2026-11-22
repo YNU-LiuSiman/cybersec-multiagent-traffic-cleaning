@@ -1,0 +1,195 @@
+{
+  "seed": 201,
+  "clean_control": true,
+  "method": "Ours-wo-Coordinator",
+  "downstream": {
+    "train_rows": 81201,
+    "rare4_kept": 1494,
+    "rare4_train_retention": 0.8882,
+    "RF": {
+      "macro_f1": 0.5242,
+      "rare4_recall": 0.2291,
+      "binary_attack_f1": 0.9273,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8679,
+        "Generic": 0.9786,
+        "Exploits": 0.6487,
+        "Fuzzers": 0.4334,
+        "DoS": 0.44,
+        "Reconnaissance": 0.8194,
+        "Analysis": 0.0527,
+        "Backdoor": 0.1008,
+        "Shellcode": 0.4557,
+        "Worms": 0.4444
+      },
+      "per_class_recall": {
+        "Normal": 0.9645,
+        "Generic": 0.982,
+        "Exploits": 0.5359,
+        "Fuzzers": 0.306,
+        "DoS": 0.6327,
+        "Reconnaissance": 0.731,
+        "Analysis": 0.0545,
+        "Backdoor": 0.1426,
+        "Shellcode": 0.3654,
+        "Worms": 0.3538
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4649,
+      "rare4_recall": 0.1825,
+      "binary_attack_f1": 0.9151,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8452,
+        "Generic": 0.9886,
+        "Exploits": 0.66,
+        "Fuzzers": 0.3762,
+        "DoS": 0.4187,
+        "Reconnaissance": 0.8069,
+        "Analysis": 0.0,
+        "Backdoor": 0.0909,
+        "Shellcode": 0.4328,
+        "Worms": 0.0294
+      },
+      "per_class_recall": {
+        "Normal": 0.9377,
+        "Generic": 0.9841,
+        "Exploits": 0.6113,
+        "Fuzzers": 0.2461,
+        "DoS": 0.566,
+        "Reconnaissance": 0.7434,
+        "Analysis": 0.0,
+        "Backdoor": 0.0544,
+        "Shellcode": 0.391,
+        "Worms": 0.2846
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": true,
+    "false_remediation_actions": 2,
+    "clean_false_remediation": 1,
+    "node_d_false_remediation": 1
+  },
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "row_health: rows_with_nan=0, rows_with_negative_physical=0, total_corrupted_rows=0 (corrupted_row_rate 0.0); conservation_check: all four laws status=ok (primary median_rel_err 0.0 / 0.0029, median_ratio_lhs_over_rhs 1.0 / 1.0, violation_rate 0.0); confident_learning: suspected_noise_rate=0.0454, high_conf_conflict_rate=0.022, local_rare_classes=[] — no drop_rows, rescale, drop_column, or local_cl_clean warranted. Unmapped alias tap_priority_metric (missing_canonical=[]) left unrenamed because the canonical target name is not resolvable from local diagnostics alone and must not be guessed."
+      },
+      {
+        "node": "node_2",
+        "action": "no_op",
+        "evidence": "row_health: 0 rows_with_nan, 0 rows_with_negative_physical, total_corrupted_rows=0; conservation: all 4 laws status=ok (primary median_rel_err 0.0 and 0.0029, median_ratio 1.0; auxiliary medians 0.099/0.124 within 0.5 tol); schema: missing_canonical=[] and only benign unmapped extra 'tap_priority_metric' with no canonical gap to fill, so rename/rescale/drop_column are unsupported; label mix covers all 6 classes with local_rare_classes=[] and confident_learning noise rate 0.0429 (cv_macro_f1 0.7085) without cross-node shortcut exclusion or global rare-class counts, so local_cl_clean is not warranted here; high local MI (sbytes 0.612, smean 0.544, sload 0.508) cannot be adjudicated on a single node and is not sufficient evidence to drop columns."
+      },
+      {
+        "action": "drop_column",
+        "col": "tap_priority_metric",
+        "evidence": "schema_profile lists tap_priority_metric as unmapped with missing_canonical empty and no missing_rate_nonzero entries; no local mapping evidence exists, so drop the unmapped column."
+      },
+      {
+        "node": "node_3",
+        "action": "local_cl_clean",
+        "evidence": "confident_learning: 544/8684 suspected noise (6.26%) and 271 high-conf conflicts (3.12%); per-class suspected rates Exploits 0.1856 and Normal 0.0491 while rare classes are exempt."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 5,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 25777,
+      "node_2": 23935,
+      "node_3": 7553,
+      "node_4": 23936
+    },
+    "merged_rows": 81201,
+    "merged_cols": 36,
+    "steps": [
+      {
+        "action": "drop_column",
+        "col": "tap_priority_metric",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "schema_profile lists tap_priority_metric as unmapped with missing_canonical empty and no missing_rate_nonzero entries; no local mapping evidence exists, so drop the unmapped column."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_3",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 1131,
+        "rows_remaining": 7553,
+        "cl_stats": {
+          "n_evaluated": 8684,
+          "suspected_noise_count": 1131,
+          "suspected_noise_rate": 0.1302,
+          "high_conf_conflict_count": 668,
+          "high_conf_conflict_rate": 0.0769,
+          "mean_self_confidence": 0.6457,
+          "cv_macro_f1": 0.5245,
+          "per_class_suspected_rate": {
+            "Analysis": 0.099,
+            "Backdoor": 0.1321,
+            "DoS": 0.334,
+            "Exploits": 0.1836,
+            "Fuzzers": 0.2586,
+            "Normal": 0.0497,
+            "Reconnaissance": 0.175,
+            "Shellcode": 0.0794,
+            "Worms": 0.3182
+          }
+        },
+        "evidence": "confident_learning: 544/8684 suspected noise (6.26%) and 271 high-conf conflicts (3.12%); per-class suspected rates Exploits 0.1856 and Normal 0.0491 while rare classes are exempt."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "row_health: rows_with_nan=0, rows_with_negative_physical=0, total_corrupted_rows=0 (corrupted_row_rate 0.0); conservation_check: all four laws status=ok (primary median_rel_err 0.0 / 0.0029, median_ratio_lhs_over_rhs 1.0 / 1.0, violation_rate 0.0); confident_learning: suspected_noise_rate=0.0454, high_conf_conflict_rate=0.022, local_rare_classes=[] — no drop_rows, rescale, drop_column, or local_cl_clean warranted. Unmapped alias tap_priority_metric (missing_canonical=[]) left unrenamed because the canonical target name is not resolvable from local diagnostics alone and must not be guessed."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "row_health: 0 rows_with_nan, 0 rows_with_negative_physical, total_corrupted_rows=0; conservation: all 4 laws status=ok (primary median_rel_err 0.0 and 0.0029, median_ratio 1.0; auxiliary medians 0.099/0.124 within 0.5 tol); schema: missing_canonical=[] and only benign unmapped extra 'tap_priority_metric' with no canonical gap to fill, so rename/rescale/drop_column are unsupported; label mix covers all 6 classes with local_rare_classes=[] and confident_learning noise rate 0.0429 (cv_macro_f1 0.7085) without cross-node shortcut exclusion or global rare-class counts, so local_cl_clean is not warranted here; high local MI (sbytes 0.612, smean 0.544, sload 0.508) cannot be adjudicated on a single node and is not sufficient evidence to drop columns."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_3": 1131
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 11,
+      "prompt_tokens": 23061,
+      "completion_tokens": 22178,
+      "total_tokens": 45239,
+      "total_latency_s": 160.936,
+      "json_retries": 7
+    },
+    "coord_query_rounds": 0,
+    "llm_elapsed_s": 196.072,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 11.206
+}

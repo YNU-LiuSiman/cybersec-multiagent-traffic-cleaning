@@ -1,0 +1,63 @@
+{
+  "diagnosis_summary": "node_2 carries three real faults: a 1000x decimal unit drift on sbytes/sload/dload (primary law ratio 1000.0 and dload law ratio 876.011 = 1000*0.876 vs healthy 0.876), 308 corrupted rows (1.287%), and two residual aliases (http_reply_payload_sz->response_body_len, rx_jitter_index->djit). node_4 hosts a local shortcut column (capture_profile_idx mi_norm=1.0002 vs 0.0 on all peers, robust_z=50) whose removal exposes localized label noise (22.4% suspected, self-confidence 0.41 vs peer 0.82). node_1 and node_3 require no repair: node_3's quantile shifts and 10.9% CL rate stem from legitimate rare-class Non-IID (it holds 100% of Analysis/Backdoor/Shellcode/Worms) with exact conservation, and node_1's high-MI byte features are replicated across peers.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "rename_columns",
+      "node": "node_2",
+      "mapping": {
+        "http_reply_payload_sz": "response_body_len",
+        "rx_jitter_index": "djit"
+      },
+      "evidence": "unmapped [rx_jitter_index, http_reply_payload_sz] with missing_canonical [djit, response_body_len]; http_reply_payload_sz zero_frac 0.8953/p50 0.0 vs ref response_body_len 0.9324/0.0, rx_jitter_index p90 396.08 vs ref djit p90 328.34."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_2",
+      "rule": "nan_or_negative_physical",
+      "evidence": "total_corrupted_rows=308 (rate 0.01287): 77 NaN in dbytes/sload and 154 negative dur/spkts/sbytes."
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "sbytes",
+        "sload",
+        "dload"
+      ],
+      "factor": 0.001,
+      "evidence": "sbytes law median_ratio_lhs_over_rhs=1000.0 (peers 1.0) and dload law 876.011 = 1000*healthy 0.876, with sload law unchanged at 0.9012 confirming both sload/sbytes scaled; anchors sbytes 534000 vs ref 584, sload 6.13e8 vs ref 6.06e5."
+    },
+    {
+      "action": "drop_column",
+      "col": "capture_profile_idx",
+      "evidence": "compare_mi: mi_norm=1.0002 on node_4 versus 0.0 on node_1/node_2/node_3, gap 1.0002, robust_z=50.01 (cross-node metadata column, not an alias)."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_4",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "With capture_profile_idx excluded: suspected_noise_rate 0.2237, high_conf_conflict_rate 0.1129, mean_self_confidence 0.4107, cv_macro_f1 0.4404 vs healthy peer baseline 0.041-0.045/0.023-0.024/~0.82/~0.715."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Clean rows (0 corrupted), all conservation ratios 1.0, and byte-feature MI shared with peers (sbytes 0.6178 vs node_2 0.6200, robust_z=0.68); CL noise 4.45% with confidence 0.819 is baseline."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Legitimate rare-class Non-IID: holds 100% of Analysis/Backdoor/Shellcode/Worms, primary conservation ratios 1.0 and 0 corrupted rows; anchor shifts (dur 17.4x, sinpkt 25.2x) are traffic-mix, not unit drift."
+    }
+  ]
+}

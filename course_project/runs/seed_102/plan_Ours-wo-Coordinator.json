@@ -1,0 +1,32 @@
+{
+  "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+  "actions": [
+    {
+      "action": "drop_column",
+      "node": "node_1",
+      "col": "flow_audit_tag",
+      "evidence": "schema_profile.unmapped_columns=['flow_audit_tag'] with missing_canonical=[]; it is a non-canonical extra column."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_1",
+      "evidence": "confident_learning: suspected_noise_count=548 (rate 0.0631), high_conf_conflict_count=276 (rate 0.0318); per-class suspected rates Exploits=0.1881, Normal=0.0489, all rare classes exempted at 0.0."
+    },
+    {
+      "action": "drop_column",
+      "col": "flow_audit_tag",
+      "node": "node_2",
+      "evidence": "unmapped column flow_audit_tag has mi_norm=1.00019 (mi=1.66127) vs next-highest sbytes mi_norm=0.19869, indicating label leakage/local shortcut; it is also unmapped to canonical schema."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+    }
+  ]
+}

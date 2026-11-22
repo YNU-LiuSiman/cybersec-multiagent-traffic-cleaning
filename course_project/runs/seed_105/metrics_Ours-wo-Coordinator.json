@@ -1,0 +1,202 @@
+{
+  "seed": 105,
+  "clean_control": false,
+  "method": "Ours-wo-Coordinator",
+  "downstream": {
+    "train_rows": 82332,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.5186,
+      "rare4_recall": 0.2857,
+      "binary_attack_f1": 0.9241,
+      "n_features": 36,
+      "per_class_f1": {
+        "Normal": 0.8606,
+        "Generic": 0.975,
+        "Exploits": 0.6441,
+        "Fuzzers": 0.4188,
+        "DoS": 0.3822,
+        "Reconnaissance": 0.7977,
+        "Analysis": 0.0772,
+        "Backdoor": 0.1082,
+        "Shellcode": 0.4819,
+        "Worms": 0.4404
+      },
+      "per_class_recall": {
+        "Normal": 0.9501,
+        "Generic": 0.9661,
+        "Exploits": 0.5406,
+        "Fuzzers": 0.2938,
+        "DoS": 0.4696,
+        "Reconnaissance": 0.7288,
+        "Analysis": 0.1635,
+        "Backdoor": 0.1936,
+        "Shellcode": 0.4166,
+        "Worms": 0.3692
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.48,
+      "rare4_recall": 0.2333,
+      "binary_attack_f1": 0.9212,
+      "n_features": 36,
+      "per_class_f1": {
+        "Normal": 0.8609,
+        "Generic": 0.9883,
+        "Exploits": 0.662,
+        "Fuzzers": 0.3487,
+        "DoS": 0.3997,
+        "Reconnaissance": 0.8208,
+        "Analysis": 0.0037,
+        "Backdoor": 0.1199,
+        "Shellcode": 0.513,
+        "Worms": 0.0825
+      },
+      "per_class_recall": {
+        "Normal": 0.9751,
+        "Generic": 0.9811,
+        "Exploits": 0.6319,
+        "Fuzzers": 0.2239,
+        "DoS": 0.5007,
+        "Reconnaissance": 0.7422,
+        "Analysis": 0.002,
+        "Backdoor": 0.071,
+        "Shellcode": 0.5296,
+        "Worms": 0.3308
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 0.0,
+    "unit_drift_recall": 0.0,
+    "unit_drift_factor_acc": 0.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 0.0,
+    "noise_node_detected": 0,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.0,
+    "noise_sample_recall": 0.0,
+    "noise_sample_f1": 0.0,
+    "dirty_rows_remediated": 0,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "capture_profile_idx",
+        "evidence": "schema_profile lists capture_profile_idx as the only unmapped column and missing_canonical is empty, so it has no canonical counterpart and should be removed as an extraneous alias."
+      },
+      {
+        "node": "node_1",
+        "action": "no_op",
+        "evidence": "row_health reports n_rows=25777 with rows_with_nan=0, rows_with_negative_physical=0, total_corrupted_rows=0 (rate 0.0), so drop_rows with rule nan_or_negative_physical would remove nothing."
+      },
+      {
+        "node": "node_1",
+        "action": "no_op",
+        "evidence": "conservation_check shows all laws status=ok with median_ratio_lhs_over_rhs 1.0, 1.0, 0.901, 0.876 and violation_rate 0.0/0.0/0.0301/0.0566, so no rescale is warranted."
+      },
+      {
+        "node": "node_1",
+        "action": "no_op",
+        "evidence": "confident_learning suspected_noise_rate=0.0421 was computed with excluded_cols=[] and exempt_classes=[], while top-MI features (sbytes mi_norm 0.618, smean 0.545, sload 0.509) were not excluded, so local_cl_clean is not justified locally."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Action #2 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "drop_column",
+        "col": "capture_profile_idx",
+        "evidence": "schema_profile lists capture_profile_idx as unmapped; top_mi_features shows mi_norm=1.00019 (mi=1.65596), a near-perfect label proxy consistent with a local shortcut artifact."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 7,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 25777,
+      "node_2": 23936,
+      "node_3": 8684,
+      "node_4": 23935
+    },
+    "merged_rows": 82332,
+    "merged_cols": 38,
+    "steps": [
+      {
+        "action": "drop_column",
+        "col": "capture_profile_idx",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "schema_profile lists capture_profile_idx as the only unmapped column and missing_canonical is empty, so it has no canonical counterpart and should be removed as an extraneous alias."
+      },
+      {
+        "action": "drop_column",
+        "col": "capture_profile_idx",
+        "dropped_from_nodes": [],
+        "evidence": "schema_profile lists capture_profile_idx as unmapped; top_mi_features shows mi_norm=1.00019 (mi=1.65596), a near-perfect label proxy consistent with a local shortcut artifact."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "row_health reports n_rows=25777 with rows_with_nan=0, rows_with_negative_physical=0, total_corrupted_rows=0 (rate 0.0), so drop_rows with rule nan_or_negative_physical would remove nothing."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "conservation_check shows all laws status=ok with median_ratio_lhs_over_rhs 1.0, 1.0, 0.901, 0.876 and violation_rate 0.0/0.0/0.0301/0.0566, so no rescale is warranted."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "confident_learning suspected_noise_rate=0.0421 was computed with excluded_cols=[] and exempt_classes=[], while top-MI features (sbytes mi_norm 0.618, smean 0.545, sload 0.509) were not excluded, so local_cl_clean is not justified locally."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Action #2 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      }
+    ],
+    "cl_flagged_counts": {}
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 11,
+      "prompt_tokens": 23997,
+      "completion_tokens": 21022,
+      "total_tokens": 45019,
+      "total_latency_s": 149.859,
+      "json_retries": 7
+    },
+    "coord_query_rounds": 0,
+    "llm_elapsed_s": 185.059,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 7.991
+}

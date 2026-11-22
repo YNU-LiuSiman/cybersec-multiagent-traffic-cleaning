@@ -1,0 +1,279 @@
+{
+  "seed": 103,
+  "clean_control": false,
+  "method": "Ours-Full",
+  "downstream": {
+    "train_rows": 76396,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.5146,
+      "rare4_recall": 0.2161,
+      "binary_attack_f1": 0.9274,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.867,
+        "Generic": 0.9797,
+        "Exploits": 0.6474,
+        "Fuzzers": 0.4334,
+        "DoS": 0.432,
+        "Reconnaissance": 0.8101,
+        "Analysis": 0.0509,
+        "Backdoor": 0.105,
+        "Shellcode": 0.4558,
+        "Worms": 0.3646
+      },
+      "per_class_recall": {
+        "Normal": 0.9592,
+        "Generic": 0.9799,
+        "Exploits": 0.538,
+        "Fuzzers": 0.3084,
+        "DoS": 0.6084,
+        "Reconnaissance": 0.7334,
+        "Analysis": 0.0505,
+        "Backdoor": 0.1758,
+        "Shellcode": 0.3689,
+        "Worms": 0.2692
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4722,
+      "rare4_recall": 0.2126,
+      "binary_attack_f1": 0.92,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8581,
+        "Generic": 0.9889,
+        "Exploits": 0.6564,
+        "Fuzzers": 0.3562,
+        "DoS": 0.4115,
+        "Reconnaissance": 0.815,
+        "Analysis": 0.007,
+        "Backdoor": 0.0897,
+        "Shellcode": 0.4213,
+        "Worms": 0.1179
+      },
+      "per_class_recall": {
+        "Normal": 0.9685,
+        "Generic": 0.9816,
+        "Exploits": 0.6064,
+        "Fuzzers": 0.2346,
+        "DoS": 0.5434,
+        "Reconnaissance": 0.7509,
+        "Analysis": 0.004,
+        "Backdoor": 0.0561,
+        "Shellcode": 0.3981,
+        "Worms": 0.3923
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 1.0,
+    "unit_drift_recall": 1.0,
+    "unit_drift_factor_acc": 1.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 1.0,
+    "noise_node_detected": 1,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.9417,
+    "noise_sample_recall": 0.6419,
+    "noise_sample_f1": 0.7634,
+    "dirty_rows_remediated": 1,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Three real faults are isolated: sensor_meta_v2 is a cross-node shortcut column (node_3 MI_norm 1.0002 vs 0.0000-0.0008 on peers) that masks localized label noise on node_3 (suspected_noise_rate 0.2307, mean_self_confidence 0.3816 after exclusion vs 0.82 peer baseline), and node_4 carries 413 corrupted rows plus a clean 1000x byte-unit scale drift and three unmapped aliases matching its missing canonical columns. node_1, node_2 and node_4's label quality are at the healthy baseline; node_2's differences are legitimate Non-IID structure (sole host of Analysis/Backdoor/Shellcode/Worms) and must not be penalized.",
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ],
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "evidence": "Cross-node shortcut: mi_norm node_3=1.0002 (mi=1.66436, full label entropy) vs node_1=0.0, node_2=0.0008, node_4=0.0001; gap 0.9997, robust_z=49.99."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_3",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "evidence": "With sensor_meta_v2 excluded: suspected_noise_rate=0.2307, high_conf_conflict_rate=0.1065, mean_self_confidence=0.3816, cv_macro_f1=0.4198 vs healthy peer baseline 0.041-0.045 / 0.023 / 0.82 / 0.71 (node_1, node_4)."
+      },
+      {
+        "action": "rename_columns",
+        "node": "node_4",
+        "mapping": {
+          "packet_velocity_val": "rate",
+          "tx_gap_millis": "sinpkt",
+          "rx_gap_millis": "dinpkt"
+        },
+        "evidence": "Quantile-matched to missing canonicals: packet_velocity_val p90=111111.109 == rate ref_p90 111111.109 (p50 110.06 vs 152.87, zero_frac 0.0267 vs 0.0219); tx_gap_millis p50=16.336/p90=156.254 vs sinpkt 12.951/147.722 (zero_frac 0.0023 vs 0.002); rx_gap_millis p50=1.188/p90=139.604 vs dinpkt 1.118/136.279 (zero_frac 0.1695 vs 0.1698). sensor_meta_v2 left unmapped (present on all nodes, mi_norm=0.0001)."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_4",
+        "rule": "nan_or_negative_physical",
+        "evidence": "413 corrupted rows (1.725%): rows_with_nan=207 (dbytes 104, sload 103), rows_with_negative_physical=206 (dur/spkts/sbytes)."
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "sbytes",
+          "dbytes",
+          "sload",
+          "dload"
+        ],
+        "factor": 0.001,
+        "evidence": "Both primary laws ratio 1000.0 (violation_rate=1.0, sbytes 932000 vs ref 970; dbytes 354000 vs ref 354) while smean/spkts/dmean match ref exactly, and sload/dload are inflated in lockstep (auxiliary ratios 0.901/0.876 equal peers), so factor=1/1000."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Row health clean (0 corrupted), primary conservation ratios 1.0, benign anchors within tolerance, label quality baseline (noise 0.0445, self_conf 0.819); unmapped sensor_meta_v2 has mi_norm 0.0 and is not a missing-canonical alias."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Legitimate Non-IID rare-class node: sole host of Analysis/Backdoor/Shellcode/Worms (exempted, per-class suspected_rate 0.0), clean row health, primary conservation ratios 1.0; elevated noise 0.1086/self_conf 0.6457 consistent with small 8684-row, 9-class mix rather than an outlier fault."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "After the listed repairs no further remediation needed: label quality matches baseline (suspected_noise_rate=0.0408, high_conf_conflict_rate=0.0234, mean_self_confidence=0.8184 vs node_1 0.0445/0.0226/0.819) and benign anchors are otherwise aligned."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 8,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 25777,
+      "node_2": 8684,
+      "node_3": 18412,
+      "node_4": 23523
+    },
+    "merged_rows": 76396,
+    "merged_cols": 36,
+    "steps": [
+      {
+        "action": "rename_columns",
+        "node": "node_4",
+        "applied_mapping": {
+          "packet_velocity_val": "rate",
+          "tx_gap_millis": "sinpkt",
+          "rx_gap_millis": "dinpkt"
+        },
+        "evidence": "Quantile-matched to missing canonicals: packet_velocity_val p90=111111.109 == rate ref_p90 111111.109 (p50 110.06 vs 152.87, zero_frac 0.0267 vs 0.0219); tx_gap_millis p50=16.336/p90=156.254 vs sinpkt 12.951/147.722 (zero_frac 0.0023 vs 0.002); rx_gap_millis p50=1.188/p90=139.604 vs dinpkt 1.118/136.279 (zero_frac 0.1695 vs 0.1698). sensor_meta_v2 left unmapped (present on all nodes, mi_norm=0.0001)."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_4",
+        "rule": "nan_or_negative_physical",
+        "rows_removed": 413,
+        "rows_remaining": 23523,
+        "evidence": "413 corrupted rows (1.725%): rows_with_nan=207 (dbytes 104, sload 103), rows_with_negative_physical=206 (dur/spkts/sbytes)."
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "sbytes",
+          "dbytes",
+          "sload",
+          "dload"
+        ],
+        "factor": 0.001,
+        "evidence": "Both primary laws ratio 1000.0 (violation_rate=1.0, sbytes 932000 vs ref 970; dbytes 354000 vs ref 354) while smean/spkts/dmean match ref exactly, and sload/dload are inflated in lockstep (auxiliary ratios 0.901/0.876 equal peers), so factor=1/1000."
+      },
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "Cross-node shortcut: mi_norm node_3=1.0002 (mi=1.66436, full label entropy) vs node_1=0.0, node_2=0.0008, node_4=0.0001; gap 0.9997, robust_z=49.99."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_3",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "disable_rare_exempt": false,
+        "rows_removed": 5523,
+        "rows_remaining": 18412,
+        "cl_stats": {
+          "n_evaluated": 23935,
+          "suspected_noise_count": 5523,
+          "suspected_noise_rate": 0.2307,
+          "high_conf_conflict_count": 2548,
+          "high_conf_conflict_rate": 0.1065,
+          "mean_self_confidence": 0.3816,
+          "cv_macro_f1": 0.4198,
+          "per_class_suspected_rate": {
+            "DoS": 0.2272,
+            "Exploits": 0.311,
+            "Fuzzers": 0.3333,
+            "Generic": 0.195,
+            "Normal": 0.1051,
+            "Reconnaissance": 0.5313
+          }
+        },
+        "evidence": "With sensor_meta_v2 excluded: suspected_noise_rate=0.2307, high_conf_conflict_rate=0.1065, mean_self_confidence=0.3816, cv_macro_f1=0.4198 vs healthy peer baseline 0.041-0.045 / 0.023 / 0.82 / 0.71 (node_1, node_4)."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Row health clean (0 corrupted), primary conservation ratios 1.0, benign anchors within tolerance, label quality baseline (noise 0.0445, self_conf 0.819); unmapped sensor_meta_v2 has mi_norm 0.0 and is not a missing-canonical alias."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Legitimate Non-IID rare-class node: sole host of Analysis/Backdoor/Shellcode/Worms (exempted, per-class suspected_rate 0.0), clean row health, primary conservation ratios 1.0; elevated noise 0.1086/self_conf 0.6457 consistent with small 8684-row, 9-class mix rather than an outlier fault."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "After the listed repairs no further remediation needed: label quality matches baseline (suspected_noise_rate=0.0408, high_conf_conflict_rate=0.0234, mean_self_confidence=0.8184 vs node_1 0.0445/0.0226/0.819) and benign anchors are otherwise aligned."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_3": 5523
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 10,
+      "prompt_tokens": 49435,
+      "completion_tokens": 10716,
+      "total_tokens": 60151,
+      "total_latency_s": 72.384,
+      "json_retries": 0
+    },
+    "coord_query_rounds": 1,
+    "llm_elapsed_s": 148.624,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 7.466
+}

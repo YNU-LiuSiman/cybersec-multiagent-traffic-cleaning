@@ -1,0 +1,101 @@
+{
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "capture_profile_idx",
+        "evidence": "schema_profile lists capture_profile_idx as the only unmapped column and missing_canonical is empty, so it has no canonical counterpart and should be removed as an extraneous alias."
+      },
+      {
+        "node": "node_1",
+        "action": "no_op",
+        "evidence": "row_health reports n_rows=25777 with rows_with_nan=0, rows_with_negative_physical=0, total_corrupted_rows=0 (rate 0.0), so drop_rows with rule nan_or_negative_physical would remove nothing."
+      },
+      {
+        "node": "node_1",
+        "action": "no_op",
+        "evidence": "conservation_check shows all laws status=ok with median_ratio_lhs_over_rhs 1.0, 1.0, 0.901, 0.876 and violation_rate 0.0/0.0/0.0301/0.0566, so no rescale is warranted."
+      },
+      {
+        "node": "node_1",
+        "action": "no_op",
+        "evidence": "confident_learning suspected_noise_rate=0.0421 was computed with excluded_cols=[] and exempt_classes=[], while top-MI features (sbytes mi_norm 0.618, smean 0.545, sload 0.509) were not excluded, so local_cl_clean is not justified locally."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Action #2 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "drop_column",
+        "col": "capture_profile_idx",
+        "evidence": "schema_profile lists capture_profile_idx as unmapped; top_mi_features shows mi_norm=1.00019 (mi=1.65596), a near-perfect label proxy consistent with a local shortcut artifact."
+      }
+    ]
+  },
+  "per_node_outputs": {
+    "node_1": [
+      {
+        "action": "drop_column",
+        "col": "capture_profile_idx",
+        "evidence": "schema_profile lists capture_profile_idx as the only unmapped column and missing_canonical is empty, so it has no canonical counterpart and should be removed as an extraneous alias."
+      },
+      {
+        "node": "node_1",
+        "action": "no_op",
+        "evidence": "row_health reports n_rows=25777 with rows_with_nan=0, rows_with_negative_physical=0, total_corrupted_rows=0 (rate 0.0), so drop_rows with rule nan_or_negative_physical would remove nothing."
+      },
+      {
+        "node": "node_1",
+        "action": "no_op",
+        "evidence": "conservation_check shows all laws status=ok with median_ratio_lhs_over_rhs 1.0, 1.0, 0.901, 0.876 and violation_rate 0.0/0.0/0.0301/0.0566, so no rescale is warranted."
+      },
+      {
+        "node": "node_1",
+        "action": "no_op",
+        "evidence": "confident_learning suspected_noise_rate=0.0421 was computed with excluded_cols=[] and exempt_classes=[], while top-MI features (sbytes mi_norm 0.618, smean 0.545, sload 0.509) were not excluded, so local_cl_clean is not justified locally."
+      }
+    ],
+    "node_2": [
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Action #2 (drop_column) requires non-empty string 'col'."
+      }
+    ],
+    "node_3": [
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      }
+    ],
+    "node_4": [
+      {
+        "action": "drop_column",
+        "col": "capture_profile_idx",
+        "evidence": "schema_profile lists capture_profile_idx as unmapped; top_mi_features shows mi_norm=1.00019 (mi=1.65596), a near-perfect label proxy consistent with a local shortcut artifact."
+      }
+    ]
+  },
+  "coord_query_rounds": 0,
+  "elapsed_s": 185.059,
+  "llm_usage": {
+    "calls": 11,
+    "prompt_tokens": 23997,
+    "completion_tokens": 21022,
+    "total_tokens": 45019,
+    "total_latency_s": 149.859,
+    "json_retries": 7
+  },
+  "prompt_hashes": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  }
+}

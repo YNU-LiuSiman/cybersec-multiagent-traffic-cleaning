@@ -1,0 +1,265 @@
+{
+  "seed": 109,
+  "clean_control": false,
+  "method": "Ours-wo-Anchor",
+  "downstream": {
+    "train_rows": 77063,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.5135,
+      "rare4_recall": 0.2119,
+      "binary_attack_f1": 0.9272,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.867,
+        "Generic": 0.9798,
+        "Exploits": 0.6447,
+        "Fuzzers": 0.4357,
+        "DoS": 0.4369,
+        "Reconnaissance": 0.8167,
+        "Analysis": 0.0463,
+        "Backdoor": 0.1022,
+        "Shellcode": 0.4395,
+        "Worms": 0.3665
+      },
+      "per_class_recall": {
+        "Normal": 0.9605,
+        "Generic": 0.981,
+        "Exploits": 0.5337,
+        "Fuzzers": 0.3074,
+        "DoS": 0.6205,
+        "Reconnaissance": 0.7393,
+        "Analysis": 0.042,
+        "Backdoor": 0.177,
+        "Shellcode": 0.3592,
+        "Worms": 0.2692
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4654,
+      "rare4_recall": 0.1457,
+      "binary_attack_f1": 0.9194,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8585,
+        "Generic": 0.988,
+        "Exploits": 0.6539,
+        "Fuzzers": 0.3472,
+        "DoS": 0.4164,
+        "Reconnaissance": 0.8196,
+        "Analysis": 0.0,
+        "Backdoor": 0.0957,
+        "Shellcode": 0.4348,
+        "Worms": 0.0402
+      },
+      "per_class_recall": {
+        "Normal": 0.9755,
+        "Generic": 0.9827,
+        "Exploits": 0.6078,
+        "Fuzzers": 0.2201,
+        "DoS": 0.5524,
+        "Reconnaissance": 0.7468,
+        "Analysis": 0.0,
+        "Backdoor": 0.0573,
+        "Shellcode": 0.3486,
+        "Worms": 0.1769
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 1.0,
+    "unit_drift_recall": 1.0,
+    "unit_drift_factor_acc": 1.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 1.0,
+    "noise_node_detected": 1,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.9126,
+    "noise_sample_recall": 0.7134,
+    "noise_sample_f1": 0.8008,
+    "dirty_rows_remediated": 1,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "node_2 carries real faults: 397 corrupted rows, an unmapped alias set that hides three canonical columns, and a 1000x sender-byte unit defect (sbytes conservation ratio 1000.0) that also inflates sload (ratio_to_ref 1009.63) while all other nodes sit near 1.0. flow_audit_tag is a cross-node shortcut (mi_norm 1.0002 on node_1 vs <=0.0013 elsewhere, robust_z 49.98), and once it is excluded node_1 shows markedly elevated label noise (0.2036 vs 0.041-0.0445 peers). node_3 and node_4 are healthy Non-IID nodes; node_4's quantile shifts stem from holding all globally rare classes while its conservation ratios (1.0, 0.901, 0.876) match peers.",
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ],
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "flow_audit_tag",
+        "evidence": "mi_norm 1.0002 on node_1 vs 0.0/0.0/0.0013 on node_2-4 (gap 0.9995, robust_z 49.98)."
+      },
+      {
+        "action": "rename_columns",
+        "node": "node_2",
+        "mapping": {
+          "flow_tempo_metric": "rate",
+          "egress_timing_variance": "sjit",
+          "recent_src_port_fanout": "ct_src_dport_ltm"
+        },
+        "evidence": "Missing rate/sjit/ct_src_dport_ltm match aliases by stats: flow_tempo_metric p90 111111.1/cap 250000 vs rate ref_p90 250000; egress_timing_variance zero_frac 0.2599 vs sjit ref_zero_frac 0.475; recent_src_port_fanout p50 1.0/p90 3.0/zero_frac 0.0 vs ct_src_dport_ltm ref_p50 1.0/ref_p90 18.0/ref_zero_frac 0.0; flow_audit_tag excluded as cross-node metadata."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_2",
+        "rule": "nan_or_negative_physical",
+        "evidence": "total_corrupted_rows 397 (1.659%): rows_with_nan 199 (dbytes 100, sload 99) and rows_with_negative_physical 198 (dur/spkts/sbytes)."
+      },
+      {
+        "action": "rescale",
+        "node": "node_2",
+        "cols": [
+          "sbytes",
+          "sload"
+        ],
+        "factor": 0.001,
+        "evidence": "sbytes conservation median_ratio_lhs_over_rhs 1000.0 (violation_rate 1.0) and sbytes ratio_to_ref 914.38 vs peers 0.914/0.914/1.086; sload ratio_to_ref 1009.63, so 1/1000 restores both while the sload law (0.9012) matches peers."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "evidence": "With flow_audit_tag excluded, node_1 suspected_noise_rate 0.2036 and high_conf_conflict_rate 0.121 vs peers 0.041/0.0445 and 0.0248/0.0226, with mean_self_confidence 0.4597 vs 0.8179/0.819 and cv_macro_f1 0.4734 vs 0.7086/0.7189."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Clean row health, conservation ratio 1.0/0.9011/0.8760 matching peers, flow_audit_tag mi_norm 0.0, and label noise 0.0445 with confidence 0.819 at peer baseline."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Rare-class Non-IID node: conservation ratios 1.0/0.901/0.876 and 0 corrupted rows, rare classes 0.0 suspected noise, so ackdat/dinpkt/dur/rate quantile shifts reflect its unique class mix, not a fault."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 7,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 19063,
+      "node_2": 23539,
+      "node_3": 25777,
+      "node_4": 8684
+    },
+    "merged_rows": 77063,
+    "merged_cols": 36,
+    "steps": [
+      {
+        "action": "rename_columns",
+        "node": "node_2",
+        "applied_mapping": {
+          "flow_tempo_metric": "rate",
+          "egress_timing_variance": "sjit",
+          "recent_src_port_fanout": "ct_src_dport_ltm"
+        },
+        "evidence": "Missing rate/sjit/ct_src_dport_ltm match aliases by stats: flow_tempo_metric p90 111111.1/cap 250000 vs rate ref_p90 250000; egress_timing_variance zero_frac 0.2599 vs sjit ref_zero_frac 0.475; recent_src_port_fanout p50 1.0/p90 3.0/zero_frac 0.0 vs ct_src_dport_ltm ref_p50 1.0/ref_p90 18.0/ref_zero_frac 0.0; flow_audit_tag excluded as cross-node metadata."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_2",
+        "rule": "nan_or_negative_physical",
+        "rows_removed": 397,
+        "rows_remaining": 23539,
+        "evidence": "total_corrupted_rows 397 (1.659%): rows_with_nan 199 (dbytes 100, sload 99) and rows_with_negative_physical 198 (dur/spkts/sbytes)."
+      },
+      {
+        "action": "rescale",
+        "node": "node_2",
+        "cols": [
+          "sbytes",
+          "sload"
+        ],
+        "factor": 0.001,
+        "evidence": "sbytes conservation median_ratio_lhs_over_rhs 1000.0 (violation_rate 1.0) and sbytes ratio_to_ref 914.38 vs peers 0.914/0.914/1.086; sload ratio_to_ref 1009.63, so 1/1000 restores both while the sload law (0.9012) matches peers."
+      },
+      {
+        "action": "drop_column",
+        "col": "flow_audit_tag",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "mi_norm 1.0002 on node_1 vs 0.0/0.0/0.0013 on node_2-4 (gap 0.9995, robust_z 49.98)."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "disable_rare_exempt": false,
+        "rows_removed": 4872,
+        "rows_remaining": 19063,
+        "cl_stats": {
+          "n_evaluated": 23935,
+          "suspected_noise_count": 4872,
+          "suspected_noise_rate": 0.2036,
+          "high_conf_conflict_count": 2895,
+          "high_conf_conflict_rate": 0.121,
+          "mean_self_confidence": 0.4597,
+          "cv_macro_f1": 0.4734,
+          "per_class_suspected_rate": {
+            "DoS": 0.4007,
+            "Exploits": 0.2508,
+            "Fuzzers": 0.335,
+            "Generic": 0.1348,
+            "Normal": 0.0784,
+            "Reconnaissance": 0.5007
+          }
+        },
+        "evidence": "With flow_audit_tag excluded, node_1 suspected_noise_rate 0.2036 and high_conf_conflict_rate 0.121 vs peers 0.041/0.0445 and 0.0248/0.0226, with mean_self_confidence 0.4597 vs 0.8179/0.819 and cv_macro_f1 0.4734 vs 0.7086/0.7189."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Clean row health, conservation ratio 1.0/0.9011/0.8760 matching peers, flow_audit_tag mi_norm 0.0, and label noise 0.0445 with confidence 0.819 at peer baseline."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Rare-class Non-IID node: conservation ratios 1.0/0.901/0.876 and 0 corrupted rows, rare classes 0.0 suspected noise, so ackdat/dinpkt/dur/rate quantile shifts reflect its unique class mix, not a fault."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_1": 4872
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 11,
+      "prompt_tokens": 62756,
+      "completion_tokens": 16096,
+      "total_tokens": 78852,
+      "total_latency_s": 106.247,
+      "json_retries": 1
+    },
+    "coord_query_rounds": 1,
+    "llm_elapsed_s": 175.069,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 6.783
+}

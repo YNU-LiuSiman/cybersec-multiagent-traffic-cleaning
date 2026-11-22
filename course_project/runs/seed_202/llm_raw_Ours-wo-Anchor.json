@@ -1,0 +1,1172 @@
+{
+  "plan": {
+    "diagnosis_summary": "Only node_2 has an actionable fault: sharply elevated label noise (suspected_noise_rate 0.1094 vs peers 0.0398-0.0454, high_conf_conflict_rate 0.067 vs ~0.022, mean_self_confidence 0.6453 vs 0.814-0.818). Its large anchor-quantile deviations are legitimate Non-IID artifacts, not unit drift: positive-only medians match peers (tcprtt p50_pos 0.1039 vs 0.1061, synack 0.0522 vs 0.0527) and primary conservation ratios are 1.0 like every other node. sensor_meta_v2 is inert shared metadata with missing_canonical empty and MI ~0 on all four nodes, compare_mi shows no local shortcut (max robust_z 1.03), and all row_health checks are clean.",
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ],
+    "actions": [
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "evidence": "suspected_noise_rate 0.1094 vs 0.0398-0.0454 peers; conflict rate 0.067 vs ~0.022; confidence 0.6453 vs 0.814-0.818; cv_macro_f1 0.5422 vs ~0.711."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "0 corrupted rows, primary laws ratio 1.0, no missing canonical columns, metrics at baseline (noise 0.0454, confidence 0.8185, f1 0.7137)."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "0 corrupted rows, primary laws ratio 1.0, no missing canonical columns, metrics at baseline (noise 0.0398, confidence 0.817, f1 0.7084)."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "0 corrupted rows, primary laws ratio 1.0, no missing canonical columns, metrics at baseline (noise 0.0433, confidence 0.8141, f1 0.7117)."
+      }
+    ]
+  },
+  "node_reports": {
+    "node_1": {
+      "node_id": "node_1",
+      "node_summary": {
+        "schema_status": "has_unmapped_columns",
+        "row_health_status": "clean",
+        "conservation_status": "consistent",
+        "label_mix_note": "6 classes over 25777 rows: Normal 11725 (45.5%), Generic 6605, Exploits 3195, Fuzzers 1867, DoS 1259, Reconnaissance 1126; attack rate 0.545 and no rare classes (U2R, Worms, Backdoor, Shellcode, Analysis) present."
+      },
+      "suspicions": [
+        {
+          "issue_type": "unmapped_alias",
+          "details": "Column sensor_meta_v2 is not a canonical feature and has no label association (MI 0.0); possibly node-specific metadata rather than traffic signal.",
+          "evidence": "unmapped_columns=['sensor_meta_v2'], p50=4.8876, zero_frac=0.0, mi_norm=0.0"
+        },
+        {
+          "issue_type": "high_local_mi",
+          "details": "sbytes, smean and sload carry unusually high normalized MI with the label; single-node view cannot separate genuine signal from a local shortcut.",
+          "evidence": "mi_norm sbytes=0.61775 (mi=0.88576), smean=0.54516 (mi=0.78167), sload=0.50879 (mi=0.72952); label_entropy_nats=1.43385"
+        }
+      ],
+      "confidence": 0.9
+    },
+    "node_2": {
+      "node_id": "node_2",
+      "node_summary": {
+        "schema_status": "has_unmapped_columns",
+        "row_health_status": "clean",
+        "conservation_status": "consistent",
+        "label_mix_note": "9 classes over 8684 rows; Normal 3500 (40.3%), attack rate 0.597, rare class Worms present at 44 rows (0.51%)."
+      },
+      "suspicions": [
+        {
+          "issue_type": "unmapped_alias",
+          "details": "Single non-canonical column 'sensor_meta_v2' present with no missing values and no canonical columns absent.",
+          "evidence": "unmapped_columns=['sensor_meta_v2']; p50=4.8508, p10=0.14362, p90=8.86103, zero_frac=0.0; mi_norm=0.00058"
+        },
+        {
+          "issue_type": "high_local_mi",
+          "details": "sbytes and smean carry the strongest label association on this node; single-node MI cannot separate genuine signal from a local shortcut artifact.",
+          "evidence": "sbytes mi=0.72054 (norm 0.4165), smean mi=0.55661 (norm 0.32174), dbytes mi=0.46404 (norm 0.26823); label entropy 1.73001 nats"
+        },
+        {
+          "issue_type": "other",
+          "details": "Auxiliary load laws hold only approximately with median ratios below unity, while both primary packet-size laws are tight.",
+          "evidence": "sload ratio 0.90106 (median_rel_err 0.099, violation_rate 0.0252); dload ratio 0.875706 (median_rel_err 0.1243, violation_rate 0.0471); sbytes law median_rel_err 0.0001, dbytes law 0.0029"
+        }
+      ],
+      "confidence": 0.95
+    },
+    "node_3": {
+      "node_id": "node_3",
+      "node_summary": {
+        "schema_status": "has_unmapped_columns",
+        "row_health_status": "clean",
+        "conservation_status": "consistent",
+        "label_mix_note": "6 classes present (Normal 10888, Generic 6133, Exploits 2967, Fuzzers 1734, DoS 1169, Reconnaissance 1045); binary attack rate 0.545 and no globally rare class under 4% locally."
+      },
+      "suspicions": [
+        {
+          "issue_type": "unmapped_alias",
+          "details": "One unmapped column sensor_meta_v2 has no canonical counterpart and shows zero label mutual information, consistent with inert metadata.",
+          "evidence": "unmapped_columns=['sensor_meta_v2'], missing_canonical=[], sensor_meta_v2 mi=0.0 / mi_norm=0.0, zero_frac=0.0, p50=4.15"
+        },
+        {
+          "issue_type": "high_local_mi",
+          "details": "sbytes, smean, and sload carry unusually high normalized mutual information with the label; single-node statistics cannot distinguish genuine signal from a local shortcut artifact.",
+          "evidence": "mi_norm sbytes=0.62322 (mi 0.9011), smean=0.55221 (mi 0.79843), sload=0.51377 (mi 0.74285); label entropy 1.44588 nats"
+        },
+        {
+          "issue_type": "other",
+          "details": "Auxiliary rate/load laws pass tolerance but both median LHS/RHS ratios sit below unity, indicating mild downward bias in reported load versus bytes*8/dur.",
+          "evidence": "sload ratio median=0.901186 (median_rel_err 0.0988, violation_rate 0.03); dload ratio median=0.876033 (median_rel_err 0.124, violation_rate 0.0555)"
+        }
+      ],
+      "confidence": 0.94
+    },
+    "node_4": {
+      "node_id": "node_4",
+      "node_summary": {
+        "schema_status": "has_unmapped_columns",
+        "row_health_status": "clean",
+        "conservation_status": "consistent",
+        "label_mix_note": "23935 rows across 6 classes: Normal 10887, Generic 6133, Exploits 2966, Fuzzers 1734, DoS 1170, Reconnaissance 1045 (binary attack rate 0.545); no ultra-rare classes present and other UNSW-NB15 categories are absent locally."
+      },
+      "suspicions": [
+        {
+          "issue_type": "unmapped_alias",
+          "details": "One unmapped column 'sensor_meta_v2' is present, no missing canonical columns.",
+          "evidence": "unmapped_columns=['sensor_meta_v2']; missing_canonical=[]; zero_frac=0.0001; mi_norm=0.00034"
+        },
+        {
+          "issue_type": "high_local_mi",
+          "details": "sbytes, smean and sload show the highest normalized MI with the label, but local numbers alone cannot distinguish genuine signal from a local shortcut artifact.",
+          "evidence": "mi_norm: sbytes=0.61242, smean=0.54404, sload=0.50816 (label entropy 1.44048 nats)"
+        },
+        {
+          "issue_type": "other",
+          "details": "Auxiliary load-vs-bytes conservation passes tolerance but shows a mild systematic low bias in the LHS/RHS ratio.",
+          "evidence": "sload median_ratio_lhs_over_rhs=0.901235 (median_rel_err=0.0988), dload ratio=0.875706 (median_rel_err=0.1243); primary sbytes/dbytes laws ratio=1.0, median_rel_err=0.0/0.0029"
+        }
+      ],
+      "confidence": 0.93
+    }
+  },
+  "coord_packet_overview": {
+    "flagged_scale_shifts": {
+      "ackdat": {
+        "ref_median": 0.0486,
+        "max_abs_log10": 2.5528,
+        "per_node": {
+          "node_1": {
+            "val": 0.0487,
+            "ratio_to_ref": 1.00218,
+            "log10_ratio": 0.0009
+          },
+          "node_2": {
+            "val": 0.0001,
+            "ratio_to_ref": 0.0028,
+            "log10_ratio": -2.5528
+          },
+          "node_3": {
+            "val": 0.0485,
+            "ratio_to_ref": 0.99798,
+            "log10_ratio": -0.0009
+          },
+          "node_4": {
+            "val": 0.0487,
+            "ratio_to_ref": 1.00202,
+            "log10_ratio": 0.0009
+          }
+        }
+      },
+      "dinpkt": {
+        "ref_median": 0.009,
+        "max_abs_log10": 2.0439,
+        "per_node": {
+          "node_1": {
+            "val": 0.009,
+            "ratio_to_ref": 1.0,
+            "log10_ratio": 0.0
+          },
+          "node_2": {
+            "val": 0.9956,
+            "ratio_to_ref": 110.626,
+            "log10_ratio": 2.0439
+          },
+          "node_3": {
+            "val": 0.009,
+            "ratio_to_ref": 1.0,
+            "log10_ratio": 0.0
+          },
+          "node_4": {
+            "val": 0.009,
+            "ratio_to_ref": 1.0,
+            "log10_ratio": 0.0
+          }
+        }
+      },
+      "djit": {
+        "ref_median": 129.6771,
+        "max_abs_log10": 0.8548,
+        "per_node": {
+          "node_1": {
+            "val": 130.7692,
+            "ratio_to_ref": 1.00842,
+            "log10_ratio": 0.0036
+          },
+          "node_2": {
+            "val": 18.1164,
+            "ratio_to_ref": 0.1397,
+            "log10_ratio": -0.8548
+          },
+          "node_3": {
+            "val": 130.3876,
+            "ratio_to_ref": 1.00548,
+            "log10_ratio": 0.0024
+          },
+          "node_4": {
+            "val": 128.9665,
+            "ratio_to_ref": 0.99452,
+            "log10_ratio": -0.0024
+          }
+        }
+      },
+      "dpkts": {
+        "ref_median": 2.0,
+        "max_abs_log10": 0.4771,
+        "per_node": {
+          "node_1": {
+            "val": 2.0,
+            "ratio_to_ref": 1.0,
+            "log10_ratio": 0.0
+          },
+          "node_2": {
+            "val": 6.0,
+            "ratio_to_ref": 3.0,
+            "log10_ratio": 0.4771
+          },
+          "node_3": {
+            "val": 2.0,
+            "ratio_to_ref": 1.0,
+            "log10_ratio": 0.0
+          },
+          "node_4": {
+            "val": 2.0,
+            "ratio_to_ref": 1.0,
+            "log10_ratio": 0.0
+          }
+        }
+      },
+      "dur": {
+        "ref_median": 0.0107,
+        "max_abs_log10": 1.2407,
+        "per_node": {
+          "node_1": {
+            "val": 0.0106,
+            "ratio_to_ref": 0.98579,
+            "log10_ratio": -0.0062
+          },
+          "node_2": {
+            "val": 0.1867,
+            "ratio_to_ref": 17.4042,
+            "log10_ratio": 1.2407
+          },
+          "node_3": {
+            "val": 0.01,
+            "ratio_to_ref": 0.9279,
+            "log10_ratio": -0.0325
+          },
+          "node_4": {
+            "val": 0.0109,
+            "ratio_to_ref": 1.01421,
+            "log10_ratio": 0.0061
+          }
+        }
+      },
+      "rate": {
+        "ref_median": 2761.902,
+        "max_abs_log10": 1.3206,
+        "per_node": {
+          "node_1": {
+            "val": 2793.2959,
+            "ratio_to_ref": 1.01137,
+            "log10_ratio": 0.0049
+          },
+          "node_2": {
+            "val": 132.0152,
+            "ratio_to_ref": 0.0478,
+            "log10_ratio": -1.3206
+          },
+          "node_3": {
+            "val": 2779.0651,
+            "ratio_to_ref": 1.00621,
+            "log10_ratio": 0.0027
+          },
+          "node_4": {
+            "val": 2744.739,
+            "ratio_to_ref": 0.99379,
+            "log10_ratio": -0.0027
+          }
+        }
+      },
+      "sinpkt": {
+        "ref_median": 0.4918,
+        "max_abs_log10": 1.401,
+        "per_node": {
+          "node_1": {
+            "val": 0.4653,
+            "ratio_to_ref": 0.94604,
+            "log10_ratio": -0.0241
+          },
+          "node_2": {
+            "val": 12.3816,
+            "ratio_to_ref": 25.1746,
+            "log10_ratio": 1.401
+          },
+          "node_3": {
+            "val": 0.4703,
+            "ratio_to_ref": 0.95619,
+            "log10_ratio": -0.0195
+          },
+          "node_4": {
+            "val": 0.5134,
+            "ratio_to_ref": 1.04381,
+            "log10_ratio": 0.0186
+          }
+        }
+      },
+      "sjit": {
+        "ref_median": 14.8628,
+        "max_abs_log10": 1.3741,
+        "per_node": {
+          "node_1": {
+            "val": 14.2335,
+            "ratio_to_ref": 0.95766,
+            "log10_ratio": -0.0188
+          },
+          "node_2": {
+            "val": 351.7015,
+            "ratio_to_ref": 23.66324,
+            "log10_ratio": 1.3741
+          },
+          "node_3": {
+            "val": 13.9078,
+            "ratio_to_ref": 0.93575,
+            "log10_ratio": -0.0288
+          },
+          "node_4": {
+            "val": 15.492,
+            "ratio_to_ref": 1.04234,
+            "log10_ratio": 0.018
+          }
+        }
+      },
+      "sload": {
+        "ref_median": 602652.2031,
+        "max_abs_log10": 0.4353,
+        "per_node": {
+          "node_1": {
+            "val": 619518.3125,
+            "ratio_to_ref": 1.02799,
+            "log10_ratio": 0.012
+          },
+          "node_2": {
+            "val": 221193.3672,
+            "ratio_to_ref": 0.36703,
+            "log10_ratio": -0.4353
+          },
+          "node_3": {
+            "val": 612164.1562,
+            "ratio_to_ref": 1.01578,
+            "log10_ratio": 0.0068
+          },
+          "node_4": {
+            "val": 593140.25,
+            "ratio_to_ref": 0.98422,
+            "log10_ratio": -0.0069
+          }
+        }
+      },
+      "synack": {
+        "ref_median": 0.0524,
+        "max_abs_log10": 1.991,
+        "per_node": {
+          "node_1": {
+            "val": 0.0527,
+            "ratio_to_ref": 1.00473,
+            "log10_ratio": 0.0021
+          },
+          "node_2": {
+            "val": 0.0005,
+            "ratio_to_ref": 0.01021,
+            "log10_ratio": -1.991
+          },
+          "node_3": {
+            "val": 0.0529,
+            "ratio_to_ref": 1.00943,
+            "log10_ratio": 0.0041
+          },
+          "node_4": {
+            "val": 0.0522,
+            "ratio_to_ref": 0.99527,
+            "log10_ratio": -0.0021
+          }
+        }
+      },
+      "tcprtt": {
+        "ref_median": 0.1052,
+        "max_abs_log10": 2.192,
+        "per_node": {
+          "node_1": {
+            "val": 0.1061,
+            "ratio_to_ref": 1.0089,
+            "log10_ratio": 0.0038
+          },
+          "node_2": {
+            "val": 0.0007,
+            "ratio_to_ref": 0.00643,
+            "log10_ratio": -2.192
+          },
+          "node_3": {
+            "val": 0.1059,
+            "ratio_to_ref": 1.00678,
+            "log10_ratio": 0.0029
+          },
+          "node_4": {
+            "val": 0.1045,
+            "ratio_to_ref": 0.99322,
+            "log10_ratio": -0.003
+          }
+        }
+      }
+    },
+    "top_mi_outliers": [
+      {
+        "col": "ct_dst_sport_ltm",
+        "max_node": "node_3",
+        "max_mi_norm": 0.3226,
+        "median_mi_norm": 0.3019,
+        "other_nodes_max_mi_norm": 0.3022,
+        "gap_max_minus_median": 0.0207,
+        "robust_z": 1.03,
+        "per_node_mi_norm": {
+          "node_1": 0.3015,
+          "node_2": 0.1224,
+          "node_3": 0.3226,
+          "node_4": 0.3022
+        }
+      },
+      {
+        "col": "dload",
+        "max_node": "node_4",
+        "max_mi_norm": 0.2767,
+        "median_mi_norm": 0.2607,
+        "other_nodes_max_mi_norm": 0.2624,
+        "gap_max_minus_median": 0.016,
+        "robust_z": 0.8,
+        "per_node_mi_norm": {
+          "node_1": 0.259,
+          "node_2": 0.1935,
+          "node_3": 0.2624,
+          "node_4": 0.2767
+        }
+      },
+      {
+        "col": "dinpkt",
+        "max_node": "node_4",
+        "max_mi_norm": 0.2719,
+        "median_mi_norm": 0.261,
+        "other_nodes_max_mi_norm": 0.2643,
+        "gap_max_minus_median": 0.0109,
+        "robust_z": 0.54,
+        "per_node_mi_norm": {
+          "node_1": 0.2643,
+          "node_2": 0.1887,
+          "node_3": 0.2578,
+          "node_4": 0.2719
+        }
+      },
+      {
+        "col": "spkts",
+        "max_node": "node_3",
+        "max_mi_norm": 0.2245,
+        "median_mi_norm": 0.2142,
+        "other_nodes_max_mi_norm": 0.2188,
+        "gap_max_minus_median": 0.0104,
+        "robust_z": 0.52,
+        "per_node_mi_norm": {
+          "node_1": 0.2188,
+          "node_2": 0.1378,
+          "node_3": 0.2245,
+          "node_4": 0.2095
+        }
+      },
+      {
+        "col": "synack",
+        "max_node": "node_1",
+        "max_mi_norm": 0.2375,
+        "median_mi_norm": 0.2272,
+        "other_nodes_max_mi_norm": 0.2298,
+        "gap_max_minus_median": 0.0102,
+        "robust_z": 0.51,
+        "per_node_mi_norm": {
+          "node_1": 0.2375,
+          "node_2": 0.1642,
+          "node_3": 0.2298,
+          "node_4": 0.2247
+        }
+      }
+    ],
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ]
+  },
+  "query_log": [
+    {
+      "round": 1,
+      "node": "node_1",
+      "tool": "confident_learning",
+      "args": {
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ]
+      },
+      "summary_keys": [
+        "tool",
+        "node_id",
+        "exempt_classes",
+        "excluded_cols",
+        "n_evaluated",
+        "suspected_noise_count",
+        "suspected_noise_rate",
+        "high_conf_conflict_count",
+        "high_conf_conflict_rate",
+        "mean_self_confidence",
+        "cv_macro_f1",
+        "per_class_suspected_rate"
+      ],
+      "result": {
+        "tool": "confident_learning",
+        "node_id": "node_1",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "excluded_cols": [],
+        "n_evaluated": 25777,
+        "suspected_noise_count": 1170,
+        "suspected_noise_rate": 0.0454,
+        "high_conf_conflict_count": 585,
+        "high_conf_conflict_rate": 0.0227,
+        "mean_self_confidence": 0.8185,
+        "cv_macro_f1": 0.7137,
+        "per_class_suspected_rate": {
+          "DoS": 0.1716,
+          "Exploits": 0.0992,
+          "Fuzzers": 0.083,
+          "Generic": 0.0138,
+          "Normal": 0.0242,
+          "Reconnaissance": 0.095
+        }
+      }
+    },
+    {
+      "round": 1,
+      "node": "node_2",
+      "tool": "confident_learning",
+      "args": {
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ]
+      },
+      "summary_keys": [
+        "tool",
+        "node_id",
+        "exempt_classes",
+        "excluded_cols",
+        "n_evaluated",
+        "suspected_noise_count",
+        "suspected_noise_rate",
+        "high_conf_conflict_count",
+        "high_conf_conflict_rate",
+        "mean_self_confidence",
+        "cv_macro_f1",
+        "per_class_suspected_rate"
+      ],
+      "result": {
+        "tool": "confident_learning",
+        "node_id": "node_2",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "excluded_cols": [],
+        "n_evaluated": 8684,
+        "suspected_noise_count": 950,
+        "suspected_noise_rate": 0.1094,
+        "high_conf_conflict_count": 582,
+        "high_conf_conflict_rate": 0.067,
+        "mean_self_confidence": 0.6453,
+        "cv_macro_f1": 0.5422,
+        "per_class_suspected_rate": {
+          "Analysis": 0.0,
+          "Backdoor": 0.0,
+          "DoS": 0.3259,
+          "Exploits": 0.1876,
+          "Fuzzers": 0.26,
+          "Normal": 0.0494,
+          "Reconnaissance": 0.1857,
+          "Shellcode": 0.0,
+          "Worms": 0.0
+        }
+      }
+    },
+    {
+      "round": 1,
+      "node": "node_3",
+      "tool": "confident_learning",
+      "args": {
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ]
+      },
+      "summary_keys": [
+        "tool",
+        "node_id",
+        "exempt_classes",
+        "excluded_cols",
+        "n_evaluated",
+        "suspected_noise_count",
+        "suspected_noise_rate",
+        "high_conf_conflict_count",
+        "high_conf_conflict_rate",
+        "mean_self_confidence",
+        "cv_macro_f1",
+        "per_class_suspected_rate"
+      ],
+      "result": {
+        "tool": "confident_learning",
+        "node_id": "node_3",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "excluded_cols": [],
+        "n_evaluated": 23936,
+        "suspected_noise_count": 953,
+        "suspected_noise_rate": 0.0398,
+        "high_conf_conflict_count": 532,
+        "high_conf_conflict_rate": 0.0222,
+        "mean_self_confidence": 0.817,
+        "cv_macro_f1": 0.7084,
+        "per_class_suspected_rate": {
+          "DoS": 0.1557,
+          "Exploits": 0.0779,
+          "Fuzzers": 0.0859,
+          "Generic": 0.0134,
+          "Normal": 0.0194,
+          "Reconnaissance": 0.0938
+        }
+      }
+    },
+    {
+      "round": 1,
+      "node": "node_4",
+      "tool": "confident_learning",
+      "args": {
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ]
+      },
+      "summary_keys": [
+        "tool",
+        "node_id",
+        "exempt_classes",
+        "excluded_cols",
+        "n_evaluated",
+        "suspected_noise_count",
+        "suspected_noise_rate",
+        "high_conf_conflict_count",
+        "high_conf_conflict_rate",
+        "mean_self_confidence",
+        "cv_macro_f1",
+        "per_class_suspected_rate"
+      ],
+      "result": {
+        "tool": "confident_learning",
+        "node_id": "node_4",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "excluded_cols": [],
+        "n_evaluated": 23935,
+        "suspected_noise_count": 1037,
+        "suspected_noise_rate": 0.0433,
+        "high_conf_conflict_count": 514,
+        "high_conf_conflict_rate": 0.0215,
+        "mean_self_confidence": 0.8141,
+        "cv_macro_f1": 0.7117,
+        "per_class_suspected_rate": {
+          "DoS": 0.1684,
+          "Exploits": 0.0998,
+          "Fuzzers": 0.0709,
+          "Generic": 0.0137,
+          "Normal": 0.02,
+          "Reconnaissance": 0.1139
+        }
+      }
+    },
+    {
+      "round": 2,
+      "node": "node_1",
+      "tool": "quantile_profile",
+      "args": {
+        "label_filter": "ALL"
+      },
+      "summary_keys": [
+        "tool",
+        "node_id",
+        "label_filter",
+        "n_rows_filtered",
+        "quantiles"
+      ],
+      "result": {
+        "tool": "quantile_profile",
+        "node_id": "node_1",
+        "label_filter": "ALL",
+        "n_rows_filtered": 25777,
+        "quantiles": {
+          "dur": {
+            "p10": 4e-06,
+            "p25": 8e-06,
+            "p50": 0.010576,
+            "p75": 0.717289,
+            "p90": 1.390091,
+            "p50_pos": 0.013118,
+            "zero_frac": 0.0104
+          },
+          "spkts": {
+            "p10": 2.0,
+            "p25": 2.0,
+            "p50": 6.0,
+            "p75": 12.0,
+            "p90": 36.0,
+            "p50_pos": 6.0,
+            "zero_frac": 0.0
+          },
+          "dpkts": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 2.0,
+            "p75": 10.0,
+            "p90": 30.0,
+            "p50_pos": 8.0,
+            "zero_frac": 0.4461
+          },
+          "sbytes": {
+            "p10": 114.0,
+            "p25": 114.0,
+            "p50": 534.0,
+            "p75": 1272.0,
+            "p90": 3802.8,
+            "p50_pos": 534.0,
+            "zero_frac": 0.0
+          },
+          "dbytes": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 178.0,
+            "p75": 870.0,
+            "p90": 10168.0,
+            "p50_pos": 712.0,
+            "zero_frac": 0.4461
+          },
+          "rate": {
+            "p10": 15.489067,
+            "p25": 28.858652,
+            "p50": 2793.295898,
+            "p75": 125000.0,
+            "p90": 250000.0,
+            "p50_pos": 2838.221436,
+            "zero_frac": 0.011
+          },
+          "sload": {
+            "p10": 4777.9,
+            "p25": 11522.748047,
+            "p50": 619518.3125,
+            "p75": 65142856.0,
+            "p90": 152000000.0,
+            "p50_pos": 636953.125,
+            "zero_frac": 0.011
+          },
+          "dload": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 1930.4646,
+            "p75": 14631.083984,
+            "p90": 692607.0,
+            "p50_pos": 9938.402344,
+            "zero_frac": 0.4462
+          },
+          "smean": {
+            "p10": 53.0,
+            "p25": 57.0,
+            "p50": 64.0,
+            "p75": 100.0,
+            "p90": 252.0,
+            "p50_pos": 64.0,
+            "zero_frac": 0.0
+          },
+          "dmean": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 44.0,
+            "p75": 85.0,
+            "p90": 422.4,
+            "p50_pos": 81.0,
+            "zero_frac": 0.4461
+          },
+          "sinpkt": {
+            "p10": 0.004,
+            "p25": 0.008,
+            "p50": 0.465289,
+            "p75": 62.237888,
+            "p90": 120.351421,
+            "p50_pos": 0.474432,
+            "zero_frac": 0.002
+          },
+          "dinpkt": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.009,
+            "p75": 61.727879,
+            "p90": 122.002763,
+            "p50_pos": 53.088408,
+            "zero_frac": 0.4463
+          },
+          "sjit": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 14.233533,
+            "p75": 3184.548584,
+            "p90": 6767.063379,
+            "p50_pos": 3009.887695,
+            "zero_frac": 0.4791
+          },
+          "djit": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "p75": 126.579315,
+            "p90": 328.340601,
+            "p50_pos": 130.769226,
+            "zero_frac": 0.5136
+          },
+          "tcprtt": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "p75": 0.104512,
+            "p90": 0.176591,
+            "p50_pos": 0.106122,
+            "zero_frac": 0.5063
+          },
+          "synack": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "p75": 0.051637,
+            "p90": 0.093049,
+            "p50_pos": 0.052653,
+            "zero_frac": 0.5063
+          },
+          "ackdat": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "p75": 0.048091,
+            "p90": 0.08313,
+            "p50_pos": 0.048676,
+            "zero_frac": 0.5065
+          },
+          "response_body_len": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "p75": 0.0,
+            "p90": 0.0,
+            "p50_pos": 231.0,
+            "zero_frac": 0.9332
+          },
+          "ct_src_dport_ltm": {
+            "p10": 1.0,
+            "p25": 1.0,
+            "p50": 1.0,
+            "p75": 4.0,
+            "p90": 18.0,
+            "p50_pos": 1.0,
+            "zero_frac": 0.0
+          },
+          "ct_dst_sport_ltm": {
+            "p10": 1.0,
+            "p25": 1.0,
+            "p50": 1.0,
+            "p75": 3.0,
+            "p90": 15.0,
+            "p50_pos": 1.0,
+            "zero_frac": 0.0
+          },
+          "sensor_meta_v2": {
+            "p10": 0.80618,
+            "p25": 2.0077,
+            "p50": 4.8581,
+            "p75": 7.0098,
+            "p90": 8.83486,
+            "p50_pos": 4.952,
+            "zero_frac": 0.0
+          }
+        }
+      }
+    },
+    {
+      "round": 2,
+      "node": "node_2",
+      "tool": "quantile_profile",
+      "args": {
+        "label_filter": "ALL"
+      },
+      "summary_keys": [
+        "tool",
+        "node_id",
+        "label_filter",
+        "n_rows_filtered",
+        "quantiles"
+      ],
+      "result": {
+        "tool": "quantile_profile",
+        "node_id": "node_2",
+        "label_filter": "ALL",
+        "n_rows_filtered": 8684,
+        "quantiles": {
+          "dur": {
+            "p10": 4e-06,
+            "p25": 9e-06,
+            "p50": 0.186721,
+            "p75": 0.806294,
+            "p90": 1.58034,
+            "p50_pos": 0.197076,
+            "zero_frac": 0.0089
+          },
+          "spkts": {
+            "p10": 2.0,
+            "p25": 2.0,
+            "p50": 10.0,
+            "p75": 14.0,
+            "p90": 38.0,
+            "p50_pos": 10.0,
+            "zero_frac": 0.0
+          },
+          "dpkts": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 6.0,
+            "p75": 10.0,
+            "p90": 32.0,
+            "p50_pos": 8.0,
+            "zero_frac": 0.3732
+          },
+          "sbytes": {
+            "p10": 168.0,
+            "p25": 200.0,
+            "p50": 634.0,
+            "p75": 1409.0,
+            "p90": 4238.0,
+            "p50_pos": 634.0,
+            "zero_frac": 0.0
+          },
+          "dbytes": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 268.0,
+            "p75": 1264.5,
+            "p90": 10168.0,
+            "p50_pos": 728.0,
+            "zero_frac": 0.3732
+          },
+          "rate": {
+            "p10": 14.241743,
+            "p25": 26.645089,
+            "p50": 132.015228,
+            "p75": 100000.0,
+            "p90": 200000.0,
+            "p50_pos": 145.594437,
+            "zero_frac": 0.0099
+          },
+          "sload": {
+            "p10": 4346.205469,
+            "p25": 9422.324951,
+            "p50": 221193.367188,
+            "p75": 80000000.0,
+            "p90": 200000000.0,
+            "p50_pos": 255698.585938,
+            "zero_frac": 0.0099
+          },
+          "dload": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 3048.99646,
+            "p75": 19475.497559,
+            "p90": 678083.1375,
+            "p50_pos": 9673.93457,
+            "zero_frac": 0.3733
+          },
+          "smean": {
+            "p10": 52.0,
+            "p25": 62.0,
+            "p50": 96.0,
+            "p75": 101.0,
+            "p90": 283.7,
+            "p50_pos": 96.0,
+            "zero_frac": 0.0
+          },
+          "dmean": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 45.0,
+            "p75": 89.0,
+            "p90": 462.7,
+            "p50_pos": 80.0,
+            "zero_frac": 0.3732
+          },
+          "sinpkt": {
+            "p10": 0.004,
+            "p25": 0.009,
+            "p50": 12.381571,
+            "p75": 69.243666,
+            "p90": 130.715791,
+            "p50_pos": 13.076639,
+            "zero_frac": 0.003
+          },
+          "dinpkt": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.995634,
+            "p75": 71.506804,
+            "p90": 129.048232,
+            "p50_pos": 55.365398,
+            "zero_frac": 0.3734
+          },
+          "sjit": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 351.701477,
+            "p75": 3590.119934,
+            "p90": 7049.670801,
+            "p50_pos": 2937.327393,
+            "zero_frac": 0.3969
+          },
+          "djit": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 18.116378,
+            "p75": 147.225391,
+            "p90": 508.686234,
+            "p50_pos": 129.69278,
+            "zero_frac": 0.438
+          },
+          "tcprtt": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.000676,
+            "p75": 0.117014,
+            "p90": 0.180186,
+            "p50_pos": 0.103865,
+            "zero_frac": 0.4347
+          },
+          "synack": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.000535,
+            "p75": 0.059461,
+            "p90": 0.094755,
+            "p50_pos": 0.052193,
+            "zero_frac": 0.4347
+          },
+          "ackdat": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.000136,
+            "p75": 0.054783,
+            "p90": 0.085484,
+            "p50_pos": 0.049905,
+            "zero_frac": 0.4352
+          },
+          "response_body_len": {
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "p75": 0.0,
+            "p90": 0.0,
+            "p50_pos": 270.5,
+            "zero_frac": 0.9224
+          },
+          "ct_src_dport_ltm": {
+            "p10": 1.0,
+            "p25": 1.0,
+            "p50": 1.0,
+            "p75": 2.0,
+            "p90": 4.0,
+            "p50_pos": 1.0,
+            "zero_frac": 0.0
+          },
+          "ct_dst_sport_ltm": {
+            "p10": 1.0,
+            "p25": 1.0,
+            "p50": 1.0,
+            "p75": 2.0,
+            "p90": 4.0,
+            "p50_pos": 1.0,
+            "zero_frac": 0.0
+          },
+          "sensor_meta_v2": {
+            "p10": 0.83654,
+            "p25": 1.98815,
+            "p50": 4.12815,
+            "p75": 7.010425,
+            "p90": 8.17395,
+            "p50_pos": 4.93845,
+            "zero_frac": 0.0
+          }
+        }
+      }
+    }
+  ],
+  "coord_query_rounds": 2,
+  "elapsed_s": 128.957,
+  "llm_usage": {
+    "calls": 12,
+    "prompt_tokens": 78093,
+    "completion_tokens": 14603,
+    "total_tokens": 92696,
+    "total_latency_s": 105.945,
+    "json_retries": 1
+  },
+  "prompt_hashes": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  }
+}

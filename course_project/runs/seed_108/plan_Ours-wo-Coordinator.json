@@ -1,0 +1,30 @@
+{
+  "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "probe_qos_hint",
+      "evidence": "schema_profile.unmapped_columns=[\"probe_qos_hint\"], missing_canonical=[]; extra column with no canonical target, so dropped rather than renamed."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "row_health.total_corrupted_rows=0, rows_with_nan=0, rows_with_negative_physical=0; all conservation laws status=ok (median ratios 1.0/1.0/0.90/0.88); no rare classes locally and no coordinator exclusion guidance, so local_cl_clean not applied."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+    },
+    {
+      "action": "drop_column",
+      "col": "probe_qos_hint",
+      "evidence": "probe_qos_hint is unmapped and has mi_norm=1.00019 (mi=1.63901), far exceeding the next feature sbytes mi_norm=0.21216, consistent with a local label-leakage/shortcut artifact."
+    }
+  ]
+}

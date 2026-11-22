@@ -1,0 +1,64 @@
+{
+  "diagnosis_summary": "Node_3 carries three repairable faults: 355 corrupted rows (177 negative dur/spkts/sbytes, 89 NaN dbytes/sload), three alias-swapped timing columns matching dinpkt/sjit/ackdat by benign-anchor quantiles, and a uniform x1000 unit shift on sbytes/dbytes/dload confirmed by both conservation (median_ratio_lhs_over_rhs=1000.0) and benign-anchor ratios. Node_4 is not a distribution outlier but a leakage+noise fault: collector_tag_score has MI 1.0002 on node_4 vs <=0.0041 on peers, and after excluding it node_4's suspected_noise_rate (0.2111) and high_conf_conflict_rate (0.1296) more than 4x peers with mean_self_confidence collapsing to 0.4496. Node_1's mild elevation (0.1086 noise rate) is explained by legitimate Non-IID rare-class concentration (Analysis/Backdoor/Shellcode/Worms = 100% node_1), so node_1 and node_2 are left untouched.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "collector_tag_score",
+      "evidence": "Cross-node MI gap: node_4 mi_norm=1.0002 vs peers max 0.0041 (median 0.0021, robust_z=49.9), a label-derived local shortcut."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_3",
+      "rule": "nan_or_negative_physical",
+      "evidence": "row_health reports 355 corrupted rows (rate 0.01483): 177 negative dur/spkts/sbytes, 89 NaN dbytes/sload."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_3",
+      "mapping": {
+        "ingress_interarrival_avg": "dinpkt",
+        "egress_timing_variance": "sjit",
+        "ack_data_interval": "ackdat"
+      },
+      "evidence": "Quantiles match refs: ingress_interarrival_avg p50=1.1877/p90=139.60/zero_frac=0.1695 vs dinpkt 1.1405/136.94/0.1698; egress_timing_variance 632.73/8765.86/0.2599 vs sjit 485.72/8625.01/0.2589; ack_data_interval 0.000146/0.09574/0.2959 vs ackdat 0.000143/0.09192/0.2989."
+    },
+    {
+      "action": "rescale",
+      "node": "node_3",
+      "cols": [
+        "sbytes",
+        "dbytes",
+        "dload"
+      ],
+      "factor": 0.001,
+      "evidence": "Benign-anchor ratios vs ref: dbytes 354000 vs 354 (ratio 1000.0), dload 7716534.7 vs 7610.5 (1013.9), sbytes 932000 vs 970 (960.8); conservation median_ratio_lhs_over_rhs=1000.0 for both byte laws confirms exact x1000 unit shift."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_4",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "After excluding collector_tag_score: suspected_noise_rate 0.2111 vs peers 0.0397-0.0445, high_conf_conflict_rate 0.1296 vs 0.0226-0.0239, mean_self_confidence 0.4496 vs 0.8169-0.8190, cv_macro_f1 0.4715 vs 0.7116-0.7189."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Conservation consistent (primary median_rel_err 0.0001/0.0029, violation_rate 0.0), row_health clean, and elevated noise (0.1086) is attributable to legitimate rare-class Non-IID (Analysis/Backdoor/Shellcode/Worms 100% local; Worms 44 rows)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "Row health clean (0 corrupted), conservation consistent (byte-law ratios 1.0, violation_rate 0.0), and confident_learning baseline normal (noise 0.0445, confidence 0.819, cv_macro_f1 0.7189)."
+    }
+  ]
+}

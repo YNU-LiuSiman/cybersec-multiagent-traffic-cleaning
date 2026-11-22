@@ -1,0 +1,269 @@
+{
+  "seed": 108,
+  "clean_control": false,
+  "method": "Ours-wo-Anchor",
+  "downstream": {
+    "train_rows": 76614,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.5207,
+      "rare4_recall": 0.2314,
+      "binary_attack_f1": 0.9273,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8669,
+        "Generic": 0.9799,
+        "Exploits": 0.6465,
+        "Fuzzers": 0.4312,
+        "DoS": 0.4364,
+        "Reconnaissance": 0.8151,
+        "Analysis": 0.0469,
+        "Backdoor": 0.1025,
+        "Shellcode": 0.4642,
+        "Worms": 0.4175
+      },
+      "per_class_recall": {
+        "Normal": 0.9592,
+        "Generic": 0.98,
+        "Exploits": 0.534,
+        "Fuzzers": 0.3073,
+        "DoS": 0.6208,
+        "Reconnaissance": 0.7354,
+        "Analysis": 0.043,
+        "Backdoor": 0.1804,
+        "Shellcode": 0.3716,
+        "Worms": 0.3308
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4722,
+      "rare4_recall": 0.1488,
+      "binary_attack_f1": 0.9192,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8563,
+        "Generic": 0.9887,
+        "Exploits": 0.6661,
+        "Fuzzers": 0.3679,
+        "DoS": 0.4006,
+        "Reconnaissance": 0.8179,
+        "Analysis": 0.0028,
+        "Backdoor": 0.1033,
+        "Shellcode": 0.4768,
+        "Worms": 0.0412
+      },
+      "per_class_recall": {
+        "Normal": 0.9651,
+        "Generic": 0.9821,
+        "Exploits": 0.6466,
+        "Fuzzers": 0.2403,
+        "DoS": 0.4988,
+        "Reconnaissance": 0.7396,
+        "Analysis": 0.0015,
+        "Backdoor": 0.0596,
+        "Shellcode": 0.4034,
+        "Worms": 0.1308
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 1.0,
+    "unit_drift_recall": 1.0,
+    "unit_drift_factor_acc": 1.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 1.0,
+    "noise_node_detected": 1,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.93,
+    "noise_sample_recall": 0.7233,
+    "noise_sample_f1": 0.8137,
+    "dirty_rows_remediated": 1,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "node_2 has three fixable faults: residual schema aliases replacing missing canonical dur/rate/sjit, a factor-of-8 bytes-vs-bits scale drift (primary conservation ratio 0.125 with violation_rate 1.0 on both byte laws, sbytes/dbytes ratios 0.125, sload 0.1877, dload 0.1221), and 406 corrupted rows. probe_qos_hint is a global metadata column that acts as a label shortcut only on node_4 (mi_norm 1.0002 vs peer max 0.0053, robust_z 49.85) and must be dropped; after excluding it, only node_4 shows clearly elevated label noise (suspected_noise_rate 0.2219, high_conf_conflict_rate 0.1269, mean_self_confidence 0.4343 vs peer 0.041-0.045 / 0.023-0.024 / 0.819). node_1 is clean and node_3 is a legitimate rare-class Non-IID node with consistent primary conservation (ratio 1.0) and clean rows.",
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ],
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "probe_qos_hint",
+        "evidence": "node_4 mi_norm=1.0002 vs median 0.0032 and peer max 0.0053 (robust_z 49.85): local label shortcut."
+      },
+      {
+        "action": "rename_columns",
+        "node": "node_2",
+        "mapping": {
+          "conn_elapsed_qty": "dur",
+          "packet_velocity_val": "rate",
+          "tx_jitter_index": "sjit"
+        },
+        "evidence": "Missing canonical dur/rate/sjit; conn_elapsed_qty p90=1.435 vs dur ref_p90=1.390, tx_jitter_index p90=8766 vs sjit ref_p90=6767, packet_velocity_val p90=111111 vs rate ref_p90=250000; probe_qos_hint unmapped (mi_norm 0.0)."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_2",
+        "rule": "nan_or_negative_physical",
+        "evidence": "total_corrupted_rows=406 (rate 0.01696): 203 NaN rows (dbytes 102, sload 101) and 203 negative spkts/sbytes rows."
+      },
+      {
+        "action": "rescale",
+        "node": "node_2",
+        "cols": [
+          "sbytes",
+          "dbytes",
+          "sload",
+          "dload"
+        ],
+        "factor": 8.0,
+        "evidence": "Conservation ratio 0.125 with violation_rate 1.0 on both byte laws and quantile ratios sbytes 0.125, dbytes 0.125, sload 0.1877, dload 0.1221 indicate bits-vs-bytes drift, so factor=1/0.125=8."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "evidence": "With probe_qos_hint excluded: suspected_noise_rate 0.2219, high_conf_conflict_rate 0.1269, mean_self_confidence 0.4343, cv_macro_f1 0.4598 vs peers ~0.041-0.045, 0.023-0.024, 0.819, 0.712-0.719."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Clean rows, primary conservation ratio 1.0, no missing canonicals, noise rate 0.0445 and self-confidence 0.819 matching healthy baseline."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Rare-class Non-IID node: primary conservation ratio 1.0, zero corrupted rows, and noise metrics (0.1086 noise, 0.6457 confidence) reflect long-duration traffic and rare classes, not a fault."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 7,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 25777,
+      "node_2": 23530,
+      "node_3": 8684,
+      "node_4": 18623
+    },
+    "merged_rows": 76614,
+    "merged_cols": 36,
+    "steps": [
+      {
+        "action": "rename_columns",
+        "node": "node_2",
+        "applied_mapping": {
+          "conn_elapsed_qty": "dur",
+          "packet_velocity_val": "rate",
+          "tx_jitter_index": "sjit"
+        },
+        "evidence": "Missing canonical dur/rate/sjit; conn_elapsed_qty p90=1.435 vs dur ref_p90=1.390, tx_jitter_index p90=8766 vs sjit ref_p90=6767, packet_velocity_val p90=111111 vs rate ref_p90=250000; probe_qos_hint unmapped (mi_norm 0.0)."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_2",
+        "rule": "nan_or_negative_physical",
+        "rows_removed": 406,
+        "rows_remaining": 23530,
+        "evidence": "total_corrupted_rows=406 (rate 0.01696): 203 NaN rows (dbytes 102, sload 101) and 203 negative spkts/sbytes rows."
+      },
+      {
+        "action": "rescale",
+        "node": "node_2",
+        "cols": [
+          "sbytes",
+          "dbytes",
+          "sload",
+          "dload"
+        ],
+        "factor": 8.0,
+        "evidence": "Conservation ratio 0.125 with violation_rate 1.0 on both byte laws and quantile ratios sbytes 0.125, dbytes 0.125, sload 0.1877, dload 0.1221 indicate bits-vs-bytes drift, so factor=1/0.125=8."
+      },
+      {
+        "action": "drop_column",
+        "col": "probe_qos_hint",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "node_4 mi_norm=1.0002 vs median 0.0032 and peer max 0.0053 (robust_z 49.85): local label shortcut."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "disable_rare_exempt": false,
+        "rows_removed": 5312,
+        "rows_remaining": 18623,
+        "cl_stats": {
+          "n_evaluated": 23935,
+          "suspected_noise_count": 5312,
+          "suspected_noise_rate": 0.2219,
+          "high_conf_conflict_count": 3037,
+          "high_conf_conflict_rate": 0.1269,
+          "mean_self_confidence": 0.4343,
+          "cv_macro_f1": 0.4598,
+          "per_class_suspected_rate": {
+            "DoS": 0.4061,
+            "Exploits": 0.2744,
+            "Fuzzers": 0.3335,
+            "Generic": 0.1643,
+            "Normal": 0.0837,
+            "Reconnaissance": 0.5364
+          }
+        },
+        "evidence": "With probe_qos_hint excluded: suspected_noise_rate 0.2219, high_conf_conflict_rate 0.1269, mean_self_confidence 0.4343, cv_macro_f1 0.4598 vs peers ~0.041-0.045, 0.023-0.024, 0.819, 0.712-0.719."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Clean rows, primary conservation ratio 1.0, no missing canonicals, noise rate 0.0445 and self-confidence 0.819 matching healthy baseline."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Rare-class Non-IID node: primary conservation ratio 1.0, zero corrupted rows, and noise metrics (0.1086 noise, 0.6457 confidence) reflect long-duration traffic and rare classes, not a fault."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_4": 5312
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 11,
+      "prompt_tokens": 63925,
+      "completion_tokens": 14735,
+      "total_tokens": 78660,
+      "total_latency_s": 100.168,
+      "json_retries": 1
+    },
+    "coord_query_rounds": 1,
+    "llm_elapsed_s": 152.081,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 6.924
+}

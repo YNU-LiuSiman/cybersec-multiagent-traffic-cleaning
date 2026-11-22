@@ -1,0 +1,68 @@
+{
+  "diagnosis_summary": "node_1's flow_audit_tag is a local label-leakage shortcut (mi_norm 1.0002 vs 0.0-0.0013 on peers) that masks genuine label noise: with it excluded, node_1 shows suspected_noise_rate 0.2036, high_conf_conflict 0.121, mean_self_confidence 0.4597 and cv_macro_f1 0.4734 versus 0.041-0.0445 / ~0.82 / ~0.71 peers. node_2 carries three real faults: three unmapped aliases detectable by matching benign quantiles, an exact factor-1000 send-path scale drift (sbytes/sload), and 397 corrupted rows; node_3 is clean, and node_4's differences (all four globally rare classes, 9-class mix) are legitimate Non-IID rather than faults.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "flow_audit_tag",
+      "evidence": "Local shortcut: node_1 mi_norm=1.0002 (mi=1.63329 vs entropy 1.63298) while node_2=0.0, node_3=0.0, node_4=0.0013; gap 0.9995, robust_z 49.98, and it is extra metadata across all nodes, not a schema alias."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_1",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "With flow_audit_tag excluded: suspected_noise_rate 0.2036 vs peers 0.0410/0.0445/0.1086, high_conf_conflict_rate 0.1210 vs 0.0248/0.0226/0.0662, mean_self_confidence 0.4597 vs 0.8179/0.8190/0.6457, cv_macro_f1 0.4734 vs 0.7086/0.7189/0.5245."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_2",
+      "mapping": {
+        "flow_tempo_metric": "rate",
+        "egress_timing_variance": "sjit",
+        "recent_src_port_fanout": "ct_src_dport_ltm"
+      },
+      "evidence": "Quantile matches to missing canonical refs: flow_tempo_metric p90 111111.109 = rate ref_p90 111111.109 (p50 110.06 vs 145.62, zero_frac 0.0267 vs 0.0219); egress_timing_variance p50 632.73/p90 8765.86/zero_frac 0.2599 vs sjit 485.72/8625.01/0.2589; recent_src_port_fanout p50 1.0/p90 3.0/zero_frac 0.0 = ct_src_dport_ltm exactly."
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "sbytes",
+        "sload"
+      ],
+      "factor": 0.001,
+      "evidence": "Exact factor-1000 offset: sbytes_eq_spkts_x_smean median_ratio_lhs_over_rhs=1000.0, violation_rate=1.0, median_rel_err=999.0; benign sbytes p50 930000 vs ref 970 (ratio 958.8, log10 2.98) and sload p50 87995093.75 vs ref 119785 (ratio 734.6, log10 2.87); recovery factor 1/1000."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_2",
+      "rule": "nan_or_negative_physical",
+      "evidence": "total_corrupted_rows=397, corrupted_row_rate=0.01659 (rows_with_nan=199, rows_with_negative_physical=198: dur/spkts/sbytes negative, dbytes/sload NaN); 99 Inf cells and 1 header row already repaired."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Clean rows (0 corrupted), exact primary conservation (sbytes ratio 1.0, rel_err 0.0), benign quantiles in line with peers, and its only unmapped column flow_audit_tag is handled by the global drop_column; defect was label noise only."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Schema-only oddity is the globally dropped flow_audit_tag (mi=0.0); row_health clean, primary conservation ratios 1.0 with 0.0 violation, benign quantiles at reference (sbytes ratio 1.008, sload 0.755), and CL metrics near peer baseline (noise 0.0445, confidence 0.819)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "Legitimate Non-IID: hosts 100% of globally rare classes (Analysis 677, Backdoor 583, Shellcode 378, Worms 44) all exempt; row_health clean, primary conservation ratios 1.0, benign quantiles at reference (sbytes 0.9918, sload 1.0154), and CL metrics (noise 0.1086, confidence 0.6457) reflect small-sample rare-class mixture rather than systematic label corruption."
+    }
+  ]
+}

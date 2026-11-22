@@ -1,0 +1,63 @@
+{
+  "diagnosis_summary": "node_2 carries three recoverable faults: unmapped timing aliases matching missing canonical columns (session_timespan→dur, ingress_timing_variance→djit, ack_data_interval→ackdat), 310 corrupted rows (1.30%: NaN dbytes/sload, negative spkts/sbytes), and an exact 1000x byte-unit inflation on sbytes/dbytes confirmed by both the primary conservation laws (median LHS/RHS = 1000.0, violation_rate 1.0) and benign anchors (dbytes p50 354000 vs ref 354). ingest_flag_val is a genuine cross-node ingest artifact (p50≈4-6 on every node) that degenerates into a local label leak on node_4 only (mi_norm 1.0002 vs ≤0.0048 elsewhere), so it is dropped, not renamed; with it excluded, node_4 alone shows markedly corrupted labels (20.1% suspected noise, 13.2% high-conflict, self-confidence 0.464 vs 0.819/0.819 peers). node_1 and node_3 are healthy: node_3's moderate CL elevation is explained by legitimate Non-IID structure (it exclusively holds all four globally rare classes, which score 0.0 suspected noise, and lacks Generic) with clean rows, aligned quantiles and intact conservation, so it is left untouched.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "ingest_flag_val",
+      "evidence": "compare_mi: mi_norm 1.0002 on node_4 (exceeds label entropy 1.63028) vs 0.0048/0.001/0.0 on peers, robust_z 49.86 — near-deterministic local shortcut."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "row_health 0 corrupted rows, all four conservation ratios 1.0/1.0/0.901/0.876 with violation_rate ≤0.057, ingest_flag_val mi_norm 0.0, and CL noise 4.45% / conflict 2.26% / confidence 0.819 matching peer baseline."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_2",
+      "mapping": {
+        "session_timespan": "dur",
+        "ingress_timing_variance": "djit",
+        "ack_data_interval": "ackdat"
+      },
+      "evidence": "node_2 unmapped quantiles match missing canonical refs: session_timespan p50 0.2081/p90 1.4320/zero 0.0265 vs dur 0.2093/1.4386/0.0223; ingress_timing_variance 26.949/396.084/0.3114 vs djit 25.545/374.226/0.3122; ack_data_interval 0.000146/0.09574/0.2959 vs ackdat 0.000143/0.09168/0.2989."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_2",
+      "rule": "nan_or_negative_physical",
+      "evidence": "row_health: 310 corrupted rows (1.295%) — dbytes:nan 78, sload:nan 77, spkts:negative 155, sbytes:negative 155."
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "sbytes",
+        "dbytes"
+      ],
+      "factor": 0.001,
+      "evidence": "Conservation shows exact 1000x offset: sbytes_eq_spkts_x_smean median_ratio_lhs_over_rhs 1000.0 (violation_rate 1.0, n=23781) and dbytes_eq_dpkts_x_dmean 1000.0 (n=13229); benign anchors dbytes p50 354000 vs ref 354 and sbytes 934000 vs ref ~970, while smean/dmean/sload/dload log10 shifts are ≤0.077 (unscaled)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Clean row health (0 corrupted), primary conservation ratios 1.0/1.0 with violation_rate 0.0, benign-anchor log10 shifts ≤0.056, and ingest_flag_val mi_norm 0.001; its CL elevation (10.9% noise, confidence 0.646) tracks its legitimate rare-class Non-IID role (sole holder of Analysis/Backdoor/Shellcode/Worms, all at 0.0 suspected noise)."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_4",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "After excluding the ingest_flag_val shortcut, node_4 is the clear label-noise outlier: suspected_noise_rate 20.14% and high_conf_conflict_rate 13.16% vs peer 4.17-4.45% / 2.26-2.40%, mean_self_confidence 0.464 vs 0.819, cv_macro_f1 0.485 vs 0.709-0.719."
+    }
+  ]
+}

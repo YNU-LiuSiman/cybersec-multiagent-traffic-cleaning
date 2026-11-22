@@ -1,0 +1,48 @@
+{
+  "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "export_shard_code",
+      "evidence": "schema_profile flags export_shard_code as unmapped; feature_label_mi reports mi_norm=1.00019 (mi=1.62543), by far the top feature, consistent with a local label shortcut/leak."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_1",
+      "evidence": "confident_learning reports 9 high-confidence conflicts (suspected_noise_count=9, rate=0.0004) with cv_macro_f1=0.9942 and no local rare classes."
+    },
+    {
+      "action": "drop_column",
+      "col": "export_shard_code",
+      "evidence": "unmapped_columns=[export_shard_code]; missing_canonical=[]"
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_2",
+      "evidence": "suspected_noise_count=539 (rate 0.0621); high_conf_conflict_count=296 (rate 0.0341); per_class_suspected_rate Exploits=0.1901, Normal=0.0451"
+    },
+    {
+      "node": "node_3",
+      "action": "no_op",
+      "details": "Unmapped column export_shard_code has no corresponding entry in missing_canonical, so no target name exists to build a rename mapping locally; defer alias resolution to the coordinator instead of guessing.",
+      "evidence": "schema_profile.unmapped_columns = [\"export_shard_code\"]; missing_canonical = []"
+    },
+    {
+      "node": "node_3",
+      "action": "no_op",
+      "details": "No row remediation: zero corrupted rows and all conservation laws pass within tolerance, so drop_rows with nan_or_negative_physical would remove nothing.",
+      "evidence": "total_corrupted_rows = 0, corrupted_row_rate = 0.0, rows_with_nan = 0, rows_with_negative_physical = 0; sbytes law median_rel_err = 0.0, median_ratio = 1.0; dbytes law median_rel_err = 0.0029, median_ratio = 1.0; sload aux violation_rate = 0.0301, dload aux violation_rate = 0.0566"
+    },
+    {
+      "node": "node_3",
+      "action": "no_op",
+      "details": "Defer local_cl_clean and any drop_column of high-MI features to the coordinator, since single-node statistics cannot distinguish genuine signal from a local shortcut artifact.",
+      "evidence": "confident_learning.suspected_noise_rate = 0.0427, high_conf_conflict_rate = 0.0211, cv_macro_f1 = 0.7158, exempt_classes = []; top_mi sbytes = 0.61775, smean = 0.54516, sload = 0.50879"
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+    }
+  ]
+}

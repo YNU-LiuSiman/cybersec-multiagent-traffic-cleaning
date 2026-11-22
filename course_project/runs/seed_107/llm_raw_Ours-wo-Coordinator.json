@@ -1,0 +1,83 @@
+{
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "telemetry_bucket_id",
+        "evidence": "schema_profile lists telemetry_bucket_id as unmapped; feature_label_mi reports mi_norm=1.00019 and mi=1.61639, far above the next-highest feature sbytes with mi_norm=0.2559."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Action #3 (rescale) has non-numeric factor 'None'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "evidence": "confident_learning: suspected_noise_count=538 (rate 0.062), high_conf_conflict_count=288 (rate 0.0332), per_class_suspected_rate Exploits=0.1906, Normal=0.0446."
+      },
+      {
+        "action": "drop_column",
+        "col": "telemetry_bucket_id",
+        "node": "node_4",
+        "evidence": "schema_profile: unmapped_columns=['telemetry_bucket_id'] with missing_canonical=[]."
+      }
+    ]
+  },
+  "per_node_outputs": {
+    "node_1": [
+      {
+        "action": "drop_column",
+        "col": "telemetry_bucket_id",
+        "evidence": "schema_profile lists telemetry_bucket_id as unmapped; feature_label_mi reports mi_norm=1.00019 and mi=1.61639, far above the next-highest feature sbytes with mi_norm=0.2559."
+      }
+    ],
+    "node_2": [
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Action #3 (rescale) has non-numeric factor 'None'."
+      }
+    ],
+    "node_3": [
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      }
+    ],
+    "node_4": [
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "evidence": "confident_learning: suspected_noise_count=538 (rate 0.062), high_conf_conflict_count=288 (rate 0.0332), per_class_suspected_rate Exploits=0.1906, Normal=0.0446."
+      },
+      {
+        "action": "drop_column",
+        "col": "telemetry_bucket_id",
+        "node": "node_4",
+        "evidence": "schema_profile: unmapped_columns=['telemetry_bucket_id'] with missing_canonical=[]."
+      }
+    ]
+  },
+  "coord_query_rounds": 0,
+  "elapsed_s": 139.691,
+  "llm_usage": {
+    "calls": 10,
+    "prompt_tokens": 22137,
+    "completion_tokens": 14518,
+    "total_tokens": 36655,
+    "total_latency_s": 104.431,
+    "json_retries": 6
+  },
+  "prompt_hashes": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  }
+}

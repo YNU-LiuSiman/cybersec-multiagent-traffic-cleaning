@@ -1,0 +1,196 @@
+{
+  "seed": 201,
+  "clean_control": true,
+  "method": "Ours-wo-Anchor",
+  "downstream": {
+    "train_rows": 81395,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.5039,
+      "rare4_recall": 0.1881,
+      "binary_attack_f1": 0.9238,
+      "n_features": 35,
+      "per_class_f1": {
+        "Normal": 0.8634,
+        "Generic": 0.9821,
+        "Exploits": 0.6846,
+        "Fuzzers": 0.3722,
+        "DoS": 0.3572,
+        "Reconnaissance": 0.7835,
+        "Analysis": 0.0388,
+        "Backdoor": 0.1139,
+        "Shellcode": 0.433,
+        "Worms": 0.4103
+      },
+      "per_class_recall": {
+        "Normal": 0.9685,
+        "Generic": 0.9817,
+        "Exploits": 0.6684,
+        "Fuzzers": 0.2755,
+        "DoS": 0.3705,
+        "Reconnaissance": 0.7381,
+        "Analysis": 0.0315,
+        "Backdoor": 0.0842,
+        "Shellcode": 0.3292,
+        "Worms": 0.3077
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4636,
+      "rare4_recall": 0.1641,
+      "binary_attack_f1": 0.9069,
+      "n_features": 35,
+      "per_class_f1": {
+        "Normal": 0.8307,
+        "Generic": 0.9878,
+        "Exploits": 0.6476,
+        "Fuzzers": 0.3558,
+        "DoS": 0.4107,
+        "Reconnaissance": 0.8197,
+        "Analysis": 0.0204,
+        "Backdoor": 0.1108,
+        "Shellcode": 0.4392,
+        "Worms": 0.0135
+      },
+      "per_class_recall": {
+        "Normal": 0.9224,
+        "Generic": 0.9831,
+        "Exploits": 0.6002,
+        "Fuzzers": 0.2325,
+        "DoS": 0.5373,
+        "Reconnaissance": 0.7347,
+        "Analysis": 0.0115,
+        "Backdoor": 0.0653,
+        "Shellcode": 0.3795,
+        "Worms": 0.2
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": true,
+    "false_remediation_actions": 1,
+    "clean_false_remediation": 1,
+    "node_d_false_remediation": 1
+  },
+  "plan": {
+    "diagnosis_summary": "Node_3's large all-label quantile offsets (dur 17x, dinpkt 110x, synack/tcprtt 0.006x) are Non-IID mixture artifacts, not unit drift: its lower quantiles match peers, its upper quantiles (p75/p90) agree within 15%, its primary conservation laws are exact (ratio 1.0) and its auxiliary load ratios match peers to 4 decimals, which no single scale factor can produce. No cross-node shortcut exists (max robust_z 1.03; tap_priority_metric MI~0 on all four nodes with no missing canonical), and all nodes are row-healthy with zero corrupted rows. However node_3 alone shows markedly elevated label noise (0.1086 vs 0.041-0.045, high-conf conflict 0.0662 vs 0.022-0.025, confidence 0.6457 vs 0.816-0.819, cv_macro_f1 0.5245 vs 0.713-0.719) with rare classes exempted and clean, indicating localized label corruption rather than rare-class Non-IID.",
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ],
+    "actions": [
+      {
+        "action": "local_cl_clean",
+        "node": "node_3",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "evidence": "suspected_noise_rate 0.1086 and high_conf_conflict_rate 0.0662 vs peer baseline 0.0412-0.0445 / 0.0224-0.0247, with mean_self_confidence 0.6457 vs 0.8159-0.8190 and cv_macro_f1 0.5245 vs 0.7128-0.7189, while exempted rare classes show 0.0 suspected rate."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Clean: 0 corrupted rows, primary sbytes law median_ratio 1.0, benign-anchor quantiles match peers, noise 0.0445/conflict 0.0226/confidence 0.819/cv_macro_f1 0.7189 at healthy baseline."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Clean: 0 corrupted rows, primary laws exact (ratio 1.0), noise 0.0412/conflict 0.0224/confidence 0.8159/cv_macro_f1 0.7144 at healthy baseline; high local MI on sbytes/smean matches peers."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Clean: 0 corrupted rows, primary laws exact (ratio 1.0), noise 0.0421/conflict 0.0247/confidence 0.8181/cv_macro_f1 0.7128 at healthy baseline; upper-quantile scale shifts only 0.0755 log10 max on sbytes."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 4,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 25777,
+      "node_2": 23935,
+      "node_3": 7747,
+      "node_4": 23936
+    },
+    "merged_rows": 81395,
+    "merged_cols": 37,
+    "steps": [
+      {
+        "action": "local_cl_clean",
+        "node": "node_3",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "disable_rare_exempt": false,
+        "rows_removed": 937,
+        "rows_remaining": 7747,
+        "cl_stats": {
+          "n_evaluated": 8684,
+          "suspected_noise_count": 937,
+          "suspected_noise_rate": 0.1079,
+          "high_conf_conflict_count": 556,
+          "high_conf_conflict_rate": 0.064,
+          "mean_self_confidence": 0.6461,
+          "cv_macro_f1": 0.5485,
+          "per_class_suspected_rate": {
+            "Analysis": 0.0,
+            "Backdoor": 0.0,
+            "DoS": 0.334,
+            "Exploits": 0.1856,
+            "Fuzzers": 0.2545,
+            "Normal": 0.0491,
+            "Reconnaissance": 0.1571,
+            "Shellcode": 0.0,
+            "Worms": 0.0
+          }
+        },
+        "evidence": "suspected_noise_rate 0.1086 and high_conf_conflict_rate 0.0662 vs peer baseline 0.0412-0.0445 / 0.0224-0.0247, with mean_self_confidence 0.6457 vs 0.8159-0.8190 and cv_macro_f1 0.5245 vs 0.7128-0.7189, while exempted rare classes show 0.0 suspected rate."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Clean: 0 corrupted rows, primary sbytes law median_ratio 1.0, benign-anchor quantiles match peers, noise 0.0445/conflict 0.0226/confidence 0.819/cv_macro_f1 0.7189 at healthy baseline."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Clean: 0 corrupted rows, primary laws exact (ratio 1.0), noise 0.0412/conflict 0.0224/confidence 0.8159/cv_macro_f1 0.7144 at healthy baseline; high local MI on sbytes/smean matches peers."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Clean: 0 corrupted rows, primary laws exact (ratio 1.0), noise 0.0421/conflict 0.0247/confidence 0.8181/cv_macro_f1 0.7128 at healthy baseline; upper-quantile scale shifts only 0.0755 log10 max on sbytes."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_3": 937
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 11,
+      "prompt_tokens": 64960,
+      "completion_tokens": 13195,
+      "total_tokens": 78155,
+      "total_latency_s": 91.818,
+      "json_retries": 0
+    },
+    "coord_query_rounds": 2,
+    "llm_elapsed_s": 165.289,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 10.467
+}

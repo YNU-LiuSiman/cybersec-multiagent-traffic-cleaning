@@ -1,0 +1,37 @@
+{
+  "diagnosis_summary": "Only node_2 has an actionable fault: sharply elevated label noise (suspected_noise_rate 0.1094 vs peers 0.0398-0.0454, high_conf_conflict_rate 0.067 vs ~0.022, mean_self_confidence 0.6453 vs 0.814-0.818). Its large anchor-quantile deviations are legitimate Non-IID artifacts, not unit drift: positive-only medians match peers (tcprtt p50_pos 0.1039 vs 0.1061, synack 0.0522 vs 0.0527) and primary conservation ratios are 1.0 like every other node. sensor_meta_v2 is inert shared metadata with missing_canonical empty and MI ~0 on all four nodes, compare_mi shows no local shortcut (max robust_z 1.03), and all row_health checks are clean.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "local_cl_clean",
+      "node": "node_2",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "suspected_noise_rate 0.1094 vs 0.0398-0.0454 peers; conflict rate 0.067 vs ~0.022; confidence 0.6453 vs 0.814-0.818; cv_macro_f1 0.5422 vs ~0.711."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "0 corrupted rows, primary laws ratio 1.0, no missing canonical columns, metrics at baseline (noise 0.0454, confidence 0.8185, f1 0.7137)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "0 corrupted rows, primary laws ratio 1.0, no missing canonical columns, metrics at baseline (noise 0.0398, confidence 0.817, f1 0.7084)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "0 corrupted rows, primary laws ratio 1.0, no missing canonical columns, metrics at baseline (noise 0.0433, confidence 0.8141, f1 0.7117)."
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+{
+  "seed": 103,
+  "clean_control": false,
+  "method": "Ours-wo-Coordinator",
+  "downstream": {
+    "train_rows": 81185,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.5252,
+      "rare4_recall": 0.2873,
+      "binary_attack_f1": 0.9269,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8646,
+        "Generic": 0.973,
+        "Exploits": 0.6437,
+        "Fuzzers": 0.4531,
+        "DoS": 0.3892,
+        "Reconnaissance": 0.7995,
+        "Analysis": 0.0747,
+        "Backdoor": 0.1072,
+        "Shellcode": 0.4831,
+        "Worms": 0.4636
+      },
+      "per_class_recall": {
+        "Normal": 0.9492,
+        "Generic": 0.9641,
+        "Exploits": 0.5375,
+        "Fuzzers": 0.331,
+        "DoS": 0.4903,
+        "Reconnaissance": 0.7265,
+        "Analysis": 0.1445,
+        "Backdoor": 0.1907,
+        "Shellcode": 0.4219,
+        "Worms": 0.3923
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.469,
+      "rare4_recall": 0.2276,
+      "binary_attack_f1": 0.9146,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8499,
+        "Generic": 0.9878,
+        "Exploits": 0.6566,
+        "Fuzzers": 0.3495,
+        "DoS": 0.4112,
+        "Reconnaissance": 0.8166,
+        "Analysis": 0.001,
+        "Backdoor": 0.1107,
+        "Shellcode": 0.4611,
+        "Worms": 0.0461
+      },
+      "per_class_recall": {
+        "Normal": 0.9651,
+        "Generic": 0.9785,
+        "Exploits": 0.6097,
+        "Fuzzers": 0.2221,
+        "DoS": 0.5363,
+        "Reconnaissance": 0.7255,
+        "Analysis": 0.0005,
+        "Backdoor": 0.0647,
+        "Shellcode": 0.4607,
+        "Worms": 0.3846
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 0.0,
+    "unit_drift_recall": 0.0,
+    "unit_drift_factor_acc": 0.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 0.0,
+    "noise_node_detected": 0,
+    "noise_node_fp": 1,
+    "noise_sample_precision": 0.0,
+    "noise_sample_recall": 0.0,
+    "noise_sample_f1": 0.0,
+    "dirty_rows_remediated": 0,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "evidence": "confident_learning suspected_noise_count=1189 (rate=0.0461), high_conf_conflict_count=575 (rate=0.0223), cv_macro_f1=0.7178; all physical checks ok (total_corrupted_rows=0, median_rel_err=0.0 for sbytes law)"
+      },
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "evidence": "schema_profile unmapped_columns=['sensor_meta_v2'] with missing_canonical=[] — extraneous non-canonical column with no canonical missing column to rename it to, so it cannot be mapped."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "row_health total_corrupted_rows=0 (rows_with_nan=0, rows_with_negative_physical=0, bad_header_rows_removed=0, inf_cells_replaced=0) so no rows to drop; conservation_check all 4 laws status=ok (sbytes median_rel_err=0.0001, dbytes median_rel_err=0.0029, median_ratio_lhs_over_rhs=1.0, violation_rate=0.0) so no rescale needed; confident_learning suspected_noise_rate=0.0643, high_conf_conflict_rate=0.0341, excluded_cols=[] and all 7 rare classes exempted — local_cl_clean deferred pending cross-node shortcut exclusion and global rare-class counts."
+      },
+      {
+        "action": "drop_column",
+        "node": "node_3",
+        "col": "sensor_meta_v2",
+        "evidence": "schema_profile lists sensor_meta_v2 as unmapped; top_mi_features shows mi_norm=1.00019 vs next highest sbytes=0.16961, a local shortcut/leakage column to exclude."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "row_health total_corrupted_rows=0 and all four conservation laws have status=ok (median_rel_err 0.0/0.0029/0.0988/0.1243, median ratios 1.0/1.0/0.901/0.876), so no row drops or rescaling needed; local_rare_classes=[]."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Empty LLM response; expected JSON object."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 6,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 24630,
+      "node_2": 8684,
+      "node_3": 23935,
+      "node_4": 23936
+    },
+    "merged_rows": 81185,
+    "merged_cols": 39,
+    "steps": [
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "schema_profile unmapped_columns=['sensor_meta_v2'] with missing_canonical=[] — extraneous non-canonical column with no canonical missing column to rename it to, so it cannot be mapped."
+      },
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "dropped_from_nodes": [],
+        "evidence": "schema_profile lists sensor_meta_v2 as unmapped; top_mi_features shows mi_norm=1.00019 vs next highest sbytes=0.16961, a local shortcut/leakage column to exclude."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 1147,
+        "rows_remaining": 24630,
+        "cl_stats": {
+          "n_evaluated": 25777,
+          "suspected_noise_count": 1147,
+          "suspected_noise_rate": 0.0445,
+          "high_conf_conflict_count": 583,
+          "high_conf_conflict_rate": 0.0226,
+          "mean_self_confidence": 0.819,
+          "cv_macro_f1": 0.7189,
+          "per_class_suspected_rate": {
+            "DoS": 0.1589,
+            "Exploits": 0.0926,
+            "Fuzzers": 0.0868,
+            "Generic": 0.0136,
+            "Normal": 0.0247,
+            "Reconnaissance": 0.0968
+          }
+        },
+        "evidence": "confident_learning suspected_noise_count=1189 (rate=0.0461), high_conf_conflict_count=575 (rate=0.0223), cv_macro_f1=0.7178; all physical checks ok (total_corrupted_rows=0, median_rel_err=0.0 for sbytes law)"
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "row_health total_corrupted_rows=0 (rows_with_nan=0, rows_with_negative_physical=0, bad_header_rows_removed=0, inf_cells_replaced=0) so no rows to drop; conservation_check all 4 laws status=ok (sbytes median_rel_err=0.0001, dbytes median_rel_err=0.0029, median_ratio_lhs_over_rhs=1.0, violation_rate=0.0) so no rescale needed; confident_learning suspected_noise_rate=0.0643, high_conf_conflict_rate=0.0341, excluded_cols=[] and all 7 rare classes exempted — local_cl_clean deferred pending cross-node shortcut exclusion and global rare-class counts."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "row_health total_corrupted_rows=0 and all four conservation laws have status=ok (median_rel_err 0.0/0.0029/0.0988/0.1243, median ratios 1.0/1.0/0.901/0.876), so no row drops or rescaling needed; local_rare_classes=[]."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Empty LLM response; expected JSON object."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_1": 1147
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 11,
+      "prompt_tokens": 23614,
+      "completion_tokens": 21527,
+      "total_tokens": 45141,
+      "total_latency_s": 152.703,
+      "json_retries": 7
+    },
+    "coord_query_rounds": 0,
+    "llm_elapsed_s": 201.665,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 18.735
+}

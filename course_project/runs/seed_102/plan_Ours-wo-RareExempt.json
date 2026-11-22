@@ -1,0 +1,65 @@
+{
+  "diagnosis_summary": "node_1 is a legitimate Non-IID node holding 100% of the globally rare Analysis/Backdoor/Shellcode/Worms classes with clean rows, consistent conservation and benign anchors matching peers, so it is protected. node_2 carries the only cross-node shortcut (flow_audit_tag mi_norm=1.0002 vs 0.0013-0.0046 on peers, robust_z=49.8) and, once excluded, shows markedly elevated label noise (suspected_noise_rate 0.2258, conflict 0.1133, mean_self_confidence 0.408, cv_macro_f1 0.439 vs peers ~0.04/0.023/0.82/0.71). node_4 has three alias columns matching its missing canonical fields, 288 corrupted rows, and a pure 1/8 bytes-vs-bits scale drift (primary ratios 0.125), while node_3 is healthy.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "flow_audit_tag",
+      "evidence": "Cross-node MI: node_2 mi_norm=1.0002 vs node_1 0.0046, node_3 0.0013, node_4 0.0034 (robust_z=49.81), a local-only label proxy."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_2",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "With flow_audit_tag excluded, suspected_noise_rate=0.2258 and conflict_rate=0.1133 vs peers 0.0399-0.0445/0.0226-0.0240, mean_self_confidence 0.4082 vs 0.8166-0.819, cv_macro_f1 0.4394 vs 0.7121-0.7189."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_4",
+      "mapping": {
+        "handshake_roundtrip_val": "tcprtt",
+        "http_reply_payload_sz": "response_body_len",
+        "recent_dst_sport_fanout": "ct_dst_sport_ltm"
+      },
+      "evidence": "Alias quantiles match missing refs: handshake_roundtrip_val p50=0.000706/p90=0.2059/zero_frac=0.2957 vs tcprtt 0.000703/0.19906/0.2983; http_reply_payload_sz zero_frac=0.8953 vs response_body_len 0.9009; recent_dst_sport_fanout p50=p90=1.0 vs ct_dst_sport_ltm 1.0; flow_audit_tag left unmapped (present on all nodes, no canonical counterpart)."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_4",
+      "rule": "nan_or_negative_physical",
+      "evidence": "row_health: total_corrupted_rows=288 (rate 0.01203): dbytes/sload NaN=72 each, dur/spkts/sbytes negative=144 each; peers have 0."
+    },
+    {
+      "action": "rescale",
+      "node": "node_4",
+      "cols": [
+        "sbytes",
+        "dbytes",
+        "sload",
+        "dload"
+      ],
+      "factor": 8.0,
+      "evidence": "Primary conservation ratios both 0.125 (1/8, violation_rate 1.0) and benign anchors sbytes 117.25 vs ref 897 (0.1307), dbytes 44.25 vs 354 (0.125), sload 11006 vs 106018 (0.1038), dload 964.6 vs 6327 (0.1525) - exact bytes-vs-bits drift, so factor=1/0.125=8."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Rare-class Non-IID node (100% of Analysis/Backdoor/Shellcode/Worms): clean rows, primary conservation ratio 1.0/violation_rate 0.0, benign anchors within log10 0.03 of ref, flow_audit_tag mi_norm 0.0046."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Healthy: 0 corrupted rows, primary conservation ratio 1.0/violation_rate 0.0, lowest label-noise baseline (suspected_noise_rate 0.0445, conflict 0.0226, mean_self_confidence 0.819, cv_macro_f1 0.7189)."
+    }
+  ]
+}

@@ -1,0 +1,454 @@
+{
+  "seed": 102,
+  "clean_control": false,
+  "method": "Static-Pipeline",
+  "downstream": {
+    "train_rows": 75509,
+    "rare4_kept": 1494,
+    "rare4_train_retention": 0.8882,
+    "RF": {
+      "macro_f1": 0.4168,
+      "rare4_recall": 0.0,
+      "binary_attack_f1": 0.9245,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8627,
+        "Generic": 0.9833,
+        "Exploits": 0.6414,
+        "Fuzzers": 0.4116,
+        "DoS": 0.4566,
+        "Reconnaissance": 0.8124,
+        "Analysis": 0.0,
+        "Backdoor": 0.0,
+        "Shellcode": 0.0,
+        "Worms": 0.0
+      },
+      "per_class_recall": {
+        "Normal": 0.9586,
+        "Generic": 0.9791,
+        "Exploits": 0.537,
+        "Fuzzers": 0.3155,
+        "DoS": 0.7152,
+        "Reconnaissance": 0.7492,
+        "Analysis": 0.0,
+        "Backdoor": 0.0,
+        "Shellcode": 0.0,
+        "Worms": 0.0
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4155,
+      "rare4_recall": 0.0041,
+      "binary_attack_f1": 0.9181,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8568,
+        "Generic": 0.9883,
+        "Exploits": 0.6526,
+        "Fuzzers": 0.3758,
+        "DoS": 0.4298,
+        "Reconnaissance": 0.8224,
+        "Analysis": 0.0,
+        "Backdoor": 0.0023,
+        "Shellcode": 0.0,
+        "Worms": 0.0268
+      },
+      "per_class_recall": {
+        "Normal": 0.9756,
+        "Generic": 0.9818,
+        "Exploits": 0.5931,
+        "Fuzzers": 0.2524,
+        "DoS": 0.5995,
+        "Reconnaissance": 0.7551,
+        "Analysis": 0.0,
+        "Backdoor": 0.0011,
+        "Shellcode": 0.0,
+        "Worms": 0.0154
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 0.3077,
+    "unit_drift_recall": 1.0,
+    "unit_drift_factor_acc": 0.75,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 0.0,
+    "noise_node_detected": 1,
+    "noise_node_fp": 1,
+    "noise_sample_precision": 0.9367,
+    "noise_sample_recall": 0.6802,
+    "noise_sample_f1": 0.7881,
+    "dirty_rows_remediated": 1,
+    "node_d_false_remediation": 10,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Static-Pipeline deterministic fixed-threshold baseline.",
+    "actions": [
+      {
+        "action": "drop_rows",
+        "node": "node_4",
+        "rule": "nan_or_negative_physical",
+        "evidence": "Static rule: total_corrupted_rows=288 > 0"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "ackdat"
+        ],
+        "factor": 357.142857,
+        "evidence": "Static whole-table rule: ackdat ratio=0.0028 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "dinpkt"
+        ],
+        "factor": 0.009039,
+        "evidence": "Static whole-table rule: dinpkt ratio=110.6260 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "djit"
+        ],
+        "factor": 7.158196,
+        "evidence": "Static whole-table rule: djit ratio=0.1397 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "dur"
+        ],
+        "factor": 0.057457,
+        "evidence": "Static whole-table rule: dur ratio=17.4042 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "rate"
+        ],
+        "factor": 20.920502,
+        "evidence": "Static whole-table rule: rate ratio=0.0478 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "sinpkt"
+        ],
+        "factor": 0.039723,
+        "evidence": "Static whole-table rule: sinpkt ratio=25.1746 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "sjit"
+        ],
+        "factor": 0.04226,
+        "evidence": "Static whole-table rule: sjit ratio=23.6632 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "synack"
+        ],
+        "factor": 97.943193,
+        "evidence": "Static whole-table rule: synack ratio=0.0102 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "tcprtt"
+        ],
+        "factor": 154.559505,
+        "evidence": "Static whole-table rule: tcprtt ratio=0.0065 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "dbytes"
+        ],
+        "factor": 8.0,
+        "evidence": "Static whole-table rule: dbytes ratio=0.1250 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "dload"
+        ],
+        "factor": 8.19135,
+        "evidence": "Static whole-table rule: dload ratio=0.1221 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "sbytes"
+        ],
+        "factor": 8.0,
+        "evidence": "Static whole-table rule: sbytes ratio=0.1250 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "sload"
+        ],
+        "factor": 5.312649,
+        "evidence": "Static whole-table rule: sload ratio=0.1882 (|log10|>=0.7)"
+      },
+      {
+        "action": "drop_column",
+        "col": "flow_audit_tag",
+        "evidence": "Static MI rule: flow_audit_tag max_mi=1.0002 on node_2, gap=0.9962 >= 0.35"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [],
+        "evidence": "Static CL rule: suspected_noise_rate=0.1302 >= 0.12 (no rare-class exemption)"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "exempt_classes": [],
+        "evidence": "Static CL rule: suspected_noise_rate=0.2258 >= 0.12 (no rare-class exemption)"
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Static rule: no threshold exceeded"
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 18,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 7553,
+      "node_2": 18531,
+      "node_3": 25777,
+      "node_4": 23648
+    },
+    "merged_rows": 75509,
+    "merged_cols": 39,
+    "steps": [
+      {
+        "action": "drop_rows",
+        "node": "node_4",
+        "rule": "nan_or_negative_physical",
+        "rows_removed": 288,
+        "rows_remaining": 23648,
+        "evidence": "Static rule: total_corrupted_rows=288 > 0"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "ackdat"
+        ],
+        "factor": 357.142857,
+        "evidence": "Static whole-table rule: ackdat ratio=0.0028 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "dinpkt"
+        ],
+        "factor": 0.009039,
+        "evidence": "Static whole-table rule: dinpkt ratio=110.6260 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "djit"
+        ],
+        "factor": 7.158196,
+        "evidence": "Static whole-table rule: djit ratio=0.1397 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "dur"
+        ],
+        "factor": 0.057457,
+        "evidence": "Static whole-table rule: dur ratio=17.4042 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "rate"
+        ],
+        "factor": 20.920502,
+        "evidence": "Static whole-table rule: rate ratio=0.0478 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "sinpkt"
+        ],
+        "factor": 0.039723,
+        "evidence": "Static whole-table rule: sinpkt ratio=25.1746 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "sjit"
+        ],
+        "factor": 0.04226,
+        "evidence": "Static whole-table rule: sjit ratio=23.6632 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "synack"
+        ],
+        "factor": 97.943193,
+        "evidence": "Static whole-table rule: synack ratio=0.0102 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "tcprtt"
+        ],
+        "factor": 154.559505,
+        "evidence": "Static whole-table rule: tcprtt ratio=0.0065 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "dbytes"
+        ],
+        "factor": 8.0,
+        "evidence": "Static whole-table rule: dbytes ratio=0.1250 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "dload"
+        ],
+        "factor": 8.19135,
+        "evidence": "Static whole-table rule: dload ratio=0.1221 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "sbytes"
+        ],
+        "factor": 8.0,
+        "evidence": "Static whole-table rule: sbytes ratio=0.1250 (|log10|>=0.7)"
+      },
+      {
+        "action": "rescale",
+        "node": "node_4",
+        "cols": [
+          "sload"
+        ],
+        "factor": 5.312649,
+        "evidence": "Static whole-table rule: sload ratio=0.1882 (|log10|>=0.7)"
+      },
+      {
+        "action": "drop_column",
+        "col": "flow_audit_tag",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "Static MI rule: flow_audit_tag max_mi=1.0002 on node_2, gap=0.9962 >= 0.35"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 1131,
+        "rows_remaining": 7553,
+        "cl_stats": {
+          "n_evaluated": 8684,
+          "suspected_noise_count": 1131,
+          "suspected_noise_rate": 0.1302,
+          "high_conf_conflict_count": 668,
+          "high_conf_conflict_rate": 0.0769,
+          "mean_self_confidence": 0.6457,
+          "cv_macro_f1": 0.5245,
+          "per_class_suspected_rate": {
+            "Analysis": 0.099,
+            "Backdoor": 0.1321,
+            "DoS": 0.334,
+            "Exploits": 0.1836,
+            "Fuzzers": 0.2586,
+            "Normal": 0.0497,
+            "Reconnaissance": 0.175,
+            "Shellcode": 0.0794,
+            "Worms": 0.3182
+          }
+        },
+        "evidence": "Static CL rule: suspected_noise_rate=0.1302 >= 0.12 (no rare-class exemption)"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 5404,
+        "rows_remaining": 18531,
+        "cl_stats": {
+          "n_evaluated": 23935,
+          "suspected_noise_count": 5404,
+          "suspected_noise_rate": 0.2258,
+          "high_conf_conflict_count": 2712,
+          "high_conf_conflict_rate": 0.1133,
+          "mean_self_confidence": 0.4082,
+          "cv_macro_f1": 0.4394,
+          "per_class_suspected_rate": {
+            "DoS": 0.3479,
+            "Exploits": 0.2891,
+            "Fuzzers": 0.3176,
+            "Generic": 0.1711,
+            "Normal": 0.0947,
+            "Reconnaissance": 0.5249
+          }
+        },
+        "evidence": "Static CL rule: suspected_noise_rate=0.2258 >= 0.12 (no rare-class exemption)"
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Static rule: no threshold exceeded"
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_1": 1131,
+      "node_2": 5404
+    }
+  },
+  "llm_meta": {},
+  "eval_elapsed_s": 25.995
+}

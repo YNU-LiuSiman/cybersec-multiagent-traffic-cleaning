@@ -1,0 +1,59 @@
+{
+  "diagnosis_summary": "node_2 carries a label-copy shortcut (flow_audit_tag mi_norm=1.0002 vs <=0.0046 on peers, robust_z=49.81) so that unmapped metadata column is dropped globally rather than renamed. node_4 has three resolvable alias renames, 288 corrupted rows (1.2%), and a clean 1/8 scale drift on byte/load columns corroborated by median_ratio=0.125 on both primary conservation laws plus peer-identical auxiliary load ratios. node_1's rare-class Non-IID mixture and node_3's class mix are legitimate: their primary conservation laws hold (rel_err 0.0001/0.0029, violation_rate 0.0) and row health is clean, so no label cleaning is warranted.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "flow_audit_tag",
+      "evidence": "flow_audit_tag mi_norm=1.0002 on node_2 versus 0.0046/0.0013/0.0034 on node_1/node_3/node_4 (gap 0.9962, robust_z 49.81), a single-node label-copy shortcut."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_4",
+      "mapping": {
+        "handshake_roundtrip_val": "tcprtt",
+        "http_reply_payload_sz": "response_body_len",
+        "recent_dst_sport_fanout": "ct_dst_sport_ltm"
+      },
+      "evidence": "Aliases match missing canonicals: handshake_roundtrip_val p90=0.2059/zero_frac=0.2957 vs tcprtt ref_p90=0.176591/zero_frac=0.5063; http_reply_payload_sz p50=0.0/zero_frac=0.8953 vs response_body_len ref_p50=0.0/zero_frac=0.9324; recent_dst_sport_fanout p50=1.0/zero_frac=0.0 vs ct_dst_sport_ltm ref_p50=1.0/zero_frac=0.0."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_4",
+      "rule": "nan_or_negative_physical",
+      "evidence": "row_health reports total_corrupted_rows=288 (corrupted_row_rate=0.01203): dbytes:nan=72, sload:nan=72, dur:negative=144, spkts:negative=144, sbytes:negative=144."
+    },
+    {
+      "action": "rescale",
+      "node": "node_4",
+      "cols": [
+        "sbytes",
+        "dbytes",
+        "sload",
+        "dload"
+      ],
+      "factor": 8.0,
+      "evidence": "sbytes_eq_spkts_x_smean and dbytes_eq_dpkts_x_dmean both show median_ratio_lhs_over_rhs=0.125 at violation_rate=1.0 while smean/dmean/spkts/dpkts anchors are normal (max_abs_log10 0.0098-0.2218), and sload/(sbytes*8/dur)=0.901186 and dload/(dbytes*8/dur)=0.876022 match healthy peers 0.901-0.876, so all four columns share the exact 1/8 drift (recovery factor 8.0)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Rare-class Non-IID holder (Analysis/Backdoor/Shellcode/Worms, Worms n=44) with clean row_health (0 corrupted), primary conservation ratios 1.0 (rel_err 0.0001/0.0029, violation_rate 0.0), and flow_audit_tag mi_norm=0.0046; anchor differences reflect class mixture only."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "Clean row_health (0 corrupted), primary conservation ratio 1.0 and rel_err 0.0, no missing canonical columns; only fault was the shortcut column flow_audit_tag, handled by the global drop_column."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Clean row_health (0 corrupted), primary conservation ratios 1.0 (rel_err 0.0/0.0029, violation_rate 0.0), no missing canonicals, and its high sbytes/smean MI (0.6178/0.5452) is matched by peers node_4 (0.6206/0.5522), so it is genuine signal not a shortcut."
+    }
+  ]
+}

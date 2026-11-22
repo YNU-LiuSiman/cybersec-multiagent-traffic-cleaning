@@ -1,0 +1,64 @@
+{
+  "diagnosis_summary": "Node 3 is the only label-noise outlier: with the leaky collector_tag_score column excluded it still shows suspected_noise_rate 0.2003 / high_conf_conflict 0.1285 and mean_self_confidence 0.4684 versus the healthy peer band of 0.0396-0.0445 / 0.0226-0.0234 / 0.817-0.819, and that same column has mi_norm 1.0002 on node_3 versus 0.0007-0.0075 elsewhere (robust_z 49.76), so it is dropped globally. Node 2 has a genuine 1000x unit-scale drift on byte/load columns corroborated by benign-anchor ratios and the sbytes=spkts*smean / dbytes=dpkts*dmean laws, plus 395 corrupted rows and unmappable dur/ackdat aliases; node_1 and node_4 are legitimate Non-IID/rare-class nodes (collector_tag_score MI negligible at 0.0026 and 0.0007, clean rows, conservation ratio 1.0) and require no remediation.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "rename_columns",
+      "node": "node_2",
+      "mapping": {
+        "flow_lifespan_val": "dur",
+        "payload_confirm_delay": "ackdat"
+      },
+      "evidence": "flow_lifespan_val p50=0.2039/p90=1.4320/zero_frac=0.0266 matches dur ref p50=0.2093/p90=1.4072/zero_frac=0.0223, and payload_confirm_delay p50=0.000146/p90=0.0957/zero_frac=0.2959 matches ackdat ref p50=0.000143/p90=0.0917/zero_frac=0.2989; collector_tag_score left unmapped as a cross-node metadata column."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_2",
+      "rule": "nan_or_negative_physical",
+      "evidence": "row_health reports 395 corrupted rows (rate 0.0165): rows_with_nan=198, rows_with_negative_physical=197 (spkts:negative=197, sbytes:negative=197, dbytes/sload nan=99 each)."
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "sbytes",
+        "dbytes",
+        "sload",
+        "dload"
+      ],
+      "factor": 0.001,
+      "evidence": "Benign-anchor ratios to reference are 1000.0 for sbytes (931000 vs 970), 1000.0 for dbytes (354000 vs 354), 1013.93 for dload, 666.81 for sload, and both primary conservation laws give median_ratio_lhs_over_rhs=1000.0 with violation_rate=1.0, so factor=1/1000 applies to those four byte/load columns only (smean p50=73 and dmean are unshifted)."
+    },
+    {
+      "action": "drop_column",
+      "col": "collector_tag_score",
+      "evidence": "compare_mi shows mi_norm 1.0002 on node_3 (equal to label entropy 1.62228 nats) versus 0.0007 on node_4, 0.0026 on node_1, 0.0075 on node_2 (median 0.005, robust_z 49.76), i.e. a local label leak rather than traffic signal."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_3",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "After excluding collector_tag_score, node_3 suspected_noise_rate=0.2003 and high_conf_conflict_rate=0.1285 with mean_self_confidence=0.4684 and cv_macro_f1=0.4935, far above peers (node_1 0.0445/0.0226/0.819/0.719; node_2 0.0396/0.0234/0.817/0.713)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Clean rows (0 corrupted), primary conservation ratio 1.0, benign-anchor ratios within 0.68-1.08 of reference, collector_tag_score mi_norm only 0.0026, and label-noise metrics at peer baseline (0.0445/0.0226/0.819)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "Rare-class Non-IID node (holds 100% of Analysis/Backdoor/Shellcode/Worms; all four show per-class suspected rate 0.0 and Generic absent) with clean rows, conservation ratio 1.0, collector_tag_score mi_norm 0.0007, no cross-node MI outlier (sbytes 0.4165 max); residual confident-learning elevation tracks its small-support 9-class composition, not corruption."
+    }
+  ]
+}

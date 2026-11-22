@@ -1,0 +1,91 @@
+{
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "flow_audit_tag",
+        "evidence": "unmapped alias column with mi_norm=1.00019 and mi=1.63329 (perfect label correlation), while missing_canonical=[] and all canonical columns present, indicating an extraneous label-leaking shortcut rather than a duplicated canonical field."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Action #1 (rename_columns) requires non-empty dict 'mapping'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Clean node: row_health total_corrupted_rows=0 (nan_rows=0, negative_physical=0); all conservation laws status=ok with primary median_rel_err 0.0/0.0029 and median_ratio 1.0; schema unmapped_columns=['flow_audit_tag'] but missing_canonical=[] so there is no canonical target to rename to; high local MI (sbytes mi_norm=0.618, smean=0.545) cannot be adjudicated as shortcut vs signal from one node; confident_learning (excluded_cols=[], exempt_classes=[], suspected_noise_rate=0.0441, DoS per_class_rate=0.1684) was run without cross-node shortcut exclusion or global rare-class counts, so local_cl_clean is not justified."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "evidence": "confident_learning: 545/8684 suspected noise (rate 0.0628), high_conf_conflict_rate 0.0335, per_class_suspected_rate Exploits 0.1876 and Normal 0.0483, cv_macro_f1 0.5347"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "row_health total_corrupted_rows=0, corrupted_row_rate=0.0; conservation primary laws ok (median_rel_err 0.0001 and 0.0029, median_ratio 1.0); missing_canonical empty; only unmapped column flow_audit_tag has no known canonical target, so no rename/drop/rescale justified"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "top_mi_features sbytes mi_norm 0.4165 and smean 0.32174 are high but single-node stats cannot distinguish genuine signal from a local shortcut, so drop_column is not warranted locally"
+      }
+    ]
+  },
+  "per_node_outputs": {
+    "node_1": [
+      {
+        "action": "drop_column",
+        "col": "flow_audit_tag",
+        "evidence": "unmapped alias column with mi_norm=1.00019 and mi=1.63329 (perfect label correlation), while missing_canonical=[] and all canonical columns present, indicating an extraneous label-leaking shortcut rather than a duplicated canonical field."
+      }
+    ],
+    "node_2": [
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Action #1 (rename_columns) requires non-empty dict 'mapping'."
+      }
+    ],
+    "node_3": [
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Clean node: row_health total_corrupted_rows=0 (nan_rows=0, negative_physical=0); all conservation laws status=ok with primary median_rel_err 0.0/0.0029 and median_ratio 1.0; schema unmapped_columns=['flow_audit_tag'] but missing_canonical=[] so there is no canonical target to rename to; high local MI (sbytes mi_norm=0.618, smean=0.545) cannot be adjudicated as shortcut vs signal from one node; confident_learning (excluded_cols=[], exempt_classes=[], suspected_noise_rate=0.0441, DoS per_class_rate=0.1684) was run without cross-node shortcut exclusion or global rare-class counts, so local_cl_clean is not justified."
+      }
+    ],
+    "node_4": [
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "evidence": "confident_learning: 545/8684 suspected noise (rate 0.0628), high_conf_conflict_rate 0.0335, per_class_suspected_rate Exploits 0.1876 and Normal 0.0483, cv_macro_f1 0.5347"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "row_health total_corrupted_rows=0, corrupted_row_rate=0.0; conservation primary laws ok (median_rel_err 0.0001 and 0.0029, median_ratio 1.0); missing_canonical empty; only unmapped column flow_audit_tag has no known canonical target, so no rename/drop/rescale justified"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "top_mi_features sbytes mi_norm 0.4165 and smean 0.32174 are high but single-node stats cannot distinguish genuine signal from a local shortcut, so drop_column is not warranted locally"
+      }
+    ]
+  },
+  "coord_query_rounds": 0,
+  "elapsed_s": 160.982,
+  "llm_usage": {
+    "calls": 9,
+    "prompt_tokens": 19131,
+    "completion_tokens": 18907,
+    "total_tokens": 38038,
+    "total_latency_s": 133.242,
+    "json_retries": 5
+  },
+  "prompt_hashes": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  }
+}

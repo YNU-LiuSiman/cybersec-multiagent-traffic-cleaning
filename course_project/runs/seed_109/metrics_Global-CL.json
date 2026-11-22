@@ -1,0 +1,142 @@
+{
+  "seed": 109,
+  "clean_control": false,
+  "method": "Global-CL",
+  "downstream": {
+    "train_rows": 77250,
+    "rare4_kept": 1262,
+    "rare4_train_retention": 0.7503,
+    "RF": {
+      "macro_f1": 0.4974,
+      "rare4_recall": 0.2366,
+      "binary_attack_f1": 0.922,
+      "n_features": 38,
+      "per_class_f1": {
+        "Normal": 0.8578,
+        "Generic": 0.9325,
+        "Exploits": 0.6634,
+        "Fuzzers": 0.3928,
+        "DoS": 0.3228,
+        "Reconnaissance": 0.7255,
+        "Analysis": 0.0413,
+        "Backdoor": 0.1239,
+        "Shellcode": 0.518,
+        "Worms": 0.396
+      },
+      "per_class_recall": {
+        "Normal": 0.9516,
+        "Generic": 0.8996,
+        "Exploits": 0.6459,
+        "Fuzzers": 0.3143,
+        "DoS": 0.3354,
+        "Reconnaissance": 0.7174,
+        "Analysis": 0.038,
+        "Backdoor": 0.1002,
+        "Shellcode": 0.5004,
+        "Worms": 0.3077
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4374,
+      "rare4_recall": 0.1968,
+      "binary_attack_f1": 0.9191,
+      "n_features": 38,
+      "per_class_f1": {
+        "Normal": 0.8502,
+        "Generic": 0.9637,
+        "Exploits": 0.6265,
+        "Fuzzers": 0.3446,
+        "DoS": 0.2927,
+        "Reconnaissance": 0.7037,
+        "Analysis": 0.0533,
+        "Backdoor": 0.0889,
+        "Shellcode": 0.4216,
+        "Worms": 0.0285
+      },
+      "per_class_recall": {
+        "Normal": 0.9336,
+        "Generic": 0.9785,
+        "Exploits": 0.5771,
+        "Fuzzers": 0.2628,
+        "DoS": 0.2948,
+        "Reconnaissance": 0.7093,
+        "Analysis": 0.0525,
+        "Backdoor": 0.0836,
+        "Shellcode": 0.4819,
+        "Worms": 0.1692
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 0.0,
+    "unit_drift_recall": 0.0,
+    "unit_drift_factor_acc": 0.0,
+    "shortcut_detected": 0,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 0,
+    "residual_alias_acc": 0.0,
+    "noise_node_detected": 0,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.0,
+    "noise_sample_recall": 0.0,
+    "noise_sample_f1": 0.0,
+    "dirty_rows_remediated": 0,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Global-CL baseline (merged Confident Learning without rare-class exemption).",
+    "actions": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Global-CL operates globally after merge"
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Global-CL operates globally after merge"
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Global-CL operates globally after merge"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Global-CL operates globally after merge"
+      }
+    ]
+  },
+  "audit": {
+    "method": "Global-CL",
+    "rows_in": 82332,
+    "rows_removed": 5082,
+    "merged_rows": 77250,
+    "cl_stats": {
+      "n_evaluated": 82332,
+      "suspected_noise_count": 5082,
+      "suspected_noise_rate": 0.0617,
+      "high_conf_conflict_count": 2840,
+      "high_conf_conflict_rate": 0.0345,
+      "mean_self_confidence": 0.697,
+      "cv_macro_f1": 0.4852,
+      "per_class_suspected_rate": {
+        "Analysis": 0.2747,
+        "Backdoor": 0.2624,
+        "DoS": 0.1507,
+        "Exploits": 0.0877,
+        "Fuzzers": 0.1211,
+        "Generic": 0.0196,
+        "Normal": 0.0382,
+        "Reconnaissance": 0.0911,
+        "Shellcode": 0.1667,
+        "Worms": 0.4091
+      }
+    }
+  },
+  "llm_meta": {},
+  "eval_elapsed_s": 9.493
+}

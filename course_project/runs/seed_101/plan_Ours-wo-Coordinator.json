@@ -1,0 +1,25 @@
+{
+  "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+  "actions": [
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "parse fallback: Empty LLM response; expected JSON object."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+    },
+    {
+      "action": "drop_column",
+      "col": "ingest_flag_val",
+      "evidence": "Unmapped column ingest_flag_val has mi_norm=1.00019 (mi=1.63059) vs next feature sbytes mi_norm=0.25003, indicating a local label-leakage shortcut artifact."
+    }
+  ]
+}

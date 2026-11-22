@@ -1,0 +1,93 @@
+{
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "evidence": "confident_learning suspected_noise_count=1189 (rate=0.0461), high_conf_conflict_count=575 (rate=0.0223), cv_macro_f1=0.7178; all physical checks ok (total_corrupted_rows=0, median_rel_err=0.0 for sbytes law)"
+      },
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "evidence": "schema_profile unmapped_columns=['sensor_meta_v2'] with missing_canonical=[] — extraneous non-canonical column with no canonical missing column to rename it to, so it cannot be mapped."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "row_health total_corrupted_rows=0 (rows_with_nan=0, rows_with_negative_physical=0, bad_header_rows_removed=0, inf_cells_replaced=0) so no rows to drop; conservation_check all 4 laws status=ok (sbytes median_rel_err=0.0001, dbytes median_rel_err=0.0029, median_ratio_lhs_over_rhs=1.0, violation_rate=0.0) so no rescale needed; confident_learning suspected_noise_rate=0.0643, high_conf_conflict_rate=0.0341, excluded_cols=[] and all 7 rare classes exempted — local_cl_clean deferred pending cross-node shortcut exclusion and global rare-class counts."
+      },
+      {
+        "action": "drop_column",
+        "node": "node_3",
+        "col": "sensor_meta_v2",
+        "evidence": "schema_profile lists sensor_meta_v2 as unmapped; top_mi_features shows mi_norm=1.00019 vs next highest sbytes=0.16961, a local shortcut/leakage column to exclude."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "row_health total_corrupted_rows=0 and all four conservation laws have status=ok (median_rel_err 0.0/0.0029/0.0988/0.1243, median ratios 1.0/1.0/0.901/0.876), so no row drops or rescaling needed; local_rare_classes=[]."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Empty LLM response; expected JSON object."
+      }
+    ]
+  },
+  "per_node_outputs": {
+    "node_1": [
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "evidence": "confident_learning suspected_noise_count=1189 (rate=0.0461), high_conf_conflict_count=575 (rate=0.0223), cv_macro_f1=0.7178; all physical checks ok (total_corrupted_rows=0, median_rel_err=0.0 for sbytes law)"
+      }
+    ],
+    "node_2": [
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "evidence": "schema_profile unmapped_columns=['sensor_meta_v2'] with missing_canonical=[] — extraneous non-canonical column with no canonical missing column to rename it to, so it cannot be mapped."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "row_health total_corrupted_rows=0 (rows_with_nan=0, rows_with_negative_physical=0, bad_header_rows_removed=0, inf_cells_replaced=0) so no rows to drop; conservation_check all 4 laws status=ok (sbytes median_rel_err=0.0001, dbytes median_rel_err=0.0029, median_ratio_lhs_over_rhs=1.0, violation_rate=0.0) so no rescale needed; confident_learning suspected_noise_rate=0.0643, high_conf_conflict_rate=0.0341, excluded_cols=[] and all 7 rare classes exempted — local_cl_clean deferred pending cross-node shortcut exclusion and global rare-class counts."
+      }
+    ],
+    "node_3": [
+      {
+        "action": "drop_column",
+        "node": "node_3",
+        "col": "sensor_meta_v2",
+        "evidence": "schema_profile lists sensor_meta_v2 as unmapped; top_mi_features shows mi_norm=1.00019 vs next highest sbytes=0.16961, a local shortcut/leakage column to exclude."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "row_health total_corrupted_rows=0 and all four conservation laws have status=ok (median_rel_err 0.0/0.0029/0.0988/0.1243, median ratios 1.0/1.0/0.901/0.876), so no row drops or rescaling needed; local_rare_classes=[]."
+      }
+    ],
+    "node_4": [
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Empty LLM response; expected JSON object."
+      }
+    ]
+  },
+  "coord_query_rounds": 0,
+  "elapsed_s": 201.665,
+  "llm_usage": {
+    "calls": 11,
+    "prompt_tokens": 23614,
+    "completion_tokens": 21527,
+    "total_tokens": 45141,
+    "total_latency_s": 152.703,
+    "json_retries": 7
+  },
+  "prompt_hashes": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  }
+}

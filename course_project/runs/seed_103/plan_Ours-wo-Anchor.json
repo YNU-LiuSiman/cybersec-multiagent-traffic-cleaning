@@ -1,0 +1,65 @@
+{
+  "diagnosis_summary": "Node_3 carries a local shortcut: sensor_meta_v2 has near-complete label information there (mi_norm 1.0002 vs 0.0002-0.0008 on peers, robust_z 49.99); once excluded, node_3's label quality collapses (suspected_noise 0.2307, high_conf_conflict 0.1065, mean_self_confidence 0.3816) far above the healthy baseline (node_1 0.0445/0.0226/0.819, node_4 0.0408/0.0234/0.818), revealing localized label noise. Node_4 has a clean 1000x unit drift on byte/load columns (conservation median_ratio exactly 1000.0 for both primary laws, sbytes/sload/dbytes/dload anchors 914x/1010x/798x/762x), three schema aliases plus 413 physically corrupted rows. Node_1 and node_2 are legitimate Non-IID: node_1 is fully clean, and node_2's large anchor shifts (dur 17x, sinpkt 24x, rate 0.048x, ackdat/synack near-zero) are one-directional traffic-mixture effects from concentrating all globally rare classes (Analysis/Backdoor/Shellcode/Worms) while its primary conservation ratios stay exactly 1.0 and its label-noise metrics are only moderately above peers.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Schema, row health (0 corrupted rows), and conservation all clean; sensor_meta_v2 mi_norm 0.0 (not a shortcut) and no missing canonical columns to alias; label-noise baseline 0.0445/0.0226/0.819 matches node_4."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "Primary conservation ratios exactly 1.0 (violation_rate 0.0) despite anchor shifts (dur 17.4x, sinpkt 24.1x, rate 0.048x, ackdat 0.0028x) explained by it holding 100% of Analysis/Backdoor/Shellcode/Worms; 0 corrupted rows and no missing canonical columns."
+    },
+    {
+      "action": "drop_column",
+      "col": "sensor_meta_v2",
+      "evidence": "Shortcut: mi_norm 1.0002 on node_3 vs 0.0/0.0008/0.0001 on nodes 1/2/4 (gap 0.9997, robust_z 49.99)."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_3",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "With sensor_meta_v2 excluded: suspected_noise_rate 0.2307, high_conf_conflict_rate 0.1065, mean_self_confidence 0.3816, cv_macro_f1 0.4198 vs peer baselines 0.041-0.045 / 0.023 / 0.819 / 0.713."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_4",
+      "mapping": {
+        "packet_velocity_val": "rate",
+        "tx_gap_millis": "sinpkt",
+        "rx_gap_millis": "dinpkt"
+      },
+      "evidence": "Missing canonical [rate, sinpkt, dinpkt]; packet_velocity_val zero_frac 0.0267/p90 111111 closest to rate (0.011/250000), tx_gap_millis zero_frac 0.0023 ~= sinpkt ref 0.0022, rx_gap_millis zero_frac 0.1695 highest matches dinpkt highest ref zero_frac 0.4429; sensor_meta_v2 left unmapped as cross-node metadata."
+    },
+    {
+      "action": "rescale",
+      "node": "node_4",
+      "cols": [
+        "sbytes",
+        "dbytes",
+        "sload",
+        "dload"
+      ],
+      "factor": 0.001,
+      "evidence": "Uniform 1000x inflation: sbytes_eq_spkts_x_smean and dbytes_eq_dpkts_x_dmean both median_ratio_lhs_over_rhs 1000.0 (violation_rate 1.0), anchors sbytes 914.4x, sload 1009.6x, dbytes 798.2x, dload 761.9x, while smean/dmean/dur stay ~1.0."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_4",
+      "rule": "nan_or_negative_physical",
+      "evidence": "row_health: 413 corrupted rows (rate 0.01725) — 207 NaN rows (dbytes:nan 104, sload:nan 103) and 206 negative physical rows (dur/spkts/sbytes:negative 206 each)."
+    }
+  ]
+}

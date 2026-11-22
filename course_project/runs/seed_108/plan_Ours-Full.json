@@ -1,0 +1,65 @@
+{
+  "diagnosis_summary": "node_4 carries a local shortcut column (probe_qos_hint mi_norm=1.0002 vs <=0.0053 on peers) that masks true localized label noise (22.2% suspected noise, 43.4% self-confidence after excluding it, versus 4.1-4.5% and 81.9% on healthy peers), so it is dropped globally and node_4 gets local_cl_clean. node_2 has an unmapped residual schema alias set (dur/rate/sjit) matching by quantiles plus an exact 1/8 bit-byte scale drift on bytes/loads and 406 corrupted rows, all surgically repairable. node_3's audit elevation and node_1's higher attack mix are legitimate Non-IID and rare-class concentration, not faults.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "probe_qos_hint",
+      "evidence": "cross-node MI gap: node_4 mi_norm=1.0002 (mi=1.639 of label entropy 1.6387) vs peers 0.0053/0.0/0.0012 (median 0.0032, robust_z=49.85); values constant-like around 8 on node_4 (p10=7.93, p90=8.06) with negligible MI on nodes 1-3."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_2",
+      "mapping": {
+        "conn_elapsed_qty": "dur",
+        "packet_velocity_val": "rate",
+        "tx_jitter_index": "sjit"
+      },
+      "evidence": "conn_elapsed_qty p50=0.2032/p90=1.4352/zero_frac=0.0265 vs dur ref p50=0.2093/p90=1.4337/zero_frac=0.0223; packet_velocity_val p90=111111.109 matches rate ref p90=111111.109; tx_jitter_index p90=8765.86/zero_frac=0.2599 vs sjit ref 8625.01/0.2589; probe_qos_hint left unmapped as the shared metadata column."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_2",
+      "rule": "nan_or_negative_physical",
+      "evidence": "row_health reports 406 corrupted rows (rate 0.01696): 203 rows with negative spkts/sbytes, 203 with NaN including dbytes:nan=102 and sload:nan=101."
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "sbytes",
+        "dbytes",
+        "sload",
+        "dload"
+      ],
+      "factor": 8.0,
+      "evidence": "exact 1/8 bit-byte drift: benign-anchor ratios dbytes 0.125, sbytes 0.1293, sload 0.10364, dload 0.14869, with primary conservation median_ratio_lhs_over_rhs=0.125 and 100% violation on both byte laws; 1/0.125 = 8 (2^3 unit conversion), smean/dmean unchanged (dmean log10=0.1249)."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_4",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "confident_learning with probe_qos_hint excluded: suspected_noise_rate 0.2219, high_conf_conflict_rate 0.1269, mean_self_confidence 0.4343, cv_macro_f1 0.4598 versus healthy peer baseline 0.0445/0.0226/0.819/0.7189 (node_1) and 0.0413/0.0241/0.8186/0.7122 (node_2), on an ordinary 6-class mix with no rare classes."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "row_health clean (0 corrupted rows), primary conservation ratios 1.0 (rel_err 0.0/0.0029), MI in line with peers (sbytes 0.6178 vs peer 0.6173), and label noise at healthy baseline 0.0445/0.0226/0.819; higher attack rate 0.545 is legitimate Non-IID."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "exact byte conservation (sbytes rel_err 0.0001, ratios 1.0), 0 corrupted rows, and sole host of globally rare classes (1682 rows = 19.4%: Analysis 677, Backdoor 583, Shellcode 378, Worms 44) each with 0.0 suspected noise after exemption, so 0.1086 noise reflects rare-class Non-IID density not corruption."
+    }
+  ]
+}

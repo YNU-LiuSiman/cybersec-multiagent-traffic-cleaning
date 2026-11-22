@@ -1,0 +1,209 @@
+{
+  "seed": 107,
+  "clean_control": false,
+  "method": "Ours-wo-Coordinator",
+  "downstream": {
+    "train_rows": 81201,
+    "rare4_kept": 1494,
+    "rare4_train_retention": 0.8882,
+    "RF": {
+      "macro_f1": 0.5294,
+      "rare4_recall": 0.306,
+      "binary_attack_f1": 0.9253,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8623,
+        "Generic": 0.9755,
+        "Exploits": 0.6462,
+        "Fuzzers": 0.4324,
+        "DoS": 0.394,
+        "Reconnaissance": 0.7958,
+        "Analysis": 0.0777,
+        "Backdoor": 0.1032,
+        "Shellcode": 0.483,
+        "Worms": 0.524
+      },
+      "per_class_recall": {
+        "Normal": 0.9494,
+        "Generic": 0.9689,
+        "Exploits": 0.5405,
+        "Fuzzers": 0.3109,
+        "DoS": 0.4918,
+        "Reconnaissance": 0.7214,
+        "Analysis": 0.17,
+        "Backdoor": 0.1546,
+        "Shellcode": 0.4378,
+        "Worms": 0.4615
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4708,
+      "rare4_recall": 0.1875,
+      "binary_attack_f1": 0.9213,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8597,
+        "Generic": 0.9886,
+        "Exploits": 0.6548,
+        "Fuzzers": 0.3556,
+        "DoS": 0.42,
+        "Reconnaissance": 0.8146,
+        "Analysis": 0.0196,
+        "Backdoor": 0.1072,
+        "Shellcode": 0.4107,
+        "Worms": 0.0771
+      },
+      "per_class_recall": {
+        "Normal": 0.9678,
+        "Generic": 0.9807,
+        "Exploits": 0.599,
+        "Fuzzers": 0.2344,
+        "DoS": 0.5683,
+        "Reconnaissance": 0.726,
+        "Analysis": 0.0115,
+        "Backdoor": 0.0819,
+        "Shellcode": 0.4872,
+        "Worms": 0.1692
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 0.0,
+    "unit_drift_recall": 0.0,
+    "unit_drift_factor_acc": 0.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 0.0,
+    "noise_node_detected": 0,
+    "noise_node_fp": 1,
+    "noise_sample_precision": 0.0,
+    "noise_sample_recall": 0.0,
+    "noise_sample_f1": 0.0,
+    "dirty_rows_remediated": 0,
+    "node_d_false_remediation": 1,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "telemetry_bucket_id",
+        "evidence": "schema_profile lists telemetry_bucket_id as unmapped; feature_label_mi reports mi_norm=1.00019 and mi=1.61639, far above the next-highest feature sbytes with mi_norm=0.2559."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Action #3 (rescale) has non-numeric factor 'None'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "evidence": "confident_learning: suspected_noise_count=538 (rate 0.062), high_conf_conflict_count=288 (rate 0.0332), per_class_suspected_rate Exploits=0.1906, Normal=0.0446."
+      },
+      {
+        "action": "drop_column",
+        "col": "telemetry_bucket_id",
+        "node": "node_4",
+        "evidence": "schema_profile: unmapped_columns=['telemetry_bucket_id'] with missing_canonical=[]."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 5,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 23935,
+      "node_2": 23936,
+      "node_3": 25777,
+      "node_4": 7553
+    },
+    "merged_rows": 81201,
+    "merged_cols": 39,
+    "steps": [
+      {
+        "action": "drop_column",
+        "col": "telemetry_bucket_id",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "schema_profile lists telemetry_bucket_id as unmapped; feature_label_mi reports mi_norm=1.00019 and mi=1.61639, far above the next-highest feature sbytes with mi_norm=0.2559."
+      },
+      {
+        "action": "drop_column",
+        "col": "telemetry_bucket_id",
+        "dropped_from_nodes": [],
+        "evidence": "schema_profile: unmapped_columns=['telemetry_bucket_id'] with missing_canonical=[]."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 1131,
+        "rows_remaining": 7553,
+        "cl_stats": {
+          "n_evaluated": 8684,
+          "suspected_noise_count": 1131,
+          "suspected_noise_rate": 0.1302,
+          "high_conf_conflict_count": 668,
+          "high_conf_conflict_rate": 0.0769,
+          "mean_self_confidence": 0.6457,
+          "cv_macro_f1": 0.5245,
+          "per_class_suspected_rate": {
+            "Analysis": 0.099,
+            "Backdoor": 0.1321,
+            "DoS": 0.334,
+            "Exploits": 0.1836,
+            "Fuzzers": 0.2586,
+            "Normal": 0.0497,
+            "Reconnaissance": 0.175,
+            "Shellcode": 0.0794,
+            "Worms": 0.3182
+          }
+        },
+        "evidence": "confident_learning: suspected_noise_count=538 (rate 0.062), high_conf_conflict_count=288 (rate 0.0332), per_class_suspected_rate Exploits=0.1906, Normal=0.0446."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Action #3 (rescale) has non-numeric factor 'None'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_4": 1131
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 10,
+      "prompt_tokens": 22137,
+      "completion_tokens": 14518,
+      "total_tokens": 36655,
+      "total_latency_s": 104.431,
+      "json_retries": 6
+    },
+    "coord_query_rounds": 0,
+    "llm_elapsed_s": 139.691,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 23.914
+}

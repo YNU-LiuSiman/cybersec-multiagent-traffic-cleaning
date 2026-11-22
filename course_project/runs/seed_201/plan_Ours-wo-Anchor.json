@@ -1,0 +1,37 @@
+{
+  "diagnosis_summary": "Node_3's large all-label quantile offsets (dur 17x, dinpkt 110x, synack/tcprtt 0.006x) are Non-IID mixture artifacts, not unit drift: its lower quantiles match peers, its upper quantiles (p75/p90) agree within 15%, its primary conservation laws are exact (ratio 1.0) and its auxiliary load ratios match peers to 4 decimals, which no single scale factor can produce. No cross-node shortcut exists (max robust_z 1.03; tap_priority_metric MI~0 on all four nodes with no missing canonical), and all nodes are row-healthy with zero corrupted rows. However node_3 alone shows markedly elevated label noise (0.1086 vs 0.041-0.045, high-conf conflict 0.0662 vs 0.022-0.025, confidence 0.6457 vs 0.816-0.819, cv_macro_f1 0.5245 vs 0.713-0.719) with rare classes exempted and clean, indicating localized label corruption rather than rare-class Non-IID.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "local_cl_clean",
+      "node": "node_3",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "suspected_noise_rate 0.1086 and high_conf_conflict_rate 0.0662 vs peer baseline 0.0412-0.0445 / 0.0224-0.0247, with mean_self_confidence 0.6457 vs 0.8159-0.8190 and cv_macro_f1 0.5245 vs 0.7128-0.7189, while exempted rare classes show 0.0 suspected rate."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Clean: 0 corrupted rows, primary sbytes law median_ratio 1.0, benign-anchor quantiles match peers, noise 0.0445/conflict 0.0226/confidence 0.819/cv_macro_f1 0.7189 at healthy baseline."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "Clean: 0 corrupted rows, primary laws exact (ratio 1.0), noise 0.0412/conflict 0.0224/confidence 0.8159/cv_macro_f1 0.7144 at healthy baseline; high local MI on sbytes/smean matches peers."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "Clean: 0 corrupted rows, primary laws exact (ratio 1.0), noise 0.0421/conflict 0.0247/confidence 0.8181/cv_macro_f1 0.7128 at healthy baseline; upper-quantile scale shifts only 0.0755 log10 max on sbytes."
+    }
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "seed": 200,
+  "clean_control": true,
+  "method": "Ours-wo-Coordinator",
+  "downstream": {
+    "train_rows": 80193,
+    "rare4_kept": 1494,
+    "rare4_train_retention": 0.8882,
+    "RF": {
+      "macro_f1": 0.5278,
+      "rare4_recall": 0.2388,
+      "binary_attack_f1": 0.9275,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8675,
+        "Generic": 0.9798,
+        "Exploits": 0.6491,
+        "Fuzzers": 0.4417,
+        "DoS": 0.4389,
+        "Reconnaissance": 0.8193,
+        "Analysis": 0.0525,
+        "Backdoor": 0.1034,
+        "Shellcode": 0.4611,
+        "Worms": 0.4645
+      },
+      "per_class_recall": {
+        "Normal": 0.9604,
+        "Generic": 0.9815,
+        "Exploits": 0.5374,
+        "Fuzzers": 0.3163,
+        "DoS": 0.6316,
+        "Reconnaissance": 0.7324,
+        "Analysis": 0.054,
+        "Backdoor": 0.1472,
+        "Shellcode": 0.3769,
+        "Worms": 0.3769
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4664,
+      "rare4_recall": 0.1444,
+      "binary_attack_f1": 0.919,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8554,
+        "Generic": 0.988,
+        "Exploits": 0.6482,
+        "Fuzzers": 0.3789,
+        "DoS": 0.4389,
+        "Reconnaissance": 0.8231,
+        "Analysis": 0.0,
+        "Backdoor": 0.1075,
+        "Shellcode": 0.3962,
+        "Worms": 0.0273
+      },
+      "per_class_recall": {
+        "Normal": 0.9614,
+        "Generic": 0.9833,
+        "Exploits": 0.576,
+        "Fuzzers": 0.2509,
+        "DoS": 0.6308,
+        "Reconnaissance": 0.7426,
+        "Analysis": 0.0,
+        "Backdoor": 0.0578,
+        "Shellcode": 0.3354,
+        "Worms": 0.1846
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": true,
+    "false_remediation_actions": 5,
+    "clean_false_remediation": 1,
+    "node_d_false_remediation": 1
+  },
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "evidence": "schema_profile: unmapped_columns=[\"export_shard_code\"], missing_canonical=[]"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "evidence": "confident_learning: suspected_noise_count=1008 (4.21%), high_conf_conflict_count=533 (2.23%), cv_macro_f1=0.7116, local_rare_classes=[]"
+      },
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "evidence": "schema_profile.unmapped_columns=['export_shard_code']; missing_canonical=[]; no canonical target to map to, so drop the non-canonical shard-metadata column"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "evidence": "confident_learning suspected_noise_count=540/8684 (rate=0.0622), high_conf_conflict_count=285 (rate=0.0328); per_class_suspected_rate Exploits=0.1901, Normal=0.0454, all other classes exempt at 0.0"
+      },
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "evidence": "schema_profile.unmapped_columns = [\"export_shard_code\"] with empty missing_canonical, so it is a non-canonical unmapped alias column."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 6,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 22928,
+      "node_2": 7553,
+      "node_3": 25777,
+      "node_4": 23935
+    },
+    "merged_rows": 80193,
+    "merged_cols": 36,
+    "steps": [
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "schema_profile: unmapped_columns=[\"export_shard_code\"], missing_canonical=[]"
+      },
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "dropped_from_nodes": [],
+        "evidence": "schema_profile.unmapped_columns=['export_shard_code']; missing_canonical=[]; no canonical target to map to, so drop the non-canonical shard-metadata column"
+      },
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "dropped_from_nodes": [],
+        "evidence": "schema_profile.unmapped_columns = [\"export_shard_code\"] with empty missing_canonical, so it is a non-canonical unmapped alias column."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 1008,
+        "rows_remaining": 22928,
+        "cl_stats": {
+          "n_evaluated": 23936,
+          "suspected_noise_count": 1008,
+          "suspected_noise_rate": 0.0421,
+          "high_conf_conflict_count": 592,
+          "high_conf_conflict_rate": 0.0247,
+          "mean_self_confidence": 0.8181,
+          "cv_macro_f1": 0.7128,
+          "per_class_suspected_rate": {
+            "DoS": 0.1634,
+            "Exploits": 0.0772,
+            "Fuzzers": 0.0923,
+            "Generic": 0.0147,
+            "Normal": 0.0205,
+            "Reconnaissance": 0.11
+          }
+        },
+        "evidence": "confident_learning: suspected_noise_count=1008 (4.21%), high_conf_conflict_count=533 (2.23%), cv_macro_f1=0.7116, local_rare_classes=[]"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 1131,
+        "rows_remaining": 7553,
+        "cl_stats": {
+          "n_evaluated": 8684,
+          "suspected_noise_count": 1131,
+          "suspected_noise_rate": 0.1302,
+          "high_conf_conflict_count": 668,
+          "high_conf_conflict_rate": 0.0769,
+          "mean_self_confidence": 0.6457,
+          "cv_macro_f1": 0.5245,
+          "per_class_suspected_rate": {
+            "Analysis": 0.099,
+            "Backdoor": 0.1321,
+            "DoS": 0.334,
+            "Exploits": 0.1836,
+            "Fuzzers": 0.2586,
+            "Normal": 0.0497,
+            "Reconnaissance": 0.175,
+            "Shellcode": 0.0794,
+            "Worms": 0.3182
+          }
+        },
+        "evidence": "confident_learning suspected_noise_count=540/8684 (rate=0.0622), high_conf_conflict_count=285 (rate=0.0328); per_class_suspected_rate Exploits=0.1901, Normal=0.0454, all other classes exempt at 0.0"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_1": 1008,
+      "node_2": 1131
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 12,
+      "prompt_tokens": 25594,
+      "completion_tokens": 19388,
+      "total_tokens": 44982,
+      "total_latency_s": 146.641,
+      "json_retries": 8
+    },
+    "coord_query_rounds": 0,
+    "llm_elapsed_s": 179.057,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 14.325
+}

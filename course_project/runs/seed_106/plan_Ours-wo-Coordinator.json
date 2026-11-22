@@ -1,0 +1,30 @@
+{
+  "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+  "actions": [
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+    },
+    {
+      "action": "drop_column",
+      "col": "collector_tag_score",
+      "evidence": "Unmapped column with mi_norm=1.00019 (mi=1.61906), a near-perfect label correlation indicating a leaky shortcut; no canonical mapping exists."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "row_health clean (0 nan, 0 negative, 0 corrupted of 23935); all conservation laws status ok (primary median_rel_err 0.0 and 0.0029, ratio 1.0); confident_learning suspected_noise_rate 0.0003, cv_macro_f1 0.9924."
+    },
+    {
+      "action": "drop_column",
+      "col": "collector_tag_score",
+      "evidence": "schema_profile.unmapped_columns=[\"collector_tag_score\"] and missing_canonical=[]; no canonical target exists to map it to, so it is dropped as an unmapped alias."
+    }
+  ]
+}

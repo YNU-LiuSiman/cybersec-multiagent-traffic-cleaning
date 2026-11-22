@@ -1,0 +1,25 @@
+{
+  "diagnosis_summary": "Oracle-Clean upper bound using hidden ground truth.",
+  "actions": [
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Oracle ground truth"
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "Oracle ground truth"
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Oracle ground truth"
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "Oracle ground truth"
+    }
+  ]
+}

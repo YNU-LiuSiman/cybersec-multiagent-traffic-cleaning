@@ -1,0 +1,607 @@
+{
+  "plan": {
+    "diagnosis_summary": "node_1 has three genuine faults: unmapped aliases (rx_jitter_index/syn_reply_interval/payload_confirm_delay statistically matching missing djit/synack/ackdat), a clean 1000x unit inflation on sbytes/dbytes/dload (conservation ratios exactly 1000.0, benign-anchor log10 ratios 2.98-3.01, while smean/dmean/spkts and sload remain at scale), and 412 corrupted rows (NaN/negative, 1.72%). collector_tag_score is a local shortcut (MI_norm 1.0002 on node_3 vs 0.0054 median, robust_z 49.7) and must be dropped globally; with it excluded, node_3 shows sharply elevated label noise (suspected 0.2009, conflict 0.1302, self-confidence 0.4623 vs peer 0.817-0.819) while node_2 and node_4 stay near baseline, so only node_3 needs label cleaning. node_4's class mix (sole holder of Analysis/Backdoor/Shellcode/Worms) is legitimate Non-IID, not a fault.",
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ],
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "evidence": "MI_norm 1.0002 on node_3 vs 0.0054 cross-node median and 0.0084 max on peers (robust_z 49.74, gap 0.9948), i.e. local shortcut/leak."
+      },
+      {
+        "action": "rename_columns",
+        "node": "node_1",
+        "mapping": {
+          "rx_jitter_index": "djit",
+          "syn_reply_interval": "synack",
+          "payload_confirm_delay": "ackdat"
+        },
+        "evidence": "rx_jitter_index p50/p90/zero 26.949/396.084/0.3114 vs djit ref 25.545/374.226/0.3122; syn_reply_interval 0.000553/0.110345/0.2957 vs synack 0.000551/0.108208/0.2983; payload_confirm_delay 0.000146/0.095737/0.2959 vs ackdat 0.000143/0.092639/0.2989."
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "sbytes",
+          "dbytes",
+          "dload"
+        ],
+        "factor": 0.001,
+        "evidence": "Benign anchor ratios 962.9x (sbytes 934000 vs 970), 1000.0x (dbytes 354000 vs 354), 1013.9x (dload 7.72e6 vs 7610.5) with conservation median_ratio_lhs_over_rhs exactly 1000.0; factor=1/1000."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_1",
+        "rule": "nan_or_negative_physical",
+        "evidence": "row_health reports 412 corrupted rows (1.721%): dbytes/sload NaN 103 each, dur/spkts/sbytes negative 206 each."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_3",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "evidence": "With collector_tag_score excluded, node_3 suspected_noise_rate 0.2009 and high_conf_conflict_rate 0.1302 vs peers 0.0417/0.0445 and 0.0244/0.0226, mean_self_confidence 0.4623 vs 0.8175/0.8190, cv_macro_f1 0.4792 vs 0.711/0.7189."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Conservation consistent (primary ratios 1.0), row health clean, and label noise at healthy baseline (0.0445 suspected, 0.0226 conflict, confidence 0.8190, cv_macro_f1 0.7189)."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Rare-class Non-IID node (100% of Analysis/Backdoor/Shellcode/Worms) with conservation consistent (ratio 1.0), clean rows, and only moderately higher noise (0.1086 suspected, 0.0662 conflict, confidence 0.6457) explained by 9-class imbalance; rare classes show 0.0 suspected rate."
+      }
+    ]
+  },
+  "node_reports": {
+    "node_1": {
+      "node_id": "node_1",
+      "node_summary": {
+        "schema_status": "has_unmapped_columns",
+        "row_health_status": "has_corrupted_rows",
+        "conservation_status": "violated",
+        "label_mix_note": "6 classes on 23,936 rows; Normal 10,888 (45.5%), attack rate 0.54512, smallest class Reconnaissance 1,045 (4.37%) so no globally rare class present."
+      },
+      "suspicions": [
+        {
+          "issue_type": "unmapped_alias",
+          "details": "Four non-canonical columns present (rx_jitter_index, syn_reply_interval, payload_confirm_delay, collector_tag_score) while canonical djit/synack/ackdat are absent, suggesting aliasing.",
+          "evidence": "unmapped_columns=[rx_jitter_index, syn_reply_interval, payload_confirm_delay, collector_tag_score]; missing_canonical=[djit, synack, ackdat]"
+        },
+        {
+          "issue_type": "conservation_violation",
+          "details": "Bytes-vs-packets laws fail by exactly ~1000x, indicating a unit/scale inconsistency between sbytes/dbytes and smean/dmean.",
+          "evidence": "sbytes_eq_spkts_x_smean median_rel_err=999.0, median_ratio_lhs_over_rhs=1000.0, violation_rate=1.0; dbytes_eq_dpkts_x_dmean median_rel_err=999.0, ratio=1000.0, violation_rate=1.0"
+        },
+        {
+          "issue_type": "conservation_violation",
+          "details": "Auxiliary load law is off by ~1110x (sload far below sbytes*8/dur) with 100% violation rate, consistent with the same byte-scale shift.",
+          "evidence": "sload_approx_sbytes_x8_div_dur median_rel_err=0.9991, median_ratio_lhs_over_rhs=0.000901, violation_rate=1.0"
+        },
+        {
+          "issue_type": "corrupted_rows",
+          "details": "412 rows (1.72%) affected by NaN in dbytes/sload and negative dur/spkts/sbytes; 103 Inf cells replaced and 1 bad header row removed.",
+          "evidence": "total_corrupted_rows=412 (1.721%); dbytes:nan=103, sload:nan=103, dur:negative=206, spkts:negative=206, sbytes:negative=206; inf_cells_replaced=103; bad_header_rows_removed=1"
+        },
+        {
+          "issue_type": "high_local_mi",
+          "details": "High normalized MI for byte/rate-scale features (sbytes, smean, sload); cannot be distinguished locally from a scale-artifact shortcut given the 1000x conservation discrepancy.",
+          "evidence": "mi_norm sbytes=0.61629, smean=0.55221, sload=0.51143 vs label_entropy_nats=1.44588; collector_tag_score mi=0.0"
+        }
+      ],
+      "confidence": 0.95
+    },
+    "node_2": {
+      "node_id": "node_2",
+      "node_summary": {
+        "schema_status": "has_unmapped_columns",
+        "row_health_status": "clean",
+        "conservation_status": "consistent",
+        "label_mix_note": "6 classes present (Normal 11725, Generic 6605, Exploits 3195, Fuzzers 1867, DoS 1259, Reconnaissance 1126); no globally rare classes and attack fraction 0.545."
+      },
+      "suspicions": [
+        {
+          "issue_type": "unmapped_alias",
+          "details": "Column 'collector_tag_score' is unmapped with no missing canonical columns; its anchor median is 4.8391 with zero_frac 0.0001.",
+          "evidence": "unmapped_columns=['collector_tag_score'], missing_canonical=[], p50=4.8391, zero_frac=0.0001"
+        },
+        {
+          "issue_type": "high_local_mi",
+          "details": "sbytes, smean and sload have the highest normalized MI with label; single-node view cannot distinguish genuine signal from a local shortcut artifact.",
+          "evidence": "mi_norm sbytes=0.61775, smean=0.54516, sload=0.50879 (label entropy 1.43385 nats)"
+        },
+        {
+          "issue_type": "other",
+          "details": "Auxiliary load laws are order-of-magnitude consistent but show median ratios below unity, consistent with minor rounding rather than a conservation break.",
+          "evidence": "sload median ratio 0.901114 (violation_rate 0.0301), dload median ratio 0.876011 (violation_rate 0.0566)"
+        }
+      ],
+      "confidence": 0.92
+    },
+    "node_3": {
+      "node_id": "node_3",
+      "node_summary": {
+        "schema_status": "has_unmapped_columns",
+        "row_health_status": "clean",
+        "conservation_status": "consistent",
+        "label_mix_note": "23,935 rows across 6 classes: Normal 8,773 (36.7%), Generic 5,522, Exploits 3,272, Fuzzers 2,403, DoS 2,023, Reconnaissance 1,942; binary attack rate 0.633 and no rare classes present."
+      },
+      "suspicions": [
+        {
+          "issue_type": "unmapped_alias",
+          "details": "Non-canonical column collector_tag_score is present with no missing canonical columns, so the schema is not fully mappable.",
+          "evidence": "unmapped_columns=['collector_tag_score']; missing_canonical=[]; n_cols=37, missing_rate_nonzero={}"
+        },
+        {
+          "issue_type": "high_local_mi",
+          "details": "Unmapped collector_tag_score carries near-perfect mutual information with the label, consistent with a leaked label/collector artifact that would act as a shortcut; single-node inspection cannot confirm whether it is genuine signal.",
+          "evidence": "collector_tag_score mi=1.61906, mi_norm=1.00019 vs label_entropy_nats=1.61874; next highest sbytes mi_norm=0.24215"
+        },
+        {
+          "issue_type": "other",
+          "details": "collector_tag_score is tightly clustered around 7 with zero-valued fraction absent, unlike a natural traffic measurement.",
+          "evidence": "p10=6.9351, p25=6.9665, p50=6.9999, p75=7.0343, p90=7.0651, zero_frac=0.0"
+        }
+      ],
+      "confidence": 0.95
+    },
+    "node_4": {
+      "node_id": "node_4",
+      "node_summary": {
+        "schema_status": "has_unmapped_columns",
+        "row_health_status": "clean",
+        "conservation_status": "consistent",
+        "label_mix_note": "9 classes present: Normal 3500 (0.403), Exploits 2004, Fuzzers 727, Analysis 677, Backdoor 583, DoS 491, Shellcode 378, Reconnaissance 280, Worms 44 (0.005, rare); binary attack rate 0.597."
+      },
+      "suspicions": [
+        {
+          "issue_type": "unmapped_alias",
+          "details": "Column 'collector_tag_score' is not in the canonical schema and has no mapping; no canonical columns are missing.",
+          "evidence": "unmapped_columns=['collector_tag_score']; missing_canonical=[]; missing_rate_nonzero={}; profile p10=0.827, p50=4.862, p90=8.841, zero_frac=0.0"
+        },
+        {
+          "issue_type": "other",
+          "details": "Unmapped alias carries almost no label information locally, so it is not a local high-MI shortcut driver.",
+          "evidence": "collector_tag_score mi=0.01453, mi_norm=0.0084 vs label_entropy_nats=1.73001"
+        },
+        {
+          "issue_type": "high_local_mi",
+          "details": "sbytes and smean show the highest normalized MI; single-node inspection cannot distinguish genuine signal from a local shortcut artifact.",
+          "evidence": "sbytes mi_norm=0.4165 (mi=0.72054); smean mi_norm=0.32174 (mi=0.55661); next dbytes 0.26823, sload 0.26787"
+        },
+        {
+          "issue_type": "other",
+          "details": "Auxiliary load-vs-bytes-rate law sits ~10-12% below unity with low single-digit violation rates, within tolerance and consistent with order-of-magnitude agreement.",
+          "evidence": "sload median_ratio=0.90106 (median_rel_err=0.099, violation_rate=0.0252); dload median_ratio=0.875706 (median_rel_err=0.1243, violation_rate=0.0471)"
+        }
+      ],
+      "confidence": 0.95
+    }
+  },
+  "coord_packet_overview": {
+    "flagged_scale_shifts": {
+      "dbytes": {
+        "ref_median": 354.0,
+        "max_abs_log10": 3.0,
+        "per_node": {
+          "node_1": {
+            "val": 354000.0,
+            "ratio_to_ref": 1000.0,
+            "log10_ratio": 3.0
+          },
+          "node_2": {
+            "val": 354.0,
+            "ratio_to_ref": 1.0,
+            "log10_ratio": 0.0
+          },
+          "node_3": {
+            "val": 354.0,
+            "ratio_to_ref": 1.0,
+            "log10_ratio": 0.0
+          },
+          "node_4": {
+            "val": 354.0,
+            "ratio_to_ref": 1.0,
+            "log10_ratio": 0.0
+          }
+        }
+      },
+      "dload": {
+        "ref_median": 7610.4928,
+        "max_abs_log10": 3.006,
+        "per_node": {
+          "node_1": {
+            "val": 7716534.668,
+            "ratio_to_ref": 1013.93364,
+            "log10_ratio": 3.006
+          },
+          "node_2": {
+            "val": 7143.4683,
+            "ratio_to_ref": 0.93863,
+            "log10_ratio": -0.0275
+          },
+          "node_3": {
+            "val": 5971.3677,
+            "ratio_to_ref": 0.78462,
+            "log10_ratio": -0.1053
+          },
+          "node_4": {
+            "val": 8077.5173,
+            "ratio_to_ref": 1.06137,
+            "log10_ratio": 0.0259
+          }
+        }
+      },
+      "sbytes": {
+        "ref_median": 970.0,
+        "max_abs_log10": 2.9836,
+        "per_node": {
+          "node_1": {
+            "val": 934000.0,
+            "ratio_to_ref": 962.8866,
+            "log10_ratio": 2.9836
+          },
+          "node_2": {
+            "val": 978.0,
+            "ratio_to_ref": 1.00825,
+            "log10_ratio": 0.0036
+          },
+          "node_3": {
+            "val": 852.0,
+            "ratio_to_ref": 0.87835,
+            "log10_ratio": -0.0563
+          },
+          "node_4": {
+            "val": 962.0,
+            "ratio_to_ref": 0.99175,
+            "log10_ratio": -0.0036
+          }
+        }
+      }
+    },
+    "top_mi_outliers": [
+      {
+        "col": "collector_tag_score",
+        "max_node": "node_3",
+        "max_mi_norm": 1.0002,
+        "median_mi_norm": 0.0054,
+        "other_nodes_max_mi_norm": 0.0084,
+        "gap_max_minus_median": 0.9948,
+        "robust_z": 49.74,
+        "per_node_mi_norm": {
+          "node_1": 0.0,
+          "node_2": 0.0023,
+          "node_3": 1.0002,
+          "node_4": 0.0084
+        }
+      },
+      {
+        "col": "sload",
+        "max_node": "node_1",
+        "max_mi_norm": 0.5114,
+        "median_mi_norm": 0.3883,
+        "other_nodes_max_mi_norm": 0.5088,
+        "gap_max_minus_median": 0.1231,
+        "robust_z": 0.68,
+        "per_node_mi_norm": {
+          "node_1": 0.5114,
+          "node_2": 0.5088,
+          "node_3": 0.2052,
+          "node_4": 0.2679
+        }
+      },
+      {
+        "col": "smean",
+        "max_node": "node_1",
+        "max_mi_norm": 0.5522,
+        "median_mi_norm": 0.4335,
+        "other_nodes_max_mi_norm": 0.5452,
+        "gap_max_minus_median": 0.1188,
+        "robust_z": 0.7,
+        "per_node_mi_norm": {
+          "node_1": 0.5522,
+          "node_2": 0.5452,
+          "node_3": 0.2174,
+          "node_4": 0.3217
+        }
+      },
+      {
+        "col": "ct_dst_sport_ltm",
+        "max_node": "node_1",
+        "max_mi_norm": 0.3226,
+        "median_mi_norm": 0.2137,
+        "other_nodes_max_mi_norm": 0.3015,
+        "gap_max_minus_median": 0.1089,
+        "robust_z": 0.82,
+        "per_node_mi_norm": {
+          "node_1": 0.3226,
+          "node_2": 0.3015,
+          "node_3": 0.1258,
+          "node_4": 0.1224
+        }
+      },
+      {
+        "col": "sbytes",
+        "max_node": "node_2",
+        "max_mi_norm": 0.6178,
+        "median_mi_norm": 0.5164,
+        "other_nodes_max_mi_norm": 0.6163,
+        "gap_max_minus_median": 0.1014,
+        "robust_z": 0.68,
+        "per_node_mi_norm": {
+          "node_1": 0.6163,
+          "node_2": 0.6178,
+          "node_3": 0.2422,
+          "node_4": 0.4165
+        }
+      }
+    ],
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ]
+  },
+  "query_log": [
+    {
+      "round": 1,
+      "node": "node_1",
+      "tool": "confident_learning",
+      "args": {
+        "exclude_cols": [
+          "collector_tag_score"
+        ],
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ]
+      },
+      "summary_keys": [
+        "tool",
+        "node_id",
+        "exempt_classes",
+        "excluded_cols",
+        "n_evaluated",
+        "suspected_noise_count",
+        "suspected_noise_rate",
+        "high_conf_conflict_count",
+        "high_conf_conflict_rate",
+        "mean_self_confidence",
+        "cv_macro_f1",
+        "per_class_suspected_rate"
+      ],
+      "result": {
+        "tool": "confident_learning",
+        "node_id": "node_1",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "excluded_cols": [
+          "collector_tag_score"
+        ],
+        "n_evaluated": 23936,
+        "suspected_noise_count": 999,
+        "suspected_noise_rate": 0.0417,
+        "high_conf_conflict_count": 585,
+        "high_conf_conflict_rate": 0.0244,
+        "mean_self_confidence": 0.8175,
+        "cv_macro_f1": 0.711,
+        "per_class_suspected_rate": {
+          "DoS": 0.1608,
+          "Exploits": 0.0789,
+          "Fuzzers": 0.0928,
+          "Generic": 0.0137,
+          "Normal": 0.0196,
+          "Reconnaissance": 0.1139
+        }
+      }
+    },
+    {
+      "round": 1,
+      "node": "node_2",
+      "tool": "confident_learning",
+      "args": {
+        "exclude_cols": [
+          "collector_tag_score"
+        ],
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ]
+      },
+      "summary_keys": [
+        "tool",
+        "node_id",
+        "exempt_classes",
+        "excluded_cols",
+        "n_evaluated",
+        "suspected_noise_count",
+        "suspected_noise_rate",
+        "high_conf_conflict_count",
+        "high_conf_conflict_rate",
+        "mean_self_confidence",
+        "cv_macro_f1",
+        "per_class_suspected_rate"
+      ],
+      "result": {
+        "tool": "confident_learning",
+        "node_id": "node_2",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "excluded_cols": [
+          "collector_tag_score"
+        ],
+        "n_evaluated": 25777,
+        "suspected_noise_count": 1147,
+        "suspected_noise_rate": 0.0445,
+        "high_conf_conflict_count": 583,
+        "high_conf_conflict_rate": 0.0226,
+        "mean_self_confidence": 0.819,
+        "cv_macro_f1": 0.7189,
+        "per_class_suspected_rate": {
+          "DoS": 0.1589,
+          "Exploits": 0.0926,
+          "Fuzzers": 0.0868,
+          "Generic": 0.0136,
+          "Normal": 0.0247,
+          "Reconnaissance": 0.0968
+        }
+      }
+    },
+    {
+      "round": 1,
+      "node": "node_3",
+      "tool": "confident_learning",
+      "args": {
+        "exclude_cols": [
+          "collector_tag_score"
+        ],
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ]
+      },
+      "summary_keys": [
+        "tool",
+        "node_id",
+        "exempt_classes",
+        "excluded_cols",
+        "n_evaluated",
+        "suspected_noise_count",
+        "suspected_noise_rate",
+        "high_conf_conflict_count",
+        "high_conf_conflict_rate",
+        "mean_self_confidence",
+        "cv_macro_f1",
+        "per_class_suspected_rate"
+      ],
+      "result": {
+        "tool": "confident_learning",
+        "node_id": "node_3",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "excluded_cols": [
+          "collector_tag_score"
+        ],
+        "n_evaluated": 23935,
+        "suspected_noise_count": 4808,
+        "suspected_noise_rate": 0.2009,
+        "high_conf_conflict_count": 3117,
+        "high_conf_conflict_rate": 0.1302,
+        "mean_self_confidence": 0.4623,
+        "cv_macro_f1": 0.4792,
+        "per_class_suspected_rate": {
+          "DoS": 0.387,
+          "Exploits": 0.2503,
+          "Fuzzers": 0.3175,
+          "Generic": 0.1422,
+          "Normal": 0.0792,
+          "Reconnaissance": 0.4959
+        }
+      }
+    },
+    {
+      "round": 1,
+      "node": "node_4",
+      "tool": "confident_learning",
+      "args": {
+        "exclude_cols": [
+          "collector_tag_score"
+        ],
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ]
+      },
+      "summary_keys": [
+        "tool",
+        "node_id",
+        "exempt_classes",
+        "excluded_cols",
+        "n_evaluated",
+        "suspected_noise_count",
+        "suspected_noise_rate",
+        "high_conf_conflict_count",
+        "high_conf_conflict_rate",
+        "mean_self_confidence",
+        "cv_macro_f1",
+        "per_class_suspected_rate"
+      ],
+      "result": {
+        "tool": "confident_learning",
+        "node_id": "node_4",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "excluded_cols": [
+          "collector_tag_score"
+        ],
+        "n_evaluated": 8684,
+        "suspected_noise_count": 943,
+        "suspected_noise_rate": 0.1086,
+        "high_conf_conflict_count": 575,
+        "high_conf_conflict_rate": 0.0662,
+        "mean_self_confidence": 0.6457,
+        "cv_macro_f1": 0.5245,
+        "per_class_suspected_rate": {
+          "Analysis": 0.0,
+          "Backdoor": 0.0,
+          "DoS": 0.334,
+          "Exploits": 0.1836,
+          "Fuzzers": 0.2586,
+          "Normal": 0.0497,
+          "Reconnaissance": 0.175,
+          "Shellcode": 0.0,
+          "Worms": 0.0
+        }
+      }
+    }
+  ],
+  "coord_query_rounds": 1,
+  "elapsed_s": 96.785,
+  "llm_usage": {
+    "calls": 10,
+    "prompt_tokens": 47693,
+    "completion_tokens": 10222,
+    "total_tokens": 57915,
+    "total_latency_s": 69.429,
+    "json_retries": 0
+  },
+  "prompt_hashes": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  }
+}

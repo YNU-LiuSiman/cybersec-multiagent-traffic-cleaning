@@ -1,0 +1,37 @@
+{
+  "diagnosis_summary": "All four nodes pass schema, row health (0 corrupted rows everywhere), physical conservation laws, and benign-anchor quantile comparison (max |log10| shift 0.132, flagged_scale_shifts empty), so node_2's 9-class mixture with the globally rare classes (Analysis/Backdoor/Shellcode/Worms, all 100% in node_2) is legitimate Non-IID and the uniform ~0.90/0.876 sload/dload ratios are a shared within-tolerance artifact, not node-specific unit drift. No cross-node MI outlier qualifies as a local shortcut (max robust_z 1.03 for ct_dst_sport_ltm; sensor_meta_v2 has ~0 MI on every node and no missing canonical counterpart, so it is a benign extra metadata column, not an alias or leak). After exempting the rare classes, node_2 alone shows markedly elevated label noise (0.1094 vs 0.0398-0.0454 peers; conflict 0.0670 vs 0.0215-0.0227; confidence 0.6453 vs 0.8141-0.8185; cv_macro_f1 0.5422 vs 0.7084-0.7137), concentrated in common classes (DoS 0.326, Fuzzers 0.260), so only node_2 needs localized label cleaning.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "local_cl_clean",
+      "node": "node_2",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "suspected_noise_rate 0.1094 vs peer 0.0398-0.0454, high_conf_conflict_rate 0.0670 vs 0.0215-0.0227, mean_self_confidence 0.6453 vs 0.8141-0.8185, cv_macro_f1 0.5422 vs 0.7084-0.7137."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "row_health clean (0 corrupted), conservation primary ratios 1.000, anchor shifts minimal, CL noise 0.0454/conflict 0.0227/conf 0.8185 in line with peers."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "row_health clean (0 corrupted), conservation primary ratios 1.000, anchor shifts minimal, CL noise 0.0398/conflict 0.0222/conf 0.8170 in line with peers."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "row_health clean (0 corrupted), conservation primary ratios 1.000, anchor shifts minimal, CL noise 0.0433/conflict 0.0215/conf 0.8141 in line with peers."
+    }
+  ]
+}

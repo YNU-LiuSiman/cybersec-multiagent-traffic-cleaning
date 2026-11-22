@@ -1,0 +1,26 @@
+# === 1. 严禁上传的密钥与配置 ===
+纯的api key*.txt
+apikey使用说明必读.txt
+.env
+.env.*
+*.key
+
+# === 2. 超过 GitHub 100MB 限制或本项目未用到的原始数据 ===
+data/cic2017_tuesday_withIP.csv
+data/KDDTrain+.txt
+data/KDDTest+.txt
+
+# === 3. 历史探索与临时文件（只推干净的 course_project/ + 核心 data/）===
+legacy/
+v2_research/
+.swarm_plan.md
+*.md
+!course_project/**/*.md
+!README.md
+
+# === 4. Python 缓存与虚拟环境 ===
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/

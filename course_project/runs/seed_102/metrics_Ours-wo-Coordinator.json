@@ -1,0 +1,210 @@
+{
+  "seed": 102,
+  "clean_control": false,
+  "method": "Ours-wo-Coordinator",
+  "downstream": {
+    "train_rows": 81201,
+    "rare4_kept": 1494,
+    "rare4_train_retention": 0.8882,
+    "RF": {
+      "macro_f1": 0.5253,
+      "rare4_recall": 0.3116,
+      "binary_attack_f1": 0.9234,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8583,
+        "Generic": 0.9722,
+        "Exploits": 0.6441,
+        "Fuzzers": 0.425,
+        "DoS": 0.3865,
+        "Reconnaissance": 0.78,
+        "Analysis": 0.0793,
+        "Backdoor": 0.0993,
+        "Shellcode": 0.4863,
+        "Worms": 0.5217
+      },
+      "per_class_recall": {
+        "Normal": 0.9426,
+        "Generic": 0.9618,
+        "Exploits": 0.5376,
+        "Fuzzers": 0.3043,
+        "DoS": 0.4718,
+        "Reconnaissance": 0.7257,
+        "Analysis": 0.1845,
+        "Backdoor": 0.1627,
+        "Shellcode": 0.4378,
+        "Worms": 0.4615
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4773,
+      "rare4_recall": 0.2127,
+      "binary_attack_f1": 0.9215,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8604,
+        "Generic": 0.9883,
+        "Exploits": 0.6627,
+        "Fuzzers": 0.3799,
+        "DoS": 0.4108,
+        "Reconnaissance": 0.8162,
+        "Analysis": 0.0065,
+        "Backdoor": 0.0952,
+        "Shellcode": 0.4618,
+        "Worms": 0.0908
+      },
+      "per_class_recall": {
+        "Normal": 0.9698,
+        "Generic": 0.9806,
+        "Exploits": 0.6203,
+        "Fuzzers": 0.2506,
+        "DoS": 0.5336,
+        "Reconnaissance": 0.7349,
+        "Analysis": 0.0035,
+        "Backdoor": 0.0676,
+        "Shellcode": 0.4722,
+        "Worms": 0.3077
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 0.0,
+    "unit_drift_recall": 0.0,
+    "unit_drift_factor_acc": 0.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 0.0,
+    "noise_node_detected": 0,
+    "noise_node_fp": 1,
+    "noise_sample_precision": 0.0,
+    "noise_sample_recall": 0.0,
+    "noise_sample_f1": 0.0,
+    "dirty_rows_remediated": 0,
+    "node_d_false_remediation": 1,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "drop_column",
+        "node": "node_1",
+        "col": "flow_audit_tag",
+        "evidence": "schema_profile.unmapped_columns=['flow_audit_tag'] with missing_canonical=[]; it is a non-canonical extra column."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "evidence": "confident_learning: suspected_noise_count=548 (rate 0.0631), high_conf_conflict_count=276 (rate 0.0318); per-class suspected rates Exploits=0.1881, Normal=0.0489, all rare classes exempted at 0.0."
+      },
+      {
+        "action": "drop_column",
+        "col": "flow_audit_tag",
+        "node": "node_2",
+        "evidence": "unmapped column flow_audit_tag has mi_norm=1.00019 (mi=1.66127) vs next-highest sbytes mi_norm=0.19869, indicating label leakage/local shortcut; it is also unmapped to canonical schema."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 5,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 7553,
+      "node_2": 23935,
+      "node_3": 25777,
+      "node_4": 23936
+    },
+    "merged_rows": 81201,
+    "merged_cols": 39,
+    "steps": [
+      {
+        "action": "drop_column",
+        "col": "flow_audit_tag",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "schema_profile.unmapped_columns=['flow_audit_tag'] with missing_canonical=[]; it is a non-canonical extra column."
+      },
+      {
+        "action": "drop_column",
+        "col": "flow_audit_tag",
+        "dropped_from_nodes": [],
+        "evidence": "unmapped column flow_audit_tag has mi_norm=1.00019 (mi=1.66127) vs next-highest sbytes mi_norm=0.19869, indicating label leakage/local shortcut; it is also unmapped to canonical schema."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 1131,
+        "rows_remaining": 7553,
+        "cl_stats": {
+          "n_evaluated": 8684,
+          "suspected_noise_count": 1131,
+          "suspected_noise_rate": 0.1302,
+          "high_conf_conflict_count": 668,
+          "high_conf_conflict_rate": 0.0769,
+          "mean_self_confidence": 0.6457,
+          "cv_macro_f1": 0.5245,
+          "per_class_suspected_rate": {
+            "Analysis": 0.099,
+            "Backdoor": 0.1321,
+            "DoS": 0.334,
+            "Exploits": 0.1836,
+            "Fuzzers": 0.2586,
+            "Normal": 0.0497,
+            "Reconnaissance": 0.175,
+            "Shellcode": 0.0794,
+            "Worms": 0.3182
+          }
+        },
+        "evidence": "confident_learning: suspected_noise_count=548 (rate 0.0631), high_conf_conflict_count=276 (rate 0.0318); per-class suspected rates Exploits=0.1881, Normal=0.0489, all rare classes exempted at 0.0."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_1": 1131
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 10,
+      "prompt_tokens": 21184,
+      "completion_tokens": 17075,
+      "total_tokens": 38259,
+      "total_latency_s": 119.87,
+      "json_retries": 6
+    },
+    "coord_query_rounds": 0,
+    "llm_elapsed_s": 149.98,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 24.715
+}

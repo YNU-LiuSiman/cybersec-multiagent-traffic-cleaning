@@ -1,0 +1,659 @@
+{
+  "seeds": [
+    100,
+    101,
+    102
+  ],
+  "n_repeats": 3,
+  "mean_exact_plan_agreement": 0.7778,
+  "mean_control_plane_agreement": 0.7778,
+  "per_seed": {
+    "100": {
+      "exact_plan_pairwise_agreement": 1.0,
+      "control_plane_pairwise_agreement": 1.0,
+      "repeats": [
+        {
+          "seed": 100,
+          "repeat": 0,
+          "signature": [
+            {
+              "action": "drop_column",
+              "col": "collector_tag_score"
+            },
+            {
+              "action": "drop_rows",
+              "node": "node_3",
+              "rule": "nan_or_negative_physical"
+            },
+            {
+              "action": "local_cl_clean",
+              "node": "node_4",
+              "exempt_classes": [
+                "Analysis",
+                "Backdoor",
+                "Shellcode",
+                "Worms"
+              ]
+            },
+            {
+              "action": "rename_columns",
+              "node": "node_3",
+              "mapping": {
+                "ack_data_interval": "ackdat",
+                "egress_timing_variance": "sjit",
+                "ingress_interarrival_avg": "dinpkt"
+              }
+            },
+            {
+              "action": "rescale",
+              "node": "node_3",
+              "cols": [
+                "dbytes",
+                "dload",
+                "sbytes"
+              ],
+              "factor": 0.001
+            }
+          ],
+          "control_plane": {
+            "clean_control": false,
+            "unit_drift_precision": 1.0,
+            "unit_drift_recall": 1.0,
+            "unit_drift_factor_acc": 1.0,
+            "shortcut_detected": 1,
+            "shortcut_fp_drops": 0,
+            "shortcut_exact": 1,
+            "residual_alias_acc": 1.0,
+            "noise_node_detected": 1,
+            "noise_node_fp": 0,
+            "noise_sample_precision": 0.91,
+            "noise_sample_recall": 0.708,
+            "noise_sample_f1": 0.7964,
+            "dirty_rows_remediated": 1,
+            "node_d_false_remediation": 0,
+            "quarantined_nodes": []
+          },
+          "llm_usage": {
+            "calls": 10,
+            "prompt_tokens": 47749,
+            "completion_tokens": 9124,
+            "total_tokens": 56873,
+            "total_latency_s": 63.047,
+            "json_retries": 0
+          },
+          "coord_query_rounds": 1
+        },
+        {
+          "seed": 100,
+          "repeat": 1,
+          "signature": [
+            {
+              "action": "drop_column",
+              "col": "collector_tag_score"
+            },
+            {
+              "action": "drop_rows",
+              "node": "node_3",
+              "rule": "nan_or_negative_physical"
+            },
+            {
+              "action": "local_cl_clean",
+              "node": "node_4",
+              "exempt_classes": [
+                "Analysis",
+                "Backdoor",
+                "Shellcode",
+                "Worms"
+              ]
+            },
+            {
+              "action": "rename_columns",
+              "node": "node_3",
+              "mapping": {
+                "ack_data_interval": "ackdat",
+                "egress_timing_variance": "sjit",
+                "ingress_interarrival_avg": "dinpkt"
+              }
+            },
+            {
+              "action": "rescale",
+              "node": "node_3",
+              "cols": [
+                "dbytes",
+                "dload",
+                "sbytes"
+              ],
+              "factor": 0.001
+            }
+          ],
+          "control_plane": {
+            "clean_control": false,
+            "unit_drift_precision": 1.0,
+            "unit_drift_recall": 1.0,
+            "unit_drift_factor_acc": 1.0,
+            "shortcut_detected": 1,
+            "shortcut_fp_drops": 0,
+            "shortcut_exact": 1,
+            "residual_alias_acc": 1.0,
+            "noise_node_detected": 1,
+            "noise_node_fp": 0,
+            "noise_sample_precision": 0.91,
+            "noise_sample_recall": 0.708,
+            "noise_sample_f1": 0.7964,
+            "dirty_rows_remediated": 1,
+            "node_d_false_remediation": 0,
+            "quarantined_nodes": []
+          },
+          "llm_usage": {
+            "calls": 10,
+            "prompt_tokens": 48346,
+            "completion_tokens": 11319,
+            "total_tokens": 59665,
+            "total_latency_s": 80.375,
+            "json_retries": 0
+          },
+          "coord_query_rounds": 1
+        },
+        {
+          "seed": 100,
+          "repeat": 2,
+          "signature": [
+            {
+              "action": "drop_column",
+              "col": "collector_tag_score"
+            },
+            {
+              "action": "drop_rows",
+              "node": "node_3",
+              "rule": "nan_or_negative_physical"
+            },
+            {
+              "action": "local_cl_clean",
+              "node": "node_4",
+              "exempt_classes": [
+                "Analysis",
+                "Backdoor",
+                "Shellcode",
+                "Worms"
+              ]
+            },
+            {
+              "action": "rename_columns",
+              "node": "node_3",
+              "mapping": {
+                "ack_data_interval": "ackdat",
+                "egress_timing_variance": "sjit",
+                "ingress_interarrival_avg": "dinpkt"
+              }
+            },
+            {
+              "action": "rescale",
+              "node": "node_3",
+              "cols": [
+                "dbytes",
+                "dload",
+                "sbytes"
+              ],
+              "factor": 0.001
+            }
+          ],
+          "control_plane": {
+            "clean_control": false,
+            "unit_drift_precision": 1.0,
+            "unit_drift_recall": 1.0,
+            "unit_drift_factor_acc": 1.0,
+            "shortcut_detected": 1,
+            "shortcut_fp_drops": 0,
+            "shortcut_exact": 1,
+            "residual_alias_acc": 1.0,
+            "noise_node_detected": 1,
+            "noise_node_fp": 0,
+            "noise_sample_precision": 0.91,
+            "noise_sample_recall": 0.708,
+            "noise_sample_f1": 0.7964,
+            "dirty_rows_remediated": 1,
+            "node_d_false_remediation": 0,
+            "quarantined_nodes": []
+          },
+          "llm_usage": {
+            "calls": 10,
+            "prompt_tokens": 47798,
+            "completion_tokens": 10612,
+            "total_tokens": 58410,
+            "total_latency_s": 75.352,
+            "json_retries": 0
+          },
+          "coord_query_rounds": 1
+        }
+      ]
+    },
+    "101": {
+      "exact_plan_pairwise_agreement": 1.0,
+      "control_plane_pairwise_agreement": 1.0,
+      "repeats": [
+        {
+          "seed": 101,
+          "repeat": 0,
+          "signature": [
+            {
+              "action": "drop_column",
+              "col": "ingest_flag_val"
+            },
+            {
+              "action": "drop_rows",
+              "node": "node_2",
+              "rule": "nan_or_negative_physical"
+            },
+            {
+              "action": "local_cl_clean",
+              "node": "node_4",
+              "exempt_classes": [
+                "Analysis",
+                "Backdoor",
+                "Shellcode",
+                "Worms"
+              ]
+            },
+            {
+              "action": "rename_columns",
+              "node": "node_2",
+              "mapping": {
+                "ack_data_interval": "ackdat",
+                "ingress_timing_variance": "djit",
+                "session_timespan": "dur"
+              }
+            },
+            {
+              "action": "rescale",
+              "node": "node_2",
+              "cols": [
+                "dbytes",
+                "sbytes"
+              ],
+              "factor": 0.001
+            }
+          ],
+          "control_plane": {
+            "clean_control": false,
+            "unit_drift_precision": 1.0,
+            "unit_drift_recall": 1.0,
+            "unit_drift_factor_acc": 1.0,
+            "shortcut_detected": 1,
+            "shortcut_fp_drops": 0,
+            "shortcut_exact": 1,
+            "residual_alias_acc": 1.0,
+            "noise_node_detected": 1,
+            "noise_node_fp": 0,
+            "noise_sample_precision": 0.906,
+            "noise_sample_recall": 0.711,
+            "noise_sample_f1": 0.7968,
+            "dirty_rows_remediated": 1,
+            "node_d_false_remediation": 0,
+            "quarantined_nodes": []
+          },
+          "llm_usage": {
+            "calls": 11,
+            "prompt_tokens": 57776,
+            "completion_tokens": 14502,
+            "total_tokens": 72278,
+            "total_latency_s": 98.558,
+            "json_retries": 0
+          },
+          "coord_query_rounds": 2
+        },
+        {
+          "seed": 101,
+          "repeat": 1,
+          "signature": [
+            {
+              "action": "drop_column",
+              "col": "ingest_flag_val"
+            },
+            {
+              "action": "drop_rows",
+              "node": "node_2",
+              "rule": "nan_or_negative_physical"
+            },
+            {
+              "action": "local_cl_clean",
+              "node": "node_4",
+              "exempt_classes": [
+                "Analysis",
+                "Backdoor",
+                "Shellcode",
+                "Worms"
+              ]
+            },
+            {
+              "action": "rename_columns",
+              "node": "node_2",
+              "mapping": {
+                "ack_data_interval": "ackdat",
+                "ingress_timing_variance": "djit",
+                "session_timespan": "dur"
+              }
+            },
+            {
+              "action": "rescale",
+              "node": "node_2",
+              "cols": [
+                "dbytes",
+                "sbytes"
+              ],
+              "factor": 0.001
+            }
+          ],
+          "control_plane": {
+            "clean_control": false,
+            "unit_drift_precision": 1.0,
+            "unit_drift_recall": 1.0,
+            "unit_drift_factor_acc": 1.0,
+            "shortcut_detected": 1,
+            "shortcut_fp_drops": 0,
+            "shortcut_exact": 1,
+            "residual_alias_acc": 1.0,
+            "noise_node_detected": 1,
+            "noise_node_fp": 0,
+            "noise_sample_precision": 0.906,
+            "noise_sample_recall": 0.711,
+            "noise_sample_f1": 0.7968,
+            "dirty_rows_remediated": 1,
+            "node_d_false_remediation": 0,
+            "quarantined_nodes": []
+          },
+          "llm_usage": {
+            "calls": 10,
+            "prompt_tokens": 46840,
+            "completion_tokens": 8115,
+            "total_tokens": 54955,
+            "total_latency_s": 60.62,
+            "json_retries": 0
+          },
+          "coord_query_rounds": 1
+        },
+        {
+          "seed": 101,
+          "repeat": 2,
+          "signature": [
+            {
+              "action": "drop_column",
+              "col": "ingest_flag_val"
+            },
+            {
+              "action": "drop_rows",
+              "node": "node_2",
+              "rule": "nan_or_negative_physical"
+            },
+            {
+              "action": "local_cl_clean",
+              "node": "node_4",
+              "exempt_classes": [
+                "Analysis",
+                "Backdoor",
+                "Shellcode",
+                "Worms"
+              ]
+            },
+            {
+              "action": "rename_columns",
+              "node": "node_2",
+              "mapping": {
+                "ack_data_interval": "ackdat",
+                "ingress_timing_variance": "djit",
+                "session_timespan": "dur"
+              }
+            },
+            {
+              "action": "rescale",
+              "node": "node_2",
+              "cols": [
+                "dbytes",
+                "sbytes"
+              ],
+              "factor": 0.001
+            }
+          ],
+          "control_plane": {
+            "clean_control": false,
+            "unit_drift_precision": 1.0,
+            "unit_drift_recall": 1.0,
+            "unit_drift_factor_acc": 1.0,
+            "shortcut_detected": 1,
+            "shortcut_fp_drops": 0,
+            "shortcut_exact": 1,
+            "residual_alias_acc": 1.0,
+            "noise_node_detected": 1,
+            "noise_node_fp": 0,
+            "noise_sample_precision": 0.906,
+            "noise_sample_recall": 0.711,
+            "noise_sample_f1": 0.7968,
+            "dirty_rows_remediated": 1,
+            "node_d_false_remediation": 0,
+            "quarantined_nodes": []
+          },
+          "llm_usage": {
+            "calls": 10,
+            "prompt_tokens": 46774,
+            "completion_tokens": 9003,
+            "total_tokens": 55777,
+            "total_latency_s": 66.25,
+            "json_retries": 0
+          },
+          "coord_query_rounds": 1
+        }
+      ]
+    },
+    "102": {
+      "exact_plan_pairwise_agreement": 0.3333,
+      "control_plane_pairwise_agreement": 0.3333,
+      "repeats": [
+        {
+          "seed": 102,
+          "repeat": 0,
+          "signature": [
+            {
+              "action": "drop_column",
+              "col": "flow_audit_tag"
+            },
+            {
+              "action": "drop_rows",
+              "node": "node_4",
+              "rule": "nan_or_negative_physical"
+            },
+            {
+              "action": "local_cl_clean",
+              "node": "node_2",
+              "exempt_classes": [
+                "Analysis",
+                "Backdoor",
+                "Shellcode",
+                "Worms"
+              ]
+            },
+            {
+              "action": "rename_columns",
+              "node": "node_4",
+              "mapping": {
+                "handshake_roundtrip_val": "tcprtt",
+                "http_reply_payload_sz": "response_body_len",
+                "recent_dst_sport_fanout": "ct_dst_sport_ltm"
+              }
+            },
+            {
+              "action": "rescale",
+              "node": "node_4",
+              "cols": [
+                "dbytes",
+                "dload",
+                "sbytes",
+                "sload"
+              ],
+              "factor": 8.0
+            }
+          ],
+          "control_plane": {
+            "clean_control": false,
+            "unit_drift_precision": 1.0,
+            "unit_drift_recall": 1.0,
+            "unit_drift_factor_acc": 1.0,
+            "shortcut_detected": 1,
+            "shortcut_fp_drops": 0,
+            "shortcut_exact": 1,
+            "residual_alias_acc": 1.0,
+            "noise_node_detected": 1,
+            "noise_node_fp": 0,
+            "noise_sample_precision": 0.9367,
+            "noise_sample_recall": 0.6802,
+            "noise_sample_f1": 0.7881,
+            "dirty_rows_remediated": 1,
+            "node_d_false_remediation": 0,
+            "quarantined_nodes": []
+          },
+          "llm_usage": {
+            "calls": 11,
+            "prompt_tokens": 61343,
+            "completion_tokens": 15720,
+            "total_tokens": 77063,
+            "total_latency_s": 100.925,
+            "json_retries": 1
+          },
+          "coord_query_rounds": 1
+        },
+        {
+          "seed": 102,
+          "repeat": 1,
+          "signature": [
+            {
+              "action": "drop_column",
+              "col": "flow_audit_tag"
+            },
+            {
+              "action": "drop_rows",
+              "node": "node_4",
+              "rule": "nan_or_negative_physical"
+            },
+            {
+              "action": "local_cl_clean",
+              "node": "node_2",
+              "exempt_classes": [
+                "Analysis",
+                "Backdoor",
+                "Shellcode",
+                "Worms"
+              ]
+            },
+            {
+              "action": "rename_columns",
+              "node": "node_4",
+              "mapping": {
+                "handshake_roundtrip_val": "tcprtt",
+                "http_reply_payload_sz": "response_body_len",
+                "recent_dst_sport_fanout": "ct_dst_sport_ltm"
+              }
+            },
+            {
+              "action": "rescale",
+              "node": "node_4",
+              "cols": [
+                "dbytes",
+                "dload",
+                "sbytes",
+                "sload"
+              ],
+              "factor": 8.0
+            }
+          ],
+          "control_plane": {
+            "clean_control": false,
+            "unit_drift_precision": 1.0,
+            "unit_drift_recall": 1.0,
+            "unit_drift_factor_acc": 1.0,
+            "shortcut_detected": 1,
+            "shortcut_fp_drops": 0,
+            "shortcut_exact": 1,
+            "residual_alias_acc": 1.0,
+            "noise_node_detected": 1,
+            "noise_node_fp": 0,
+            "noise_sample_precision": 0.9367,
+            "noise_sample_recall": 0.6802,
+            "noise_sample_f1": 0.7881,
+            "dirty_rows_remediated": 1,
+            "node_d_false_remediation": 0,
+            "quarantined_nodes": []
+          },
+          "llm_usage": {
+            "calls": 10,
+            "prompt_tokens": 48662,
+            "completion_tokens": 12287,
+            "total_tokens": 60949,
+            "total_latency_s": 82.421,
+            "json_retries": 0
+          },
+          "coord_query_rounds": 1
+        },
+        {
+          "seed": 102,
+          "repeat": 2,
+          "signature": [
+            {
+              "action": "drop_column",
+              "col": "flow_audit_tag"
+            },
+            {
+              "action": "drop_rows",
+              "node": "node_4",
+              "rule": "nan_or_negative_physical"
+            },
+            {
+              "action": "rename_columns",
+              "node": "node_4",
+              "mapping": {
+                "handshake_roundtrip_val": "tcprtt",
+                "http_reply_payload_sz": "response_body_len",
+                "recent_dst_sport_fanout": "ct_dst_sport_ltm"
+              }
+            },
+            {
+              "action": "rescale",
+              "node": "node_4",
+              "cols": [
+                "dbytes",
+                "dload",
+                "sbytes",
+                "sload"
+              ],
+              "factor": 8.0
+            }
+          ],
+          "control_plane": {
+            "clean_control": false,
+            "unit_drift_precision": 1.0,
+            "unit_drift_recall": 1.0,
+            "unit_drift_factor_acc": 1.0,
+            "shortcut_detected": 1,
+            "shortcut_fp_drops": 0,
+            "shortcut_exact": 1,
+            "residual_alias_acc": 1.0,
+            "noise_node_detected": 0,
+            "noise_node_fp": 0,
+            "noise_sample_precision": 0.0,
+            "noise_sample_recall": 0.0,
+            "noise_sample_f1": 0.0,
+            "dirty_rows_remediated": 1,
+            "node_d_false_remediation": 0,
+            "quarantined_nodes": []
+          },
+          "llm_usage": {
+            "calls": 11,
+            "prompt_tokens": 56818,
+            "completion_tokens": 19981,
+            "total_tokens": 76799,
+            "total_latency_s": 133.698,
+            "json_retries": 2
+          },
+          "coord_query_rounds": 0
+        }
+      ]
+    }
+  }
+}

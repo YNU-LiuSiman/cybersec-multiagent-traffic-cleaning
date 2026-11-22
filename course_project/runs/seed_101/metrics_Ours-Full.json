@@ -1,0 +1,265 @@
+{
+  "seed": 101,
+  "clean_control": false,
+  "method": "Ours-Full",
+  "downstream": {
+    "train_rows": 77202,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.5232,
+      "rare4_recall": 0.2366,
+      "binary_attack_f1": 0.9281,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8687,
+        "Generic": 0.9791,
+        "Exploits": 0.6486,
+        "Fuzzers": 0.4381,
+        "DoS": 0.4341,
+        "Reconnaissance": 0.8187,
+        "Analysis": 0.0509,
+        "Backdoor": 0.1084,
+        "Shellcode": 0.4393,
+        "Worms": 0.4466
+      },
+      "per_class_recall": {
+        "Normal": 0.9623,
+        "Generic": 0.9812,
+        "Exploits": 0.5368,
+        "Fuzzers": 0.3123,
+        "DoS": 0.6114,
+        "Reconnaissance": 0.7348,
+        "Analysis": 0.0505,
+        "Backdoor": 0.181,
+        "Shellcode": 0.361,
+        "Worms": 0.3538
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4716,
+      "rare4_recall": 0.1782,
+      "binary_attack_f1": 0.9191,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.856,
+        "Generic": 0.9886,
+        "Exploits": 0.6602,
+        "Fuzzers": 0.3658,
+        "DoS": 0.412,
+        "Reconnaissance": 0.8196,
+        "Analysis": 0.0028,
+        "Backdoor": 0.1234,
+        "Shellcode": 0.4149,
+        "Worms": 0.0729
+      },
+      "per_class_recall": {
+        "Normal": 0.9638,
+        "Generic": 0.9821,
+        "Exploits": 0.6159,
+        "Fuzzers": 0.2404,
+        "DoS": 0.5484,
+        "Reconnaissance": 0.7481,
+        "Analysis": 0.0015,
+        "Backdoor": 0.0699,
+        "Shellcode": 0.3645,
+        "Worms": 0.2769
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 1.0,
+    "unit_drift_recall": 1.0,
+    "unit_drift_factor_acc": 1.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 1.0,
+    "noise_node_detected": 1,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.906,
+    "noise_sample_recall": 0.711,
+    "noise_sample_f1": 0.7968,
+    "dirty_rows_remediated": 1,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "node_2 carries three recoverable faults: unmapped timing aliases matching missing canonical columns (session_timespan→dur, ingress_timing_variance→djit, ack_data_interval→ackdat), 310 corrupted rows (1.30%: NaN dbytes/sload, negative spkts/sbytes), and an exact 1000x byte-unit inflation on sbytes/dbytes confirmed by both the primary conservation laws (median LHS/RHS = 1000.0, violation_rate 1.0) and benign anchors (dbytes p50 354000 vs ref 354). ingest_flag_val is a genuine cross-node ingest artifact (p50≈4-6 on every node) that degenerates into a local label leak on node_4 only (mi_norm 1.0002 vs ≤0.0048 elsewhere), so it is dropped, not renamed; with it excluded, node_4 alone shows markedly corrupted labels (20.1% suspected noise, 13.2% high-conflict, self-confidence 0.464 vs 0.819/0.819 peers). node_1 and node_3 are healthy: node_3's moderate CL elevation is explained by legitimate Non-IID structure (it exclusively holds all four globally rare classes, which score 0.0 suspected noise, and lacks Generic) with clean rows, aligned quantiles and intact conservation, so it is left untouched.",
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ],
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "ingest_flag_val",
+        "evidence": "compare_mi: mi_norm 1.0002 on node_4 (exceeds label entropy 1.63028) vs 0.0048/0.001/0.0 on peers, robust_z 49.86 — near-deterministic local shortcut."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "row_health 0 corrupted rows, all four conservation ratios 1.0/1.0/0.901/0.876 with violation_rate ≤0.057, ingest_flag_val mi_norm 0.0, and CL noise 4.45% / conflict 2.26% / confidence 0.819 matching peer baseline."
+      },
+      {
+        "action": "rename_columns",
+        "node": "node_2",
+        "mapping": {
+          "session_timespan": "dur",
+          "ingress_timing_variance": "djit",
+          "ack_data_interval": "ackdat"
+        },
+        "evidence": "node_2 unmapped quantiles match missing canonical refs: session_timespan p50 0.2081/p90 1.4320/zero 0.0265 vs dur 0.2093/1.4386/0.0223; ingress_timing_variance 26.949/396.084/0.3114 vs djit 25.545/374.226/0.3122; ack_data_interval 0.000146/0.09574/0.2959 vs ackdat 0.000143/0.09168/0.2989."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_2",
+        "rule": "nan_or_negative_physical",
+        "evidence": "row_health: 310 corrupted rows (1.295%) — dbytes:nan 78, sload:nan 77, spkts:negative 155, sbytes:negative 155."
+      },
+      {
+        "action": "rescale",
+        "node": "node_2",
+        "cols": [
+          "sbytes",
+          "dbytes"
+        ],
+        "factor": 0.001,
+        "evidence": "Conservation shows exact 1000x offset: sbytes_eq_spkts_x_smean median_ratio_lhs_over_rhs 1000.0 (violation_rate 1.0, n=23781) and dbytes_eq_dpkts_x_dmean 1000.0 (n=13229); benign anchors dbytes p50 354000 vs ref 354 and sbytes 934000 vs ref ~970, while smean/dmean/sload/dload log10 shifts are ≤0.077 (unscaled)."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Clean row health (0 corrupted), primary conservation ratios 1.0/1.0 with violation_rate 0.0, benign-anchor log10 shifts ≤0.056, and ingest_flag_val mi_norm 0.001; its CL elevation (10.9% noise, confidence 0.646) tracks its legitimate rare-class Non-IID role (sole holder of Analysis/Backdoor/Shellcode/Worms, all at 0.0 suspected noise)."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "evidence": "After excluding the ingest_flag_val shortcut, node_4 is the clear label-noise outlier: suspected_noise_rate 20.14% and high_conf_conflict_rate 13.16% vs peer 4.17-4.45% / 2.26-2.40%, mean_self_confidence 0.464 vs 0.819, cv_macro_f1 0.485 vs 0.709-0.719."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 7,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 25777,
+      "node_2": 23626,
+      "node_3": 8684,
+      "node_4": 19115
+    },
+    "merged_rows": 77202,
+    "merged_cols": 36,
+    "steps": [
+      {
+        "action": "rename_columns",
+        "node": "node_2",
+        "applied_mapping": {
+          "session_timespan": "dur",
+          "ingress_timing_variance": "djit",
+          "ack_data_interval": "ackdat"
+        },
+        "evidence": "node_2 unmapped quantiles match missing canonical refs: session_timespan p50 0.2081/p90 1.4320/zero 0.0265 vs dur 0.2093/1.4386/0.0223; ingress_timing_variance 26.949/396.084/0.3114 vs djit 25.545/374.226/0.3122; ack_data_interval 0.000146/0.09574/0.2959 vs ackdat 0.000143/0.09168/0.2989."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_2",
+        "rule": "nan_or_negative_physical",
+        "rows_removed": 310,
+        "rows_remaining": 23626,
+        "evidence": "row_health: 310 corrupted rows (1.295%) — dbytes:nan 78, sload:nan 77, spkts:negative 155, sbytes:negative 155."
+      },
+      {
+        "action": "rescale",
+        "node": "node_2",
+        "cols": [
+          "sbytes",
+          "dbytes"
+        ],
+        "factor": 0.001,
+        "evidence": "Conservation shows exact 1000x offset: sbytes_eq_spkts_x_smean median_ratio_lhs_over_rhs 1000.0 (violation_rate 1.0, n=23781) and dbytes_eq_dpkts_x_dmean 1000.0 (n=13229); benign anchors dbytes p50 354000 vs ref 354 and sbytes 934000 vs ref ~970, while smean/dmean/sload/dload log10 shifts are ≤0.077 (unscaled)."
+      },
+      {
+        "action": "drop_column",
+        "col": "ingest_flag_val",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "compare_mi: mi_norm 1.0002 on node_4 (exceeds label entropy 1.63028) vs 0.0048/0.001/0.0 on peers, robust_z 49.86 — near-deterministic local shortcut."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "disable_rare_exempt": false,
+        "rows_removed": 4820,
+        "rows_remaining": 19115,
+        "cl_stats": {
+          "n_evaluated": 23935,
+          "suspected_noise_count": 4820,
+          "suspected_noise_rate": 0.2014,
+          "high_conf_conflict_count": 3149,
+          "high_conf_conflict_rate": 0.1316,
+          "mean_self_confidence": 0.4642,
+          "cv_macro_f1": 0.4849,
+          "per_class_suspected_rate": {
+            "DoS": 0.3924,
+            "Exploits": 0.2524,
+            "Fuzzers": 0.32,
+            "Generic": 0.1356,
+            "Normal": 0.0796,
+            "Reconnaissance": 0.4965
+          }
+        },
+        "evidence": "After excluding the ingest_flag_val shortcut, node_4 is the clear label-noise outlier: suspected_noise_rate 20.14% and high_conf_conflict_rate 13.16% vs peer 4.17-4.45% / 2.26-2.40%, mean_self_confidence 0.464 vs 0.819, cv_macro_f1 0.485 vs 0.709-0.719."
+      },
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "row_health 0 corrupted rows, all four conservation ratios 1.0/1.0/0.901/0.876 with violation_rate ≤0.057, ingest_flag_val mi_norm 0.0, and CL noise 4.45% / conflict 2.26% / confidence 0.819 matching peer baseline."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Clean row health (0 corrupted), primary conservation ratios 1.0/1.0 with violation_rate 0.0, benign-anchor log10 shifts ≤0.056, and ingest_flag_val mi_norm 0.001; its CL elevation (10.9% noise, confidence 0.646) tracks its legitimate rare-class Non-IID role (sole holder of Analysis/Backdoor/Shellcode/Worms, all at 0.0 suspected noise)."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_4": 4820
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 11,
+      "prompt_tokens": 57776,
+      "completion_tokens": 14502,
+      "total_tokens": 72278,
+      "total_latency_s": 98.558,
+      "json_retries": 0
+    },
+    "coord_query_rounds": 2,
+    "llm_elapsed_s": 173.557,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 7.696
+}

@@ -1,0 +1,58 @@
+{
+  "diagnosis_summary": "Node_1 shows three recoverable faults: residual aliases for djit/synack/ackdat, 412 corrupted rows, and x1000 inflation of sbytes/dbytes/dload. collector_tag_score is a local shortcut on node_3 (MI_norm 1.0002 vs <=0.0084 on peers) and should be dropped globally; node_2/3/4 otherwise pass schema, row-health, and conservation checks, with node_4's shifts attributable to legitimate rare-class Non-IID.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "collector_tag_score",
+      "evidence": "compare_mi: collector_tag_score MI_norm=1.0002 on node_3 versus <=0.0084 on peers (robust_z=49.74), while it is metadata-like across nodes."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_1",
+      "mapping": {
+        "rx_jitter_index": "djit",
+        "syn_reply_interval": "synack",
+        "payload_confirm_delay": "ackdat"
+      },
+      "evidence": "Missing djit/synack/ackdat; unmapped p90s 396.1/0.1103/0.0957 align with refs 328.3/0.0930/0.0831, while collector_tag_score is global metadata."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_1",
+      "rule": "nan_or_negative_physical",
+      "evidence": "row_health reports 206 NaN and 206 negative physical rows = 412 corrupted rows (1.72%)."
+    },
+    {
+      "action": "rescale",
+      "node": "node_1",
+      "cols": [
+        "sbytes",
+        "dbytes",
+        "dload"
+      ],
+      "factor": 0.001,
+      "evidence": "sbytes/dbytes/dload anchor medians are 914x/798x/762x reference and byte laws show median LHS/RHS=1000.0 with 100% violation, matching x1000 inflation."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "row_health clean and primary conservation ratios are 1.0; only the global shortcut column is present."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "row_health clean and conservation consistent; the collector_tag_score shortcut is handled by the global drop_column action."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "row_health clean and conservation consistent; shifts reflect legitimate rare-class Non-IID with Analysis/Backdoor/Shellcode/Worms concentrated here."
+    }
+  ]
+}

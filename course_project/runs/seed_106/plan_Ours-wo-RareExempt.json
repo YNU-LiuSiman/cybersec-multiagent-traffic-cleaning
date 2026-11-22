@@ -1,0 +1,64 @@
+{
+  "diagnosis_summary": "node_1 has three genuine faults: unmapped aliases (rx_jitter_index/syn_reply_interval/payload_confirm_delay statistically matching missing djit/synack/ackdat), a clean 1000x unit inflation on sbytes/dbytes/dload (conservation ratios exactly 1000.0, benign-anchor log10 ratios 2.98-3.01, while smean/dmean/spkts and sload remain at scale), and 412 corrupted rows (NaN/negative, 1.72%). collector_tag_score is a local shortcut (MI_norm 1.0002 on node_3 vs 0.0054 median, robust_z 49.7) and must be dropped globally; with it excluded, node_3 shows sharply elevated label noise (suspected 0.2009, conflict 0.1302, self-confidence 0.4623 vs peer 0.817-0.819) while node_2 and node_4 stay near baseline, so only node_3 needs label cleaning. node_4's class mix (sole holder of Analysis/Backdoor/Shellcode/Worms) is legitimate Non-IID, not a fault.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "collector_tag_score",
+      "evidence": "MI_norm 1.0002 on node_3 vs 0.0054 cross-node median and 0.0084 max on peers (robust_z 49.74, gap 0.9948), i.e. local shortcut/leak."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_1",
+      "mapping": {
+        "rx_jitter_index": "djit",
+        "syn_reply_interval": "synack",
+        "payload_confirm_delay": "ackdat"
+      },
+      "evidence": "rx_jitter_index p50/p90/zero 26.949/396.084/0.3114 vs djit ref 25.545/374.226/0.3122; syn_reply_interval 0.000553/0.110345/0.2957 vs synack 0.000551/0.108208/0.2983; payload_confirm_delay 0.000146/0.095737/0.2959 vs ackdat 0.000143/0.092639/0.2989."
+    },
+    {
+      "action": "rescale",
+      "node": "node_1",
+      "cols": [
+        "sbytes",
+        "dbytes",
+        "dload"
+      ],
+      "factor": 0.001,
+      "evidence": "Benign anchor ratios 962.9x (sbytes 934000 vs 970), 1000.0x (dbytes 354000 vs 354), 1013.9x (dload 7.72e6 vs 7610.5) with conservation median_ratio_lhs_over_rhs exactly 1000.0; factor=1/1000."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_1",
+      "rule": "nan_or_negative_physical",
+      "evidence": "row_health reports 412 corrupted rows (1.721%): dbytes/sload NaN 103 each, dur/spkts/sbytes negative 206 each."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_3",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "With collector_tag_score excluded, node_3 suspected_noise_rate 0.2009 and high_conf_conflict_rate 0.1302 vs peers 0.0417/0.0445 and 0.0244/0.0226, mean_self_confidence 0.4623 vs 0.8175/0.8190, cv_macro_f1 0.4792 vs 0.711/0.7189."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "Conservation consistent (primary ratios 1.0), row health clean, and label noise at healthy baseline (0.0445 suspected, 0.0226 conflict, confidence 0.8190, cv_macro_f1 0.7189)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "Rare-class Non-IID node (100% of Analysis/Backdoor/Shellcode/Worms) with conservation consistent (ratio 1.0), clean rows, and only moderately higher noise (0.1086 suspected, 0.0662 conflict, confidence 0.6457) explained by 9-class imbalance; rare classes show 0.0 suspected rate."
+    }
+  ]
+}

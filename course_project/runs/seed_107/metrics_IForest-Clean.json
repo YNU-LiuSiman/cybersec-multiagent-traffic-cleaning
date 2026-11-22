@@ -1,0 +1,121 @@
+{
+  "seed": 107,
+  "clean_control": false,
+  "method": "IForest-Clean",
+  "downstream": {
+    "train_rows": 78215,
+    "rare4_kept": 1674,
+    "rare4_train_retention": 0.9952,
+    "RF": {
+      "macro_f1": 0.4888,
+      "rare4_recall": 0.2137,
+      "binary_attack_f1": 0.9157,
+      "n_features": 38,
+      "per_class_f1": {
+        "Normal": 0.8496,
+        "Generic": 0.9378,
+        "Exploits": 0.6638,
+        "Fuzzers": 0.3465,
+        "DoS": 0.3183,
+        "Reconnaissance": 0.6992,
+        "Analysis": 0.0493,
+        "Backdoor": 0.1221,
+        "Shellcode": 0.4702,
+        "Worms": 0.4316
+      },
+      "per_class_recall": {
+        "Normal": 0.9558,
+        "Generic": 0.9117,
+        "Exploits": 0.6505,
+        "Fuzzers": 0.2657,
+        "DoS": 0.3156,
+        "Reconnaissance": 0.6908,
+        "Analysis": 0.0445,
+        "Backdoor": 0.0985,
+        "Shellcode": 0.3963,
+        "Worms": 0.3154
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4435,
+      "rare4_recall": 0.2351,
+      "binary_attack_f1": 0.9117,
+      "n_features": 38,
+      "per_class_f1": {
+        "Normal": 0.8413,
+        "Generic": 0.9616,
+        "Exploits": 0.6323,
+        "Fuzzers": 0.2887,
+        "DoS": 0.3027,
+        "Reconnaissance": 0.7051,
+        "Analysis": 0.0369,
+        "Backdoor": 0.106,
+        "Shellcode": 0.4671,
+        "Worms": 0.0938
+      },
+      "per_class_recall": {
+        "Normal": 0.9412,
+        "Generic": 0.979,
+        "Exploits": 0.6026,
+        "Fuzzers": 0.208,
+        "DoS": 0.2979,
+        "Reconnaissance": 0.7135,
+        "Analysis": 0.026,
+        "Backdoor": 0.0767,
+        "Shellcode": 0.4916,
+        "Worms": 0.3462
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 0.0,
+    "unit_drift_recall": 0.0,
+    "unit_drift_factor_acc": 0.0,
+    "shortcut_detected": 0,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 0,
+    "residual_alias_acc": 0.0,
+    "noise_node_detected": 0,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.0,
+    "noise_sample_recall": 0.0,
+    "noise_sample_f1": 0.0,
+    "dirty_rows_remediated": 0,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "IForest-Clean baseline (contamination=0.05).",
+    "actions": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "IForest operates globally after merge"
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "IForest operates globally after merge"
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "IForest operates globally after merge"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "IForest operates globally after merge"
+      }
+    ]
+  },
+  "audit": {
+    "method": "IForest-Clean",
+    "rows_in": 82332,
+    "rows_removed": 4117,
+    "merged_rows": 78215
+  },
+  "llm_meta": {},
+  "eval_elapsed_s": 11.244
+}

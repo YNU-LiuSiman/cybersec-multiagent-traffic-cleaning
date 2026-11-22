@@ -1,0 +1,45 @@
+{
+  "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "sensor_meta_v2",
+      "evidence": "schema_profile.unmapped_columns=['sensor_meta_v2'] with missing_canonical=[]; unmapped alias cannot be confirmed to map to a canonical column"
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_1",
+      "evidence": "confident_learning: suspected_noise_rate=0.0454 (1170/25777), high_conf_conflict_rate=0.0227 (585), cv_macro_f1=0.7137, per_class_suspected_rate DoS=0.1716; local_rare_classes=[]"
+    },
+    {
+      "action": "drop_column",
+      "col": "sensor_meta_v2",
+      "evidence": "schema_profile.unmapped_columns=[\"sensor_meta_v2\"] with missing_canonical=[]"
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_2",
+      "evidence": "confident_learning suspected_noise_count=549/8684 (6.32%), high_conf_conflict_count=289 (3.33%), cv_macro_f1=0.5422"
+    },
+    {
+      "action": "drop_column",
+      "col": "sensor_meta_v2",
+      "evidence": "schema_profile: unmapped_columns=[sensor_meta_v2], missing_canonical=[]; no canonical mapping is supplied locally."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "row_health total_corrupted_rows=0; conservation primary laws median_rel_err=0.0 and 0.0028 with median_ratio_lhs_over_rhs=1.0; label_histogram has all six classes and local_rare_classes=[]; confident_learning suspected_noise_rate=0.0398 is not acted on without cross-node shortcut exclusion."
+    },
+    {
+      "action": "drop_column",
+      "col": "sensor_meta_v2",
+      "evidence": "schema_profile: unmapped_columns=['sensor_meta_v2'], missing_canonical=[]"
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_4",
+      "evidence": "confident_learning: suspected_noise_rate=0.0433 (1037/23935), high_conf_conflict_rate=0.0215 (514/23935), per_class_suspected_rate.DoS=0.1684"
+    }
+  ]
+}

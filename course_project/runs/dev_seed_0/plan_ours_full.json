@@ -1,0 +1,63 @@
+{
+  "diagnosis_summary": "node_1 carries three real faults — unmapped aliases (conn_elapsed_qty/initial_ack_delay match dur/synack benigan-anchor quantiles almost exactly), 324 corrupted rows, and an exact 1000x unit-scaling drift on sbytes/dbytes/dload confirmed by both benign anchors and conservation ratios — while node_3 and node_4 are legitimate Non-IID nodes (node_4 holds the globally rare classes with expectedly harder/looser metrics). ingest_flag_val is a local shortcut, not an alias: it has mi_norm=1.0002 on node_2 versus 0.0 on every peer (robust_z=50). With that shortcut excluded, node_2 alone shows markedly corrupted labels (suspected noise 22.6% and high-conf conflict 12.6% vs 4.0-4.5%/2.3% on peers, self-confidence 0.43 vs 0.82), so only node_2 needs CL cleaning.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "ingest_flag_val",
+      "evidence": "Cross-node MI outlier: mi_norm=1.0002 on node_2 (fully reconstructs labels) vs 0.0 on nodes 1, 3, 4; gap 1.0002, robust_z=50.01."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_1",
+      "mapping": {
+        "conn_elapsed_qty": "dur",
+        "initial_ack_delay": "synack"
+      },
+      "evidence": "conn_elapsed_qty (p50=0.2087, p90=1.4379, zero_frac=0.0263) matches dur ref (p50=0.2093, p90=1.4459, zero_frac=0.0223); initial_ack_delay (p50=0.000553, p90=0.1103, zero_frac=0.2957) matches synack ref (p50=0.000551, p90=0.1082, zero_frac=0.2983); ingest_flag_val (mi=0.0) is global metadata and is not mapped."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_1",
+      "rule": "nan_or_negative_physical",
+      "evidence": "324 corrupted rows (rate 0.01354): 162 rows with negative spkts/sbytes and 162 rows with NaN dbytes/sload."
+    },
+    {
+      "action": "rescale",
+      "node": "node_1",
+      "cols": [
+        "sbytes",
+        "dbytes",
+        "dload"
+      ],
+      "factor": 0.001,
+      "evidence": "Conservation median_ratio_lhs_over_rhs=1000.0 with median_rel_err=999.0 on both primary byte laws, corroborated by benign-anchor ratios sbytes=962.9x, dbytes=1000.0x, dload=1013.9x; factor=1/1000."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_2",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "With ingest_flag_val excluded, node_2 shows suspected_noise_rate=0.2262 and high_conf_conflict_rate=0.1257 with mean_self_confidence=0.4302 and cv_macro_f1=0.453 vs peer baseline 0.0403-0.0445 / 0.0226-0.0236 and 0.8175-0.8190 / 0.7145-0.7189."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Clean row health (0 corrupted), consistent conservation (ratio=1.0, rel_err=0.0), benign anchors within 0.4% of reference, and baseline label quality (noise 0.0445, conflict 0.0226, self-conf 0.819)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "Legitimate Non-IID rare-class node: holds all Analysis/Backdoor/Shellcode/Worms samples (exempted, per-class suspected rate 0.0), conservation consistent (ratio=1.0, violation_rate=0.0), row health clean, and its elevated 0.1086 noise rate reflects small 9-class support rather than corruption."
+    }
+  ]
+}

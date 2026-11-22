@@ -1,0 +1,241 @@
+{
+  "seed": 100,
+  "clean_control": false,
+  "method": "Ours-wo-Coordinator",
+  "downstream": {
+    "train_rows": 80054,
+    "rare4_kept": 1494,
+    "rare4_train_retention": 0.8882,
+    "RF": {
+      "macro_f1": 0.5354,
+      "rare4_recall": 0.304,
+      "binary_attack_f1": 0.9266,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8643,
+        "Generic": 0.9797,
+        "Exploits": 0.6458,
+        "Fuzzers": 0.4548,
+        "DoS": 0.4002,
+        "Reconnaissance": 0.8068,
+        "Analysis": 0.0741,
+        "Backdoor": 0.1011,
+        "Shellcode": 0.4941,
+        "Worms": 0.5328
+      },
+      "per_class_recall": {
+        "Normal": 0.9495,
+        "Generic": 0.9753,
+        "Exploits": 0.5426,
+        "Fuzzers": 0.3282,
+        "DoS": 0.5104,
+        "Reconnaissance": 0.7281,
+        "Analysis": 0.1395,
+        "Backdoor": 0.1627,
+        "Shellcode": 0.4448,
+        "Worms": 0.4692
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4787,
+      "rare4_recall": 0.2158,
+      "binary_attack_f1": 0.9214,
+      "n_features": 37,
+      "per_class_f1": {
+        "Normal": 0.8572,
+        "Generic": 0.986,
+        "Exploits": 0.6538,
+        "Fuzzers": 0.3867,
+        "DoS": 0.4152,
+        "Reconnaissance": 0.7993,
+        "Analysis": 0.012,
+        "Backdoor": 0.1043,
+        "Shellcode": 0.486,
+        "Worms": 0.0867
+      },
+      "per_class_recall": {
+        "Normal": 0.953,
+        "Generic": 0.9791,
+        "Exploits": 0.5961,
+        "Fuzzers": 0.2659,
+        "DoS": 0.5564,
+        "Reconnaissance": 0.7437,
+        "Analysis": 0.007,
+        "Backdoor": 0.0871,
+        "Shellcode": 0.5305,
+        "Worms": 0.2385
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 0.0,
+    "unit_drift_recall": 0.0,
+    "unit_drift_factor_acc": 0.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 0.0,
+    "noise_node_detected": 0,
+    "noise_node_fp": 2,
+    "noise_sample_precision": 0.0,
+    "noise_sample_recall": 0.0,
+    "noise_sample_f1": 0.0,
+    "dirty_rows_remediated": 0,
+    "node_d_false_remediation": 1,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "evidence": "schema_profile: unmapped_columns=[\"collector_tag_score\"], missing_canonical=[]; no canonical target is missing."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "evidence": "confident_learning: suspected_noise_count=562, suspected_noise_rate=0.0647, high_conf_conflict_count=300, cv_macro_f1=0.543; per_class_suspected_rate Exploits=0.1886, Normal=0.0526."
+      },
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "evidence": "schema_profile: unmapped_columns=[collector_tag_score], missing_canonical=[]; non-canonical column with no missing canonical counterpart."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "evidence": "confident_learning: suspected_noise_count=1198/25777 (0.0465), high_conf_conflict_count=588 (0.0228); per_class_suspected_rate DoS=0.1771, Exploits=0.1086, Fuzzers=0.0819, Reconnaissance=0.0959; local_rare_classes=[]."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #2 (rescale) requires non-empty list of column strings 'cols'."
+      },
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "evidence": "unmapped column with mi_norm=1.00019 (mi=1.63405), far above next feature sbytes mi_norm=0.23377; likely local label shortcut/leak."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 6,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 7553,
+      "node_2": 24630,
+      "node_3": 23936,
+      "node_4": 23935
+    },
+    "merged_rows": 80054,
+    "merged_cols": 39,
+    "steps": [
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "schema_profile: unmapped_columns=[\"collector_tag_score\"], missing_canonical=[]; no canonical target is missing."
+      },
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "dropped_from_nodes": [],
+        "evidence": "schema_profile: unmapped_columns=[collector_tag_score], missing_canonical=[]; non-canonical column with no missing canonical counterpart."
+      },
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "dropped_from_nodes": [],
+        "evidence": "unmapped column with mi_norm=1.00019 (mi=1.63405), far above next feature sbytes mi_norm=0.23377; likely local label shortcut/leak."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 1131,
+        "rows_remaining": 7553,
+        "cl_stats": {
+          "n_evaluated": 8684,
+          "suspected_noise_count": 1131,
+          "suspected_noise_rate": 0.1302,
+          "high_conf_conflict_count": 668,
+          "high_conf_conflict_rate": 0.0769,
+          "mean_self_confidence": 0.6457,
+          "cv_macro_f1": 0.5245,
+          "per_class_suspected_rate": {
+            "Analysis": 0.099,
+            "Backdoor": 0.1321,
+            "DoS": 0.334,
+            "Exploits": 0.1836,
+            "Fuzzers": 0.2586,
+            "Normal": 0.0497,
+            "Reconnaissance": 0.175,
+            "Shellcode": 0.0794,
+            "Worms": 0.3182
+          }
+        },
+        "evidence": "confident_learning: suspected_noise_count=562, suspected_noise_rate=0.0647, high_conf_conflict_count=300, cv_macro_f1=0.543; per_class_suspected_rate Exploits=0.1886, Normal=0.0526."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 1147,
+        "rows_remaining": 24630,
+        "cl_stats": {
+          "n_evaluated": 25777,
+          "suspected_noise_count": 1147,
+          "suspected_noise_rate": 0.0445,
+          "high_conf_conflict_count": 583,
+          "high_conf_conflict_rate": 0.0226,
+          "mean_self_confidence": 0.819,
+          "cv_macro_f1": 0.7189,
+          "per_class_suspected_rate": {
+            "DoS": 0.1589,
+            "Exploits": 0.0926,
+            "Fuzzers": 0.0868,
+            "Generic": 0.0136,
+            "Normal": 0.0247,
+            "Reconnaissance": 0.0968
+          }
+        },
+        "evidence": "confident_learning: suspected_noise_count=1198/25777 (0.0465), high_conf_conflict_count=588 (0.0228); per_class_suspected_rate DoS=0.1771, Exploits=0.1086, Fuzzers=0.0819, Reconnaissance=0.0959; local_rare_classes=[]."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #2 (rescale) requires non-empty list of column strings 'cols'."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_1": 1131,
+      "node_2": 1147
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 11,
+      "prompt_tokens": 23484,
+      "completion_tokens": 20166,
+      "total_tokens": 43650,
+      "total_latency_s": 140.734,
+      "json_retries": 7
+    },
+    "coord_query_rounds": 0,
+    "llm_elapsed_s": 176.298,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 48.223
+}

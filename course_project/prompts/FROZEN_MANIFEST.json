@@ -1,0 +1,22 @@
+{
+  "frozen_at": "2026-11-22T04:03:40+08:00",
+  "stage": "P3_FROZEN_BEFORE_EVAL",
+  "dev_seeds_verified": [0, 1, 2],
+  "eval_seeds_locked": [100, 101, 102, 103, 104, 105, 106, 107, 108, 109],
+  "clean_control_seeds_locked": [200, 201, 202],
+  "sha256": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  },
+  "pytest_prompt_leak": "PASSED (2/2)",
+  "dev_control_plane_summary": {
+    "unit_drift_P_R_Factor": "1.0 / 1.0 / 1.0 (3/3)",
+    "shortcut_exact": "1.0 (3/3)",
+    "residual_alias_acc": "1.0 (3/3)",
+    "noise_node_recall": "1.0 (3/3, 0 FP)",
+    "noise_sample_f1_mean": 0.8034,
+    "dirty_rows_remediated": "1.0 (3/3)",
+    "node_d_false_remediation_total": 0,
+    "json_retries_total": 0
+  }
+}

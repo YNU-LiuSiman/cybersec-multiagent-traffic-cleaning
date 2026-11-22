@@ -1,0 +1,125 @@
+{
+  "seed": 103,
+  "clean_control": false,
+  "method": "Oracle-Clean",
+  "downstream": {
+    "train_rows": 73817,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.5214,
+      "rare4_recall": 0.2354,
+      "binary_attack_f1": 0.927,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8675,
+        "Generic": 0.979,
+        "Exploits": 0.6485,
+        "Fuzzers": 0.4304,
+        "DoS": 0.4363,
+        "Reconnaissance": 0.8179,
+        "Analysis": 0.0526,
+        "Backdoor": 0.1076,
+        "Shellcode": 0.4553,
+        "Worms": 0.419
+      },
+      "per_class_recall": {
+        "Normal": 0.9646,
+        "Generic": 0.9811,
+        "Exploits": 0.536,
+        "Fuzzers": 0.3024,
+        "DoS": 0.6179,
+        "Reconnaissance": 0.7313,
+        "Analysis": 0.0545,
+        "Backdoor": 0.169,
+        "Shellcode": 0.3795,
+        "Worms": 0.3385
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4752,
+      "rare4_recall": 0.1586,
+      "binary_attack_f1": 0.9215,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.861,
+        "Generic": 0.9883,
+        "Exploits": 0.6616,
+        "Fuzzers": 0.3717,
+        "DoS": 0.4123,
+        "Reconnaissance": 0.8218,
+        "Analysis": 0.0,
+        "Backdoor": 0.099,
+        "Shellcode": 0.4992,
+        "Worms": 0.0368
+      },
+      "per_class_recall": {
+        "Normal": 0.9729,
+        "Generic": 0.9829,
+        "Exploits": 0.6227,
+        "Fuzzers": 0.2419,
+        "DoS": 0.5389,
+        "Reconnaissance": 0.7446,
+        "Analysis": 0.0,
+        "Backdoor": 0.0556,
+        "Shellcode": 0.4404,
+        "Worms": 0.1385
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 0.0,
+    "unit_drift_recall": 0.0,
+    "unit_drift_factor_acc": 0.0,
+    "shortcut_detected": 0,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 0,
+    "residual_alias_acc": 0.0,
+    "noise_node_detected": 0,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.0,
+    "noise_sample_recall": 0.0,
+    "noise_sample_f1": 0.0,
+    "dirty_rows_remediated": 0,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Oracle-Clean upper bound using hidden ground truth.",
+    "actions": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Oracle ground truth"
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Oracle ground truth"
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Oracle ground truth"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Oracle ground truth"
+      }
+    ]
+  },
+  "audit": {
+    "method": "Oracle-Clean",
+    "merged_rows": 73817,
+    "per_node_final_rows": {
+      "node_1": 25777,
+      "node_2": 8684,
+      "node_3": 15833,
+      "node_4": 23523
+    }
+  },
+  "llm_meta": {},
+  "eval_elapsed_s": 9.423
+}

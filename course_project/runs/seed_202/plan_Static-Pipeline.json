@@ -1,0 +1,107 @@
+{
+  "diagnosis_summary": "Static-Pipeline deterministic fixed-threshold baseline.",
+  "actions": [
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "ackdat"
+      ],
+      "factor": 357.142857,
+      "evidence": "Static whole-table rule: ackdat ratio=0.0028 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "dinpkt"
+      ],
+      "factor": 0.009039,
+      "evidence": "Static whole-table rule: dinpkt ratio=110.6260 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "djit"
+      ],
+      "factor": 7.158196,
+      "evidence": "Static whole-table rule: djit ratio=0.1397 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "dur"
+      ],
+      "factor": 0.057457,
+      "evidence": "Static whole-table rule: dur ratio=17.4042 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "rate"
+      ],
+      "factor": 20.920502,
+      "evidence": "Static whole-table rule: rate ratio=0.0478 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "sinpkt"
+      ],
+      "factor": 0.039723,
+      "evidence": "Static whole-table rule: sinpkt ratio=25.1746 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "sjit"
+      ],
+      "factor": 0.04226,
+      "evidence": "Static whole-table rule: sjit ratio=23.6632 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "synack"
+      ],
+      "factor": 97.943193,
+      "evidence": "Static whole-table rule: synack ratio=0.0102 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "tcprtt"
+      ],
+      "factor": 155.520995,
+      "evidence": "Static whole-table rule: tcprtt ratio=0.0064 (|log10|>=0.7)"
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_2",
+      "exempt_classes": [],
+      "evidence": "Static CL rule: suspected_noise_rate=0.1365 >= 0.12 (no rare-class exemption)"
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Static rule: no threshold exceeded"
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Static rule: no threshold exceeded"
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "Static rule: no threshold exceeded"
+    }
+  ]
+}

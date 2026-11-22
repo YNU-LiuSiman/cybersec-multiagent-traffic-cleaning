@@ -1,0 +1,37 @@
+{
+  "diagnosis_summary": "All four nodes are schema-, row-health- and conservation-clean: `export_shard_code` is a shared benign export metadata column present on every node (mi_norm≈0, no missing canonical columns anywhere), all primary byte/packet identities are exact (median_rel_err 0.0-0.0029, ratio 1.0) and the mild sub-unity sload/dload auxiliary ratios (~0.90/0.876) are identical across all four nodes, confirming common data semantics rather than a per-node unit fault (compare_anchor_quantiles flagged_scale_shifts={}). No cross-node MI shortcut exists (worst outlier ct_dst_sport_ltm robust_z=1.03, gap 0.021, and it is high on three nodes, not one), so node_2's rare-class Non-IID composition and all rare-class concentration are legitimate. Only node_2 shows a genuine localized label-quality fault: with rare classes exempted and ct_dst_sport_ltm excluded, its suspected_noise_rate is 0.110 vs 0.0414/0.0446/0.0438, high_conf_conflict_rate 0.0684 vs ~0.023, mean_self_confidence 0.644 vs ~0.816 and cv_macro_f1 0.545 vs ~0.705, elevated across common classes (DoS 0.338, Fuzzers 0.259, Exploits 0.191).",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "local_cl_clean",
+      "node": "node_2",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "suspected_noise_rate 0.110 vs peer 0.0414-0.0446, high_conf_conflict_rate 0.0684 vs 0.0222-0.0231, mean_self_confidence 0.644 vs 0.814-0.817, cv_macro_f1 0.545 vs 0.703-0.711 after excluding ct_dst_sport_ltm and exempting rare classes."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "clean row_health, exact primary conservation (ratio 1.0), no flagged scale shifts (max |log10| 0.132 on sload), and baseline label metrics (noise 0.0414, conf 0.8168); export_shard_code is shared benign metadata, not an alias."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "clean row_health, sbytes/dbytes laws exact (median_rel_err 0.0/0.0029), no flagged scale shifts, baseline label metrics (noise 0.0446, conf 0.8162, cv_macro_f1 0.7103); export_shard_code mi_norm=0.0 shared on all nodes."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "clean row_health, sbytes=spkts x smean exact (median_rel_err 0.0, violation_rate 0.0), no flagged scale shifts, baseline label metrics (noise 0.0438, conf 0.8137, cv_macro_f1 0.7035); ct_dst_sport_ltm is not a shortcut (robust_z 1.03, high on node_1/3/4 too)."
+    }
+  ]
+}

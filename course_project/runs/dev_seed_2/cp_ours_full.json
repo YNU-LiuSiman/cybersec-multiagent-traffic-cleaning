@@ -1,0 +1,30 @@
+{
+  "cp": {
+    "clean_control": false,
+    "unit_drift_precision": 1.0,
+    "unit_drift_recall": 1.0,
+    "unit_drift_factor_acc": 1.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 1.0,
+    "noise_node_detected": 1,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.8938,
+    "noise_sample_recall": 0.7241,
+    "noise_sample_f1": 0.8,
+    "dirty_rows_remediated": 1,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "usage": {
+    "calls": 10,
+    "prompt_tokens": 47652,
+    "completion_tokens": 10645,
+    "total_tokens": 58297,
+    "total_latency_s": 72.996,
+    "json_retries": 0
+  },
+  "rounds": 1,
+  "elapsed_s": 84.912
+}

@@ -1,0 +1,91 @@
+{
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "evidence": "schema_profile: unmapped_columns=[\"collector_tag_score\"], missing_canonical=[]; no canonical target is missing."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "evidence": "confident_learning: suspected_noise_count=562, suspected_noise_rate=0.0647, high_conf_conflict_count=300, cv_macro_f1=0.543; per_class_suspected_rate Exploits=0.1886, Normal=0.0526."
+      },
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "evidence": "schema_profile: unmapped_columns=[collector_tag_score], missing_canonical=[]; non-canonical column with no missing canonical counterpart."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "evidence": "confident_learning: suspected_noise_count=1198/25777 (0.0465), high_conf_conflict_count=588 (0.0228); per_class_suspected_rate DoS=0.1771, Exploits=0.1086, Fuzzers=0.0819, Reconnaissance=0.0959; local_rare_classes=[]."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #2 (rescale) requires non-empty list of column strings 'cols'."
+      },
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "evidence": "unmapped column with mi_norm=1.00019 (mi=1.63405), far above next feature sbytes mi_norm=0.23377; likely local label shortcut/leak."
+      }
+    ]
+  },
+  "per_node_outputs": {
+    "node_1": [
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "evidence": "schema_profile: unmapped_columns=[\"collector_tag_score\"], missing_canonical=[]; no canonical target is missing."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "evidence": "confident_learning: suspected_noise_count=562, suspected_noise_rate=0.0647, high_conf_conflict_count=300, cv_macro_f1=0.543; per_class_suspected_rate Exploits=0.1886, Normal=0.0526."
+      }
+    ],
+    "node_2": [
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "evidence": "schema_profile: unmapped_columns=[collector_tag_score], missing_canonical=[]; non-canonical column with no missing canonical counterpart."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "evidence": "confident_learning: suspected_noise_count=1198/25777 (0.0465), high_conf_conflict_count=588 (0.0228); per_class_suspected_rate DoS=0.1771, Exploits=0.1086, Fuzzers=0.0819, Reconnaissance=0.0959; local_rare_classes=[]."
+      }
+    ],
+    "node_3": [
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #2 (rescale) requires non-empty list of column strings 'cols'."
+      }
+    ],
+    "node_4": [
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "evidence": "unmapped column with mi_norm=1.00019 (mi=1.63405), far above next feature sbytes mi_norm=0.23377; likely local label shortcut/leak."
+      }
+    ]
+  },
+  "coord_query_rounds": 0,
+  "elapsed_s": 176.298,
+  "llm_usage": {
+    "calls": 11,
+    "prompt_tokens": 23484,
+    "completion_tokens": 20166,
+    "total_tokens": 43650,
+    "total_latency_s": 140.734,
+    "json_retries": 7
+  },
+  "prompt_hashes": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  }
+}

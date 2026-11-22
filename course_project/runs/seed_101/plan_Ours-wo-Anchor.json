@@ -1,0 +1,63 @@
+{
+  "diagnosis_summary": "Node_2 carries three real faults (unmapped aliases dur/djit/ackdat, a clean ×1000 unit drift on sbytes/dbytes confirmed by conservation ratios of exactly 1000.0 with violation_rate 1.0, and 310 corrupted rows), while node_4 hosts the local shortcut ingest_flag_val (mi_norm 1.0002 vs ≤0.0048 on peers) that masks genuine localized label noise (suspected_noise_rate 0.2014, confidence 0.4642 after exclusion). Node_1 (benign non-canonical ingest_flag_val metadata, mi=0.0) and node_3 (legitimate rare-class-concentrated Non-IID node holding Analysis/Backdoor/Shellcode/Worms with 0.0 suspected rates and clean conservation/row health) are healthy and must not be penalized.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "rename_columns",
+      "node": "node_2",
+      "mapping": {
+        "session_timespan": "dur",
+        "ingress_timing_variance": "djit",
+        "ack_data_interval": "ackdat"
+      },
+      "evidence": "Alias quantiles match missing canonicals: session_timespan p90=1.432 vs dur ref p90=1.390, ack_data_interval p90=0.0957 vs ackdat ref p90=0.0831, ingress_timing_variance is the sole timing-variance alias for missing djit; ingest_flag_val left unmapped."
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "sbytes",
+        "dbytes"
+      ],
+      "factor": 0.001,
+      "evidence": "sbytes/dbytes laws show median_ratio_lhs_over_rhs=1000.0 with violation_rate=1.0 over 23781/13229 rows, yet spkts, dpkts, smean and dmean match peers (smean mi_norm 0.552 vs 0.545), so factor=1/1000 (exact unit conversion)."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_2",
+      "rule": "nan_or_negative_physical",
+      "evidence": "row_health: 155 rows NaNs in dbytes/sload and 155 rows negative spkts/sbytes, total_corrupted_rows=310 (0.01295) plus 1 bad header row."
+    },
+    {
+      "action": "drop_column",
+      "col": "ingest_flag_val",
+      "evidence": "compare_mi: ingest_flag_val mi_norm=1.0002 on node_4 vs 0.0 (node_1), 0.0048 (node_2), 0.001 (node_3), robust_z=49.86 — a single-node label shortcut, not domain signal."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_4",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "With ingest_flag_val excluded, node_4 shows suspected_noise_rate=0.2014, high_conf_conflict_rate=0.1316, mean_self_confidence=0.4642, cv_macro_f1=0.4849 versus healthy peers at 0.0417-0.0445, 0.0226-0.0240, ~0.819, 0.709-0.719."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Conservation ratios 1.000 with violation_rate 0.0, row_health clean, no missing canonicals, and label-noise metrics 0.0445/0.0226/0.819/0.7189 match node_2; its ingest_flag_val has mi=0.0 (benign ingest metadata)."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Legitimate Non-IID node: holds all globally rare classes (Worms 44, Analysis/Backdoor/Shellcode) each with 0.0 suspected rate, conservation ratios 1.000, zero corrupted rows, and its timing quantile shifts are traffic-mix driven rather than a constant scale factor."
+    }
+  ]
+}

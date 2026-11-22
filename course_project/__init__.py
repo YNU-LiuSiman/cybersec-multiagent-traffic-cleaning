@@ -1,0 +1,1 @@
+"""Course project root package."""

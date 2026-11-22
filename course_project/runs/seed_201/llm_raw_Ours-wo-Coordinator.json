@@ -1,0 +1,81 @@
+{
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "row_health: rows_with_nan=0, rows_with_negative_physical=0, total_corrupted_rows=0 (corrupted_row_rate 0.0); conservation_check: all four laws status=ok (primary median_rel_err 0.0 / 0.0029, median_ratio_lhs_over_rhs 1.0 / 1.0, violation_rate 0.0); confident_learning: suspected_noise_rate=0.0454, high_conf_conflict_rate=0.022, local_rare_classes=[] — no drop_rows, rescale, drop_column, or local_cl_clean warranted. Unmapped alias tap_priority_metric (missing_canonical=[]) left unrenamed because the canonical target name is not resolvable from local diagnostics alone and must not be guessed."
+      },
+      {
+        "node": "node_2",
+        "action": "no_op",
+        "evidence": "row_health: 0 rows_with_nan, 0 rows_with_negative_physical, total_corrupted_rows=0; conservation: all 4 laws status=ok (primary median_rel_err 0.0 and 0.0029, median_ratio 1.0; auxiliary medians 0.099/0.124 within 0.5 tol); schema: missing_canonical=[] and only benign unmapped extra 'tap_priority_metric' with no canonical gap to fill, so rename/rescale/drop_column are unsupported; label mix covers all 6 classes with local_rare_classes=[] and confident_learning noise rate 0.0429 (cv_macro_f1 0.7085) without cross-node shortcut exclusion or global rare-class counts, so local_cl_clean is not warranted here; high local MI (sbytes 0.612, smean 0.544, sload 0.508) cannot be adjudicated on a single node and is not sufficient evidence to drop columns."
+      },
+      {
+        "action": "drop_column",
+        "col": "tap_priority_metric",
+        "evidence": "schema_profile lists tap_priority_metric as unmapped with missing_canonical empty and no missing_rate_nonzero entries; no local mapping evidence exists, so drop the unmapped column."
+      },
+      {
+        "node": "node_3",
+        "action": "local_cl_clean",
+        "evidence": "confident_learning: 544/8684 suspected noise (6.26%) and 271 high-conf conflicts (3.12%); per-class suspected rates Exploits 0.1856 and Normal 0.0491 while rare classes are exempt."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+      }
+    ]
+  },
+  "per_node_outputs": {
+    "node_1": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "row_health: rows_with_nan=0, rows_with_negative_physical=0, total_corrupted_rows=0 (corrupted_row_rate 0.0); conservation_check: all four laws status=ok (primary median_rel_err 0.0 / 0.0029, median_ratio_lhs_over_rhs 1.0 / 1.0, violation_rate 0.0); confident_learning: suspected_noise_rate=0.0454, high_conf_conflict_rate=0.022, local_rare_classes=[] — no drop_rows, rescale, drop_column, or local_cl_clean warranted. Unmapped alias tap_priority_metric (missing_canonical=[]) left unrenamed because the canonical target name is not resolvable from local diagnostics alone and must not be guessed."
+      }
+    ],
+    "node_2": [
+      {
+        "node": "node_2",
+        "action": "no_op",
+        "evidence": "row_health: 0 rows_with_nan, 0 rows_with_negative_physical, total_corrupted_rows=0; conservation: all 4 laws status=ok (primary median_rel_err 0.0 and 0.0029, median_ratio 1.0; auxiliary medians 0.099/0.124 within 0.5 tol); schema: missing_canonical=[] and only benign unmapped extra 'tap_priority_metric' with no canonical gap to fill, so rename/rescale/drop_column are unsupported; label mix covers all 6 classes with local_rare_classes=[] and confident_learning noise rate 0.0429 (cv_macro_f1 0.7085) without cross-node shortcut exclusion or global rare-class counts, so local_cl_clean is not warranted here; high local MI (sbytes 0.612, smean 0.544, sload 0.508) cannot be adjudicated on a single node and is not sufficient evidence to drop columns."
+      }
+    ],
+    "node_3": [
+      {
+        "action": "drop_column",
+        "col": "tap_priority_metric",
+        "evidence": "schema_profile lists tap_priority_metric as unmapped with missing_canonical empty and no missing_rate_nonzero entries; no local mapping evidence exists, so drop the unmapped column."
+      },
+      {
+        "node": "node_3",
+        "action": "local_cl_clean",
+        "evidence": "confident_learning: 544/8684 suspected noise (6.26%) and 271 high-conf conflicts (3.12%); per-class suspected rates Exploits 0.1856 and Normal 0.0491 while rare classes are exempt."
+      }
+    ],
+    "node_4": [
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+      }
+    ]
+  },
+  "coord_query_rounds": 0,
+  "elapsed_s": 196.072,
+  "llm_usage": {
+    "calls": 11,
+    "prompt_tokens": 23061,
+    "completion_tokens": 22178,
+    "total_tokens": 45239,
+    "total_latency_s": 160.936,
+    "json_retries": 7
+  },
+  "prompt_hashes": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "diagnosis_summary": "Global-CL baseline (merged Confident Learning without rare-class exemption).",
+  "actions": [
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Global-CL operates globally after merge"
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "Global-CL operates globally after merge"
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Global-CL operates globally after merge"
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "Global-CL operates globally after merge"
+    }
+  ]
+}

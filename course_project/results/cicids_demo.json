@@ -1,0 +1,268 @@
+{
+  "prompt_hashes_unchanged": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  },
+  "cross_version_cic18": {
+    "cic18_rows_in": 8397,
+    "cic18_rows_out": 8396,
+    "cic18_bad_header_rows": 1,
+    "cic18_bad_header_indices": [
+      413
+    ],
+    "cic18_inf_cells": 349,
+    "cic17_vs_cic18_raw_exact_overlap": 28,
+    "cic17_vs_cic18_regex_aligned_overlap": 78
+  },
+  "faulty_slices_gt": {
+    "slice_2": "unit_drift_1000x",
+    "slice_5": "label_flip_25pct"
+  },
+  "clean_slices_gt": [
+    "slice_1",
+    "slice_3",
+    "slice_4",
+    "slice_6",
+    "slice_7",
+    "slice_8",
+    "slice_9"
+  ],
+  "static_pipeline": {
+    "flagged_per_slice": {
+      "slice_1": [
+        "whole_table_drift:flow_byts_s(ratio=21.03877)",
+        "whole_table_drift:flow_duration(ratio=0.05669)",
+        "whole_table_drift:flow_pkts_s(ratio=13.8281)",
+        "whole_table_drift:pkts_len_mean(ratio=0.09503)"
+      ],
+      "slice_2": [
+        "whole_table_drift:flow_byts_s(ratio=538.93849)",
+        "whole_table_drift:totlen_fwd_pkts(ratio=1000.0)"
+      ],
+      "slice_3": [
+        "whole_table_drift:bwd_pkts_len_mean(ratio=18.95588)",
+        "whole_table_drift:totlen_bwd_pkts(ratio=65.91477)"
+      ],
+      "slice_4": [],
+      "slice_5": [
+        "cl_noise:0.1632"
+      ],
+      "slice_6": [],
+      "slice_7": [
+        "whole_table_drift:bwd_pkts_len_mean(ratio=0.12745)",
+        "whole_table_drift:pkts_len_mean(ratio=0.10299)"
+      ],
+      "slice_8": [
+        "whole_table_drift:flow_byts_s(ratio=17.5454)",
+        "whole_table_drift:flow_duration(ratio=0.01959)",
+        "whole_table_drift:flow_pkts_s(ratio=29.14839)",
+        "whole_table_drift:pkts_len_mean(ratio=0.08349)"
+      ],
+      "slice_9": [
+        "whole_table_drift:flow_byts_s(ratio=9.7183)",
+        "whole_table_drift:flow_duration(ratio=0.03203)",
+        "whole_table_drift:flow_pkts_s(ratio=11.45113)",
+        "whole_table_drift:fwd_pkts_len_mean(ratio=5.64261)",
+        "whole_table_drift:pkts_len_mean(ratio=0.11855)"
+      ]
+    },
+    "clean_slice_fpr": 0.7143,
+    "fault_slice_tpr": 1.0,
+    "fp_count": 5,
+    "tp_count": 2
+  },
+  "ours_full": {
+    "plan": {
+      "diagnosis_summary": "Only two slices carry actionable faults: slice_2 shows a clean x1000 unit drift on totlen_fwd_pkts (benign p50=64000 vs canonical 64; conservation median_ratio_lhs_over_rhs=1000.0, violation_rate=1.0) while its backward-flow law and row health are perfect, and slice_5 shows localized label noise (suspected_noise_rate 0.1632, high_conf_conflict_rate 0.0267, mean_self_confidence 0.619, cv_macro_f1 0.7029) versus a peer baseline of ~0.0002 noise and ~0.999 confidence. All schemas are identical across slices (no unmapped aliases), no rows are corrupted anywhere, no locally shortcut single-node MI column was found, and the sharply differing benign-anchor ratios on rate/length columns plus slice_8 (17 DDOS rows, cv_macro_f1 0.4999 but 0.0002 noise, 0.9997 confidence) and slice_9 (BENIGN-only) are legitimate Non-IID class-mixture effects, not faults.",
+      "globally_rare_classes": [],
+      "actions": [
+        {
+          "action": "rescale",
+          "node": "slice_2",
+          "cols": [
+            "totlen_fwd_pkts"
+          ],
+          "factor": 0.001,
+          "evidence": "conservation totlen_fwd_eq_pkts_x_mean median_ratio_lhs_over_rhs=1000.0 with violation_rate=1.0 and benign totlen_fwd_pkts p50=64000 vs canonical 64 supports an exact x1000 unit drift, so factor=1/1000=0.001."
+        },
+        {
+          "action": "local_cl_clean",
+          "node": "slice_5",
+          "exempt_classes": [],
+          "evidence": "confident_learning suspected_noise_rate=0.1632, high_conf_conflict_rate=0.0267, mean_self_confidence=0.619, cv_macro_f1=0.7029 versus healthy peers at ~0.0002/0.0002/0.998/~0.999; per_class_suspected_rate BENIGN=0.2689, DDOS=0.0956."
+        },
+        {
+          "action": "no_op",
+          "node": "slice_1",
+          "evidence": "Schema complete (no unmapped/missing columns), 0 corrupted rows, both conservation ratios 1.0, noise_rate=0.0002 with mean_self_confidence=0.9991 — benign anchor variation in bwd_pkts_len_mean/flow_pkts_s is Non-IID."
+        },
+        {
+          "action": "no_op",
+          "node": "slice_3",
+          "evidence": "0 corrupted rows, both conservation laws median_ratio_lhs_over_rhs=1.0 with 0.0 violation_rate, noise_rate=0.0 and cv_macro_f1=0.9986; only the slice_2 totlen_fwd_pkts drift and rate-feature spread are Non-IID."
+        },
+        {
+          "action": "no_op",
+          "node": "slice_4",
+          "evidence": "0 corrupted rows, conservation ratios 1.0, benign p50s within normal spread (totlen_fwd_pkts=135 vs ref 68), noise_rate=0.0002 and mean_self_confidence=0.9991."
+        },
+        {
+          "action": "no_op",
+          "node": "slice_6",
+          "evidence": "0 corrupted rows, conservation ratios 1.0, noise_rate=0.0005, high_conf_conflict_rate=0.0005, mean_self_confidence=0.9982 — within healthy peer baseline."
+        },
+        {
+          "action": "no_op",
+          "node": "slice_7",
+          "evidence": "0 corrupted rows, conservation ratios 1.0, and it is the benign-anchor reference node (p50 ratios 1.0); noise_rate=0.0003, mean_self_confidence=0.9979."
+        },
+        {
+          "action": "no_op",
+          "node": "slice_8",
+          "evidence": "Legitimate Non-IID rare-class node: only 17 DDOS of 28219 rows, yet 0 corrupted rows, conservation ratios 1.0, noise_rate=0.0002, mean_self_confidence=0.9997; the low cv_macro_f1=0.4999 reflects the 0.06% DDOS support, not label corruption."
+        },
+        {
+          "action": "no_op",
+          "node": "slice_9",
+          "evidence": "BENIGN-only slice (25000 rows, binary_attack_rate=0.0) with 0 corrupted rows, both conservation laws ratio 1.0 and 0.0 violation_rate — a legitimate class-mixture difference, not a fault."
+        }
+      ]
+    },
+    "flagged_slices": [
+      "slice_2",
+      "slice_5"
+    ],
+    "clean_slice_fpr": 0.0,
+    "fault_slice_tpr": 1.0,
+    "fp_count": 0,
+    "tp_count": 2,
+    "coord_rounds": 3,
+    "llm_usage": {
+      "calls": 4,
+      "prompt_tokens": 47009,
+      "completion_tokens": 12774,
+      "total_tokens": 59783,
+      "total_latency_s": 73.732,
+      "json_retries": 0
+    }
+  },
+  "slice_telemetry": [
+    {
+      "slice": "slice_1",
+      "ddos_rate": 0.2873,
+      "ground_truth": "clean",
+      "whole_table_max_abs_log10": 1.323,
+      "benign_anchor_max_abs_log10": 1.746,
+      "conservation_fwd_violation": 0.0,
+      "conservation_fwd_ratio": 1.0,
+      "cl_suspected_noise_rate": 0.0002,
+      "cl_mean_self_confidence": 0.9991,
+      "static_flagged": true,
+      "ours_flagged": false
+    },
+    {
+      "slice": "slice_2",
+      "ddos_rate": 0.6959,
+      "ground_truth": "unit_drift_1000x",
+      "whole_table_max_abs_log10": 3.0,
+      "benign_anchor_max_abs_log10": 2.974,
+      "conservation_fwd_violation": 1.0,
+      "conservation_fwd_ratio": 1000.0,
+      "cl_suspected_noise_rate": 0.0002,
+      "cl_mean_self_confidence": 0.9983,
+      "static_flagged": true,
+      "ours_flagged": true
+    },
+    {
+      "slice": "slice_3",
+      "ddos_rate": 0.7743,
+      "ground_truth": "clean",
+      "whole_table_max_abs_log10": 1.819,
+      "benign_anchor_max_abs_log10": 0.821,
+      "conservation_fwd_violation": 0.0,
+      "conservation_fwd_ratio": 1.0,
+      "cl_suspected_noise_rate": 0.0,
+      "cl_mean_self_confidence": 0.9988,
+      "static_flagged": true,
+      "ours_flagged": false
+    },
+    {
+      "slice": "slice_4",
+      "ddos_rate": 0.7103,
+      "ground_truth": "clean",
+      "whole_table_max_abs_log10": 0.379,
+      "benign_anchor_max_abs_log10": 0.838,
+      "conservation_fwd_violation": 0.0,
+      "conservation_fwd_ratio": 1.0,
+      "cl_suspected_noise_rate": 0.0002,
+      "cl_mean_self_confidence": 0.9991,
+      "static_flagged": false,
+      "ours_flagged": false
+    },
+    {
+      "slice": "slice_5",
+      "ddos_rate": 0.605,
+      "ground_truth": "label_flip_25pct",
+      "whole_table_max_abs_log10": 0.362,
+      "benign_anchor_max_abs_log10": 0.856,
+      "conservation_fwd_violation": 0.0,
+      "conservation_fwd_ratio": 1.0,
+      "cl_suspected_noise_rate": 0.1632,
+      "cl_mean_self_confidence": 0.619,
+      "static_flagged": true,
+      "ours_flagged": true
+    },
+    {
+      "slice": "slice_6",
+      "ddos_rate": 0.7258,
+      "ground_truth": "clean",
+      "whole_table_max_abs_log10": 0.392,
+      "benign_anchor_max_abs_log10": 0.893,
+      "conservation_fwd_violation": 0.0,
+      "conservation_fwd_ratio": 1.0,
+      "cl_suspected_noise_rate": 0.0005,
+      "cl_mean_self_confidence": 0.9982,
+      "static_flagged": false,
+      "ours_flagged": false
+    },
+    {
+      "slice": "slice_7",
+      "ddos_rate": 0.6328,
+      "ground_truth": "clean",
+      "whole_table_max_abs_log10": 0.987,
+      "benign_anchor_max_abs_log10": 0.568,
+      "conservation_fwd_violation": 0.0,
+      "conservation_fwd_ratio": 1.0,
+      "cl_suspected_noise_rate": 0.0003,
+      "cl_mean_self_confidence": 0.9979,
+      "static_flagged": true,
+      "ours_flagged": false
+    },
+    {
+      "slice": "slice_8",
+      "ddos_rate": 0.0006,
+      "ground_truth": "clean",
+      "whole_table_max_abs_log10": 1.708,
+      "benign_anchor_max_abs_log10": 1.845,
+      "conservation_fwd_violation": 0.0,
+      "conservation_fwd_ratio": 1.0,
+      "cl_suspected_noise_rate": 0.0002,
+      "cl_mean_self_confidence": 0.9997,
+      "static_flagged": true,
+      "ours_flagged": false
+    },
+    {
+      "slice": "slice_9",
+      "ddos_rate": 0.0,
+      "ground_truth": "clean",
+      "whole_table_max_abs_log10": 1.494,
+      "benign_anchor_max_abs_log10": 1.631,
+      "conservation_fwd_violation": 0.0,
+      "conservation_fwd_ratio": 1.0,
+      "cl_suspected_noise_rate": 0.0,
+      "cl_mean_self_confidence": 0.0,
+      "static_flagged": true,
+      "ours_flagged": false
+    }
+  ]
+}

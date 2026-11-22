@@ -1,0 +1,132 @@
+{
+  "diagnosis_summary": "Static-Pipeline deterministic fixed-threshold baseline.",
+  "actions": [
+    {
+      "action": "drop_rows",
+      "node": "node_2",
+      "rule": "nan_or_negative_physical",
+      "evidence": "Static rule: total_corrupted_rows=310 > 0"
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "dbytes"
+      ],
+      "factor": 0.001253,
+      "evidence": "Static whole-table rule: dbytes ratio=798.2063 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "sbytes"
+      ],
+      "factor": 0.001094,
+      "evidence": "Static whole-table rule: sbytes ratio=914.3836 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_3",
+      "cols": [
+        "ackdat"
+      ],
+      "factor": 358.422939,
+      "evidence": "Static whole-table rule: ackdat ratio=0.0028 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_3",
+      "cols": [
+        "dinpkt"
+      ],
+      "factor": 0.009039,
+      "evidence": "Static whole-table rule: dinpkt ratio=110.6260 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_3",
+      "cols": [
+        "djit"
+      ],
+      "factor": 7.118958,
+      "evidence": "Static whole-table rule: djit ratio=0.1405 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_3",
+      "cols": [
+        "dur"
+      ],
+      "factor": 0.058274,
+      "evidence": "Static whole-table rule: dur ratio=17.1603 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_3",
+      "cols": [
+        "rate"
+      ],
+      "factor": 20.920502,
+      "evidence": "Static whole-table rule: rate ratio=0.0478 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_3",
+      "cols": [
+        "sinpkt"
+      ],
+      "factor": 0.039723,
+      "evidence": "Static whole-table rule: sinpkt ratio=25.1746 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_3",
+      "cols": [
+        "sjit"
+      ],
+      "factor": 0.04226,
+      "evidence": "Static whole-table rule: sjit ratio=23.6632 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_3",
+      "cols": [
+        "synack"
+      ],
+      "factor": 97.943193,
+      "evidence": "Static whole-table rule: synack ratio=0.0102 (|log10|>=0.7)"
+    },
+    {
+      "action": "rescale",
+      "node": "node_3",
+      "cols": [
+        "tcprtt"
+      ],
+      "factor": 155.520995,
+      "evidence": "Static whole-table rule: tcprtt ratio=0.0064 (|log10|>=0.7)"
+    },
+    {
+      "action": "drop_column",
+      "col": "ingest_flag_val",
+      "evidence": "Static MI rule: ingest_flag_val max_mi=1.0002 on node_4, gap=0.9973 >= 0.35"
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_3",
+      "exempt_classes": [],
+      "evidence": "Static CL rule: suspected_noise_rate=0.1302 >= 0.12 (no rare-class exemption)"
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_4",
+      "exempt_classes": [],
+      "evidence": "Static CL rule: suspected_noise_rate=0.2014 >= 0.12 (no rare-class exemption)"
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Static rule: no threshold exceeded"
+    }
+  ]
+}

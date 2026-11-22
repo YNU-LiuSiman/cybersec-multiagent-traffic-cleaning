@@ -1,0 +1,29 @@
+{
+  "seed": 200,
+  "clean_control": true,
+  "role_to_node": {
+    "A": "node_3",
+    "B": "node_1",
+    "C": "node_4",
+    "D": "node_2"
+  },
+  "node_to_role": {
+    "node_3": "A",
+    "node_1": "B",
+    "node_4": "C",
+    "node_2": "D"
+  },
+  "shortcut_col": "export_shard_code",
+  "shortcut_corrupted_node": null,
+  "unit_drift": null,
+  "residual_aliases": {},
+  "dirty_rows": null,
+  "label_noise": null,
+  "hard_negative_node": "node_2",
+  "rare4_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "diagnosis_summary": "node_2 has three fixable faults: residual schema aliases replacing missing canonical dur/rate/sjit, a factor-of-8 bytes-vs-bits scale drift (primary conservation ratio 0.125 with violation_rate 1.0 on both byte laws, sbytes/dbytes ratios 0.125, sload 0.1877, dload 0.1221), and 406 corrupted rows. probe_qos_hint is a global metadata column that acts as a label shortcut only on node_4 (mi_norm 1.0002 vs peer max 0.0053, robust_z 49.85) and must be dropped; after excluding it, only node_4 shows clearly elevated label noise (suspected_noise_rate 0.2219, high_conf_conflict_rate 0.1269, mean_self_confidence 0.4343 vs peer 0.041-0.045 / 0.023-0.024 / 0.819). node_1 is clean and node_3 is a legitimate rare-class Non-IID node with consistent primary conservation (ratio 1.0) and clean rows.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "probe_qos_hint",
+      "evidence": "node_4 mi_norm=1.0002 vs median 0.0032 and peer max 0.0053 (robust_z 49.85): local label shortcut."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_2",
+      "mapping": {
+        "conn_elapsed_qty": "dur",
+        "packet_velocity_val": "rate",
+        "tx_jitter_index": "sjit"
+      },
+      "evidence": "Missing canonical dur/rate/sjit; conn_elapsed_qty p90=1.435 vs dur ref_p90=1.390, tx_jitter_index p90=8766 vs sjit ref_p90=6767, packet_velocity_val p90=111111 vs rate ref_p90=250000; probe_qos_hint unmapped (mi_norm 0.0)."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_2",
+      "rule": "nan_or_negative_physical",
+      "evidence": "total_corrupted_rows=406 (rate 0.01696): 203 NaN rows (dbytes 102, sload 101) and 203 negative spkts/sbytes rows."
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "sbytes",
+        "dbytes",
+        "sload",
+        "dload"
+      ],
+      "factor": 8.0,
+      "evidence": "Conservation ratio 0.125 with violation_rate 1.0 on both byte laws and quantile ratios sbytes 0.125, dbytes 0.125, sload 0.1877, dload 0.1221 indicate bits-vs-bytes drift, so factor=1/0.125=8."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_4",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "With probe_qos_hint excluded: suspected_noise_rate 0.2219, high_conf_conflict_rate 0.1269, mean_self_confidence 0.4343, cv_macro_f1 0.4598 vs peers ~0.041-0.045, 0.023-0.024, 0.819, 0.712-0.719."
+    },
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Clean rows, primary conservation ratio 1.0, no missing canonicals, noise rate 0.0445 and self-confidence 0.819 matching healthy baseline."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Rare-class Non-IID node: primary conservation ratio 1.0, zero corrupted rows, and noise metrics (0.1086 noise, 0.6457 confidence) reflect long-duration traffic and rare classes, not a fault."
+    }
+  ]
+}

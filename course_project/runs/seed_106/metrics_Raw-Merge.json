@@ -1,0 +1,150 @@
+{
+  "seed": 106,
+  "clean_control": false,
+  "method": "Raw-Merge",
+  "downstream": {
+    "train_rows": 82332,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.4852,
+      "rare4_recall": 0.211,
+      "binary_attack_f1": 0.9162,
+      "n_features": 38,
+      "per_class_f1": {
+        "Normal": 0.8509,
+        "Generic": 0.9297,
+        "Exploits": 0.6654,
+        "Fuzzers": 0.3529,
+        "DoS": 0.3132,
+        "Reconnaissance": 0.7027,
+        "Analysis": 0.0425,
+        "Backdoor": 0.1166,
+        "Shellcode": 0.4919,
+        "Worms": 0.3861
+      },
+      "per_class_recall": {
+        "Normal": 0.9585,
+        "Generic": 0.8988,
+        "Exploits": 0.6591,
+        "Fuzzers": 0.269,
+        "DoS": 0.3145,
+        "Reconnaissance": 0.6784,
+        "Analysis": 0.038,
+        "Backdoor": 0.0911,
+        "Shellcode": 0.4148,
+        "Worms": 0.3
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4569,
+      "rare4_recall": 0.2581,
+      "binary_attack_f1": 0.9171,
+      "n_features": 38,
+      "per_class_f1": {
+        "Normal": 0.8506,
+        "Generic": 0.9533,
+        "Exploits": 0.6289,
+        "Fuzzers": 0.3029,
+        "DoS": 0.3265,
+        "Reconnaissance": 0.7124,
+        "Analysis": 0.0236,
+        "Backdoor": 0.1129,
+        "Shellcode": 0.4701,
+        "Worms": 0.188
+      },
+      "per_class_recall": {
+        "Normal": 0.9506,
+        "Generic": 0.9794,
+        "Exploits": 0.5757,
+        "Fuzzers": 0.2229,
+        "DoS": 0.3516,
+        "Reconnaissance": 0.7071,
+        "Analysis": 0.016,
+        "Backdoor": 0.0871,
+        "Shellcode": 0.4369,
+        "Worms": 0.4923
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 0.0,
+    "unit_drift_recall": 0.0,
+    "unit_drift_factor_acc": 0.0,
+    "shortcut_detected": 0,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 0,
+    "residual_alias_acc": 0.0,
+    "noise_node_detected": 0,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.0,
+    "noise_sample_recall": 0.0,
+    "noise_sample_f1": 0.0,
+    "dirty_rows_remediated": 0,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Raw-Merge baseline (no remediation).",
+    "actions": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Raw-Merge baseline"
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 4,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 23936,
+      "node_2": 25777,
+      "node_3": 23935,
+      "node_4": 8684
+    },
+    "merged_rows": 82332,
+    "merged_cols": 40,
+    "steps": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Raw-Merge baseline"
+      }
+    ],
+    "cl_flagged_counts": {}
+  },
+  "llm_meta": {},
+  "eval_elapsed_s": 6.446
+}

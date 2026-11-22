@@ -1,0 +1,31 @@
+{
+  "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "telemetry_bucket_id",
+      "evidence": "schema_profile lists telemetry_bucket_id as unmapped; feature_label_mi reports mi_norm=1.00019 and mi=1.61639, far above the next-highest feature sbytes with mi_norm=0.2559."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "parse fallback: Action #3 (rescale) has non-numeric factor 'None'."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_4",
+      "evidence": "confident_learning: suspected_noise_count=538 (rate 0.062), high_conf_conflict_count=288 (rate 0.0332), per_class_suspected_rate Exploits=0.1906, Normal=0.0446."
+    },
+    {
+      "action": "drop_column",
+      "col": "telemetry_bucket_id",
+      "node": "node_4",
+      "evidence": "schema_profile: unmapped_columns=['telemetry_bucket_id'] with missing_canonical=[]."
+    }
+  ]
+}

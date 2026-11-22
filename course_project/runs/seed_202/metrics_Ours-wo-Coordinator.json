@@ -1,0 +1,272 @@
+{
+  "seed": 202,
+  "clean_control": true,
+  "method": "Ours-wo-Coordinator",
+  "downstream": {
+    "train_rows": 79069,
+    "rare4_kept": 1494,
+    "rare4_train_retention": 0.8882,
+    "RF": {
+      "macro_f1": 0.5236,
+      "rare4_recall": 0.2228,
+      "binary_attack_f1": 0.929,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8694,
+        "Generic": 0.9806,
+        "Exploits": 0.6488,
+        "Fuzzers": 0.4633,
+        "DoS": 0.4369,
+        "Reconnaissance": 0.8197,
+        "Analysis": 0.0515,
+        "Backdoor": 0.0979,
+        "Shellcode": 0.4579,
+        "Worms": 0.41
+      },
+      "per_class_recall": {
+        "Normal": 0.9587,
+        "Generic": 0.9811,
+        "Exploits": 0.5402,
+        "Fuzzers": 0.3372,
+        "DoS": 0.6252,
+        "Reconnaissance": 0.7306,
+        "Analysis": 0.052,
+        "Backdoor": 0.1443,
+        "Shellcode": 0.3795,
+        "Worms": 0.3154
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4636,
+      "rare4_recall": 0.1314,
+      "binary_attack_f1": 0.9171,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8528,
+        "Generic": 0.9881,
+        "Exploits": 0.6266,
+        "Fuzzers": 0.3671,
+        "DoS": 0.4355,
+        "Reconnaissance": 0.8181,
+        "Analysis": 0.0,
+        "Backdoor": 0.1008,
+        "Shellcode": 0.437,
+        "Worms": 0.0105
+      },
+      "per_class_recall": {
+        "Normal": 0.9622,
+        "Generic": 0.9816,
+        "Exploits": 0.5448,
+        "Fuzzers": 0.2498,
+        "DoS": 0.6235,
+        "Reconnaissance": 0.7323,
+        "Analysis": 0.0,
+        "Backdoor": 0.0538,
+        "Shellcode": 0.3795,
+        "Worms": 0.0923
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": true,
+    "false_remediation_actions": 7,
+    "clean_false_remediation": 1,
+    "node_d_false_remediation": 1
+  },
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "evidence": "schema_profile.unmapped_columns=['sensor_meta_v2'] with missing_canonical=[]; unmapped alias cannot be confirmed to map to a canonical column"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "evidence": "confident_learning: suspected_noise_rate=0.0454 (1170/25777), high_conf_conflict_rate=0.0227 (585), cv_macro_f1=0.7137, per_class_suspected_rate DoS=0.1716; local_rare_classes=[]"
+      },
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "evidence": "schema_profile.unmapped_columns=[\"sensor_meta_v2\"] with missing_canonical=[]"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "evidence": "confident_learning suspected_noise_count=549/8684 (6.32%), high_conf_conflict_count=289 (3.33%), cv_macro_f1=0.5422"
+      },
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "evidence": "schema_profile: unmapped_columns=[sensor_meta_v2], missing_canonical=[]; no canonical mapping is supplied locally."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "row_health total_corrupted_rows=0; conservation primary laws median_rel_err=0.0 and 0.0028 with median_ratio_lhs_over_rhs=1.0; label_histogram has all six classes and local_rare_classes=[]; confident_learning suspected_noise_rate=0.0398 is not acted on without cross-node shortcut exclusion."
+      },
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "evidence": "schema_profile: unmapped_columns=['sensor_meta_v2'], missing_canonical=[]"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "evidence": "confident_learning: suspected_noise_rate=0.0433 (1037/23935), high_conf_conflict_rate=0.0215 (514/23935), per_class_suspected_rate.DoS=0.1684"
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 8,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 24630,
+      "node_2": 7553,
+      "node_3": 23936,
+      "node_4": 22950
+    },
+    "merged_rows": 79069,
+    "merged_cols": 36,
+    "steps": [
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "schema_profile.unmapped_columns=['sensor_meta_v2'] with missing_canonical=[]; unmapped alias cannot be confirmed to map to a canonical column"
+      },
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "dropped_from_nodes": [],
+        "evidence": "schema_profile.unmapped_columns=[\"sensor_meta_v2\"] with missing_canonical=[]"
+      },
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "dropped_from_nodes": [],
+        "evidence": "schema_profile: unmapped_columns=[sensor_meta_v2], missing_canonical=[]; no canonical mapping is supplied locally."
+      },
+      {
+        "action": "drop_column",
+        "col": "sensor_meta_v2",
+        "dropped_from_nodes": [],
+        "evidence": "schema_profile: unmapped_columns=['sensor_meta_v2'], missing_canonical=[]"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 1147,
+        "rows_remaining": 24630,
+        "cl_stats": {
+          "n_evaluated": 25777,
+          "suspected_noise_count": 1147,
+          "suspected_noise_rate": 0.0445,
+          "high_conf_conflict_count": 583,
+          "high_conf_conflict_rate": 0.0226,
+          "mean_self_confidence": 0.819,
+          "cv_macro_f1": 0.7189,
+          "per_class_suspected_rate": {
+            "DoS": 0.1589,
+            "Exploits": 0.0926,
+            "Fuzzers": 0.0868,
+            "Generic": 0.0136,
+            "Normal": 0.0247,
+            "Reconnaissance": 0.0968
+          }
+        },
+        "evidence": "confident_learning: suspected_noise_rate=0.0454 (1170/25777), high_conf_conflict_rate=0.0227 (585), cv_macro_f1=0.7137, per_class_suspected_rate DoS=0.1716; local_rare_classes=[]"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 1131,
+        "rows_remaining": 7553,
+        "cl_stats": {
+          "n_evaluated": 8684,
+          "suspected_noise_count": 1131,
+          "suspected_noise_rate": 0.1302,
+          "high_conf_conflict_count": 668,
+          "high_conf_conflict_rate": 0.0769,
+          "mean_self_confidence": 0.6457,
+          "cv_macro_f1": 0.5245,
+          "per_class_suspected_rate": {
+            "Analysis": 0.099,
+            "Backdoor": 0.1321,
+            "DoS": 0.334,
+            "Exploits": 0.1836,
+            "Fuzzers": 0.2586,
+            "Normal": 0.0497,
+            "Reconnaissance": 0.175,
+            "Shellcode": 0.0794,
+            "Worms": 0.3182
+          }
+        },
+        "evidence": "confident_learning suspected_noise_count=549/8684 (6.32%), high_conf_conflict_count=289 (3.33%), cv_macro_f1=0.5422"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_4",
+        "exempt_classes": [],
+        "disable_rare_exempt": false,
+        "rows_removed": 985,
+        "rows_remaining": 22950,
+        "cl_stats": {
+          "n_evaluated": 23935,
+          "suspected_noise_count": 985,
+          "suspected_noise_rate": 0.0412,
+          "high_conf_conflict_count": 535,
+          "high_conf_conflict_rate": 0.0224,
+          "mean_self_confidence": 0.8159,
+          "cv_macro_f1": 0.7144,
+          "per_class_suspected_rate": {
+            "DoS": 0.1564,
+            "Exploits": 0.0732,
+            "Fuzzers": 0.0854,
+            "Generic": 0.014,
+            "Normal": 0.0203,
+            "Reconnaissance": 0.1244
+          }
+        },
+        "evidence": "confident_learning: suspected_noise_rate=0.0433 (1037/23935), high_conf_conflict_rate=0.0215 (514/23935), per_class_suspected_rate.DoS=0.1684"
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "row_health total_corrupted_rows=0; conservation primary laws median_rel_err=0.0 and 0.0028 with median_ratio_lhs_over_rhs=1.0; label_histogram has all six classes and local_rare_classes=[]; confident_learning suspected_noise_rate=0.0398 is not acted on without cross-node shortcut exclusion."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_1": 1147,
+      "node_2": 1131,
+      "node_4": 985
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 11,
+      "prompt_tokens": 23353,
+      "completion_tokens": 19353,
+      "total_tokens": 42706,
+      "total_latency_s": 145.073,
+      "json_retries": 7
+    },
+    "coord_query_rounds": 0,
+    "llm_elapsed_s": 177.743,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 19.589
+}

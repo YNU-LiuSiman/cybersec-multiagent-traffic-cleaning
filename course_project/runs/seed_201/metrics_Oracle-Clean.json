@@ -1,0 +1,138 @@
+{
+  "seed": 201,
+  "clean_control": true,
+  "method": "Oracle-Clean",
+  "downstream": {
+    "train_rows": 82332,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.4982,
+      "rare4_recall": 0.1755,
+      "binary_attack_f1": 0.9235,
+      "n_features": 35,
+      "per_class_f1": {
+        "Normal": 0.8632,
+        "Generic": 0.9824,
+        "Exploits": 0.6851,
+        "Fuzzers": 0.3635,
+        "DoS": 0.3535,
+        "Reconnaissance": 0.7832,
+        "Analysis": 0.0392,
+        "Backdoor": 0.1173,
+        "Shellcode": 0.4312,
+        "Worms": 0.3636
+      },
+      "per_class_recall": {
+        "Normal": 0.9691,
+        "Generic": 0.9815,
+        "Exploits": 0.6739,
+        "Fuzzers": 0.2688,
+        "DoS": 0.3621,
+        "Reconnaissance": 0.7391,
+        "Analysis": 0.0305,
+        "Backdoor": 0.0836,
+        "Shellcode": 0.3266,
+        "Worms": 0.2615
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4793,
+      "rare4_recall": 0.2021,
+      "binary_attack_f1": 0.9199,
+      "n_features": 35,
+      "per_class_f1": {
+        "Normal": 0.8593,
+        "Generic": 0.9883,
+        "Exploits": 0.6634,
+        "Fuzzers": 0.3667,
+        "DoS": 0.4138,
+        "Reconnaissance": 0.8154,
+        "Analysis": 0.0116,
+        "Backdoor": 0.097,
+        "Shellcode": 0.4377,
+        "Worms": 0.1397
+      },
+      "per_class_recall": {
+        "Normal": 0.9758,
+        "Generic": 0.9831,
+        "Exploits": 0.6217,
+        "Fuzzers": 0.2363,
+        "DoS": 0.5368,
+        "Reconnaissance": 0.741,
+        "Analysis": 0.0065,
+        "Backdoor": 0.059,
+        "Shellcode": 0.3813,
+        "Worms": 0.3615
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": true,
+    "false_remediation_actions": 0,
+    "clean_false_remediation": 0,
+    "node_d_false_remediation": 0
+  },
+  "plan": {
+    "diagnosis_summary": "Raw-Merge baseline (no remediation).",
+    "actions": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Raw-Merge baseline"
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 4,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 25777,
+      "node_2": 23935,
+      "node_3": 8684,
+      "node_4": 23936
+    },
+    "merged_rows": 82332,
+    "merged_cols": 37,
+    "steps": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Raw-Merge baseline"
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Raw-Merge baseline"
+      }
+    ],
+    "cl_flagged_counts": {}
+  },
+  "llm_meta": {},
+  "eval_elapsed_s": 6.282
+}

@@ -1,0 +1,71 @@
+{
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Empty LLM response; expected JSON object."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+      },
+      {
+        "action": "drop_column",
+        "col": "ingest_flag_val",
+        "evidence": "Unmapped column ingest_flag_val has mi_norm=1.00019 (mi=1.63059) vs next feature sbytes mi_norm=0.25003, indicating a local label-leakage shortcut artifact."
+      }
+    ]
+  },
+  "per_node_outputs": {
+    "node_1": [
+      {
+        "action": "no_op",
+        "node": "node_1",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      }
+    ],
+    "node_2": [
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "parse fallback: Empty LLM response; expected JSON object."
+      }
+    ],
+    "node_3": [
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "parse fallback: Action #0 (rename_columns) requires non-empty dict 'mapping'."
+      }
+    ],
+    "node_4": [
+      {
+        "action": "drop_column",
+        "col": "ingest_flag_val",
+        "evidence": "Unmapped column ingest_flag_val has mi_norm=1.00019 (mi=1.63059) vs next feature sbytes mi_norm=0.25003, indicating a local label-leakage shortcut artifact."
+      }
+    ]
+  },
+  "coord_query_rounds": 0,
+  "elapsed_s": 224.292,
+  "llm_usage": {
+    "calls": 11,
+    "prompt_tokens": 22933,
+    "completion_tokens": 23662,
+    "total_tokens": 46595,
+    "total_latency_s": 171.255,
+    "json_retries": 7
+  },
+  "prompt_hashes": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "diagnosis_summary": "node_1 is the label-noise node: after excluding shortcut column sensor_meta_v2 (cross-node MI 1.0002 on node_1 vs 0.0086/0.0/0.0009 on peers, robust_z 49.8), confident_learning exposes suspected_noise_rate 0.1881 and high_conf_conflict_rate 0.1337 with mean_self_confidence 0.4901 and cv_macro_f1 0.5028 versus a healthy peer baseline of ~0.043/0.023/0.82/0.71. node_3 carries genuine faults: unmapped jitter aliases matching missing sjit/djit, 410 corrupted rows (1.71%), and an exact 1024x unit-scale offset on sbytes/dbytes/dload (primary byte laws median_ratio=1024.0, violation_rate=1.0). node_2 is a legitimate Non-IID node concentrating all globally rare classes (Analysis/Backdoor/Shellcode/Worms, 100% node-2 share) with exact benign-anchor ratios (primary laws 1.0), and node_4 passes every check, so both are no_op.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "sensor_meta_v2",
+      "evidence": "sensor_meta_v2 mi_norm=1.0002 (mi=1.60923 vs label_entropy 1.60892) on node_1 but 0.0086/0.0/0.0009 on nodes 2-4, robust_z=49.77, gap=0.9954 — local label-leakage shortcut."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_3",
+      "mapping": {
+        "tx_jitter_index": "sjit",
+        "rx_jitter_index": "djit"
+      },
+      "evidence": "Missing canonical sjit/djit; tx_jitter_index p50=632.73/p90=8765.86/zero_frac=0.2599 matches sjit ref p50=485.72/p90=8625.01/zero_frac=0.2589, rx_jitter_index p50=26.95/p90=396.08/zero_frac=0.3114 matches djit ref 25.54/374.23/0.3122; sensor_meta_v2 left unmapped as cross-node metadata."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_3",
+      "rule": "nan_or_negative_physical",
+      "evidence": "410 corrupted rows (rate 0.01713): 205 rows with negative dur/spkts/sbytes and 205 with NaN dbytes/sload; 102 inf cells and 1 bad header row also removed."
+    },
+    {
+      "action": "rescale",
+      "node": "node_3",
+      "cols": [
+        "sbytes",
+        "dbytes",
+        "dload"
+      ],
+      "factor": 0.0009765625,
+      "evidence": "Benign-anchor ratios node_3 vs peers: sbytes 945152 vs 970 (974.4x), dbytes 362496 vs 354 (1024x), dload 7901731.5 vs 7610.5 (1038x); conservation median_ratio=1024.0 at violation_rate=1.0 for sbytes=spkts*smean and dbytes=dpkts*dmean, while sload/anchor peers stay at 1.0."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_1",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "With sensor_meta_v2 excluded, node_1 suspected_noise_rate=0.1881, high_conf_conflict_rate=0.1337, mean_self_confidence=0.4901, cv_macro_f1=0.5028 versus peers at 0.042-0.109 / 0.023-0.066 / 0.65-0.82 / 0.52-0.72."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "Legitimate Non-IID rare-class node (100% share of Analysis/Backdoor/Shellcode/Worms) with clean row health, primary conservation ratios 1.0, and rare classes at 0.0 suspected noise (exempted); no fault detected."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "Clean: row_health 0 corrupted rows, primary conservation ratios 1.0 and violation_rate 0.0, benign-anchor ratios 0.94-1.01 of ref, sensor_meta_v2 mi_norm=0.0009, label metrics in peer baseline (noise 0.0445, confidence 0.819)."
+    }
+  ]
+}

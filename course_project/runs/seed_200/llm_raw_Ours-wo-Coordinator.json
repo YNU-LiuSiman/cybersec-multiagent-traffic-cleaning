@@ -1,0 +1,91 @@
+{
+  "plan": {
+    "diagnosis_summary": "Standalone local-only Node Agent decisions without cross-node Coordinator.",
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "evidence": "schema_profile: unmapped_columns=[\"export_shard_code\"], missing_canonical=[]"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "evidence": "confident_learning: suspected_noise_count=1008 (4.21%), high_conf_conflict_count=533 (2.23%), cv_macro_f1=0.7116, local_rare_classes=[]"
+      },
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "evidence": "schema_profile.unmapped_columns=['export_shard_code']; missing_canonical=[]; no canonical target to map to, so drop the non-canonical shard-metadata column"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "evidence": "confident_learning suspected_noise_count=540/8684 (rate=0.0622), high_conf_conflict_count=285 (rate=0.0328); per_class_suspected_rate Exploits=0.1901, Normal=0.0454, all other classes exempt at 0.0"
+      },
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "evidence": "schema_profile.unmapped_columns = [\"export_shard_code\"] with empty missing_canonical, so it is a non-canonical unmapped alias column."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      }
+    ]
+  },
+  "per_node_outputs": {
+    "node_1": [
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "evidence": "schema_profile: unmapped_columns=[\"export_shard_code\"], missing_canonical=[]"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "evidence": "confident_learning: suspected_noise_count=1008 (4.21%), high_conf_conflict_count=533 (2.23%), cv_macro_f1=0.7116, local_rare_classes=[]"
+      }
+    ],
+    "node_2": [
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "evidence": "schema_profile.unmapped_columns=['export_shard_code']; missing_canonical=[]; no canonical target to map to, so drop the non-canonical shard-metadata column"
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_2",
+        "evidence": "confident_learning suspected_noise_count=540/8684 (rate=0.0622), high_conf_conflict_count=285 (rate=0.0328); per_class_suspected_rate Exploits=0.1901, Normal=0.0454, all other classes exempt at 0.0"
+      }
+    ],
+    "node_3": [
+      {
+        "action": "drop_column",
+        "col": "export_shard_code",
+        "evidence": "schema_profile.unmapped_columns = [\"export_shard_code\"] with empty missing_canonical, so it is a non-canonical unmapped alias column."
+      }
+    ],
+    "node_4": [
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "parse fallback: Action #0 (drop_column) requires non-empty string 'col'."
+      }
+    ]
+  },
+  "coord_query_rounds": 0,
+  "elapsed_s": 179.057,
+  "llm_usage": {
+    "calls": 12,
+    "prompt_tokens": 25594,
+    "completion_tokens": 19388,
+    "total_tokens": 44982,
+    "total_latency_s": 146.641,
+    "json_retries": 8
+  },
+  "prompt_hashes": {
+    "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+    "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+  }
+}

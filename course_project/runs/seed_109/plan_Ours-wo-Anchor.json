@@ -1,0 +1,63 @@
+{
+  "diagnosis_summary": "node_2 carries real faults: 397 corrupted rows, an unmapped alias set that hides three canonical columns, and a 1000x sender-byte unit defect (sbytes conservation ratio 1000.0) that also inflates sload (ratio_to_ref 1009.63) while all other nodes sit near 1.0. flow_audit_tag is a cross-node shortcut (mi_norm 1.0002 on node_1 vs <=0.0013 elsewhere, robust_z 49.98), and once it is excluded node_1 shows markedly elevated label noise (0.2036 vs 0.041-0.0445 peers). node_3 and node_4 are healthy Non-IID nodes; node_4's quantile shifts stem from holding all globally rare classes while its conservation ratios (1.0, 0.901, 0.876) match peers.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "drop_column",
+      "col": "flow_audit_tag",
+      "evidence": "mi_norm 1.0002 on node_1 vs 0.0/0.0/0.0013 on node_2-4 (gap 0.9995, robust_z 49.98)."
+    },
+    {
+      "action": "rename_columns",
+      "node": "node_2",
+      "mapping": {
+        "flow_tempo_metric": "rate",
+        "egress_timing_variance": "sjit",
+        "recent_src_port_fanout": "ct_src_dport_ltm"
+      },
+      "evidence": "Missing rate/sjit/ct_src_dport_ltm match aliases by stats: flow_tempo_metric p90 111111.1/cap 250000 vs rate ref_p90 250000; egress_timing_variance zero_frac 0.2599 vs sjit ref_zero_frac 0.475; recent_src_port_fanout p50 1.0/p90 3.0/zero_frac 0.0 vs ct_src_dport_ltm ref_p50 1.0/ref_p90 18.0/ref_zero_frac 0.0; flow_audit_tag excluded as cross-node metadata."
+    },
+    {
+      "action": "drop_rows",
+      "node": "node_2",
+      "rule": "nan_or_negative_physical",
+      "evidence": "total_corrupted_rows 397 (1.659%): rows_with_nan 199 (dbytes 100, sload 99) and rows_with_negative_physical 198 (dur/spkts/sbytes)."
+    },
+    {
+      "action": "rescale",
+      "node": "node_2",
+      "cols": [
+        "sbytes",
+        "sload"
+      ],
+      "factor": 0.001,
+      "evidence": "sbytes conservation median_ratio_lhs_over_rhs 1000.0 (violation_rate 1.0) and sbytes ratio_to_ref 914.38 vs peers 0.914/0.914/1.086; sload ratio_to_ref 1009.63, so 1/1000 restores both while the sload law (0.9012) matches peers."
+    },
+    {
+      "action": "local_cl_clean",
+      "node": "node_1",
+      "exempt_classes": [
+        "Analysis",
+        "Backdoor",
+        "Shellcode",
+        "Worms"
+      ],
+      "evidence": "With flow_audit_tag excluded, node_1 suspected_noise_rate 0.2036 and high_conf_conflict_rate 0.121 vs peers 0.041/0.0445 and 0.0248/0.0226, with mean_self_confidence 0.4597 vs 0.8179/0.819 and cv_macro_f1 0.4734 vs 0.7086/0.7189."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Clean row health, conservation ratio 1.0/0.9011/0.8760 matching peers, flow_audit_tag mi_norm 0.0, and label noise 0.0445 with confidence 0.819 at peer baseline."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "Rare-class Non-IID node: conservation ratios 1.0/0.901/0.876 and 0 corrupted rows, rare classes 0.0 suspected noise, so ackdat/dinpkt/dur/rate quantile shifts reflect its unique class mix, not a fault."
+    }
+  ]
+}

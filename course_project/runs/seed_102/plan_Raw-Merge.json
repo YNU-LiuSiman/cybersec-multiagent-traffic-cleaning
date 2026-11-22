@@ -1,0 +1,25 @@
+{
+  "diagnosis_summary": "Raw-Merge baseline (no remediation).",
+  "actions": [
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "Raw-Merge baseline"
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "Raw-Merge baseline"
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "Raw-Merge baseline"
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "Raw-Merge baseline"
+    }
+  ]
+}

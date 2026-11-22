@@ -1,0 +1,269 @@
+{
+  "seed": 107,
+  "clean_control": false,
+  "method": "Ours-wo-Anchor",
+  "downstream": {
+    "train_rows": 77284,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.5143,
+      "rare4_recall": 0.2126,
+      "binary_attack_f1": 0.927,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8663,
+        "Generic": 0.9803,
+        "Exploits": 0.6469,
+        "Fuzzers": 0.4377,
+        "DoS": 0.4354,
+        "Reconnaissance": 0.813,
+        "Analysis": 0.048,
+        "Backdoor": 0.1062,
+        "Shellcode": 0.4512,
+        "Worms": 0.3579
+      },
+      "per_class_recall": {
+        "Normal": 0.9576,
+        "Generic": 0.9809,
+        "Exploits": 0.5355,
+        "Fuzzers": 0.3126,
+        "DoS": 0.6207,
+        "Reconnaissance": 0.7314,
+        "Analysis": 0.045,
+        "Backdoor": 0.181,
+        "Shellcode": 0.3628,
+        "Worms": 0.2615
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4685,
+      "rare4_recall": 0.1782,
+      "binary_attack_f1": 0.9214,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8574,
+        "Generic": 0.9632,
+        "Exploits": 0.6555,
+        "Fuzzers": 0.3817,
+        "DoS": 0.4264,
+        "Reconnaissance": 0.8163,
+        "Analysis": 0.0301,
+        "Backdoor": 0.0882,
+        "Shellcode": 0.4456,
+        "Worms": 0.0207
+      },
+      "per_class_recall": {
+        "Normal": 0.9542,
+        "Generic": 0.9364,
+        "Exploits": 0.5986,
+        "Fuzzers": 0.256,
+        "DoS": 0.5945,
+        "Reconnaissance": 0.7464,
+        "Analysis": 0.0155,
+        "Backdoor": 0.0561,
+        "Shellcode": 0.3795,
+        "Worms": 0.2615
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 1.0,
+    "unit_drift_recall": 1.0,
+    "unit_drift_factor_acc": 1.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 1.0,
+    "noise_node_detected": 1,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.898,
+    "noise_sample_recall": 0.7194,
+    "noise_sample_f1": 0.7989,
+    "dirty_rows_remediated": 1,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "node_2 carries three recoverable faults (unmapped canonical aliases tcprtt/ackdat/response_body_len, 331 corrupted rows, and an exact 1024x byte/byte-rate scale inflation on sbytes/dbytes/sload/dload confirmed by conservation ratios), while node_1 hosts the cross-node shortcut column telemetry_bucket_id (label MI equals the full label entropy there, zero everywhere else) plus genuine localized label noise that only becomes visible once that shortcut is excluded. node_3 is fully healthy, and node_4 is a legitimate rare-class Non-IID host (all conservation laws pass, rare classes 100% local) so its differing mixture and intermediate noise metrics must not be penalized.",
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ],
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "telemetry_bucket_id",
+        "evidence": "Cross-node MI outlier: mi_norm=1.0002 on node_1 (mi=1.616 vs label entropy 1.616 nats) but 0.0 on node_2, node_3 and node_4 (robust_z=50.0)."
+      },
+      {
+        "action": "rename_columns",
+        "node": "node_2",
+        "mapping": {
+          "tcp_setup_latency": "tcprtt",
+          "ack_data_interval": "ackdat",
+          "server_body_octets": "response_body_len"
+        },
+        "evidence": "Only node_2 lacks tcprtt/ackdat/response_body_len; unmapped profiles match refs (p50_pos 0.0939/0.0344/0.0 vs ref p90 0.1766/0.0831/0.0; zero_frac 0.2957/0.2959/0.8953 vs 0.5063/0.5065/0.9324), while telemetry_bucket_id (mi=0.0) is bookkeeping and left unmapped."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_2",
+        "rule": "nan_or_negative_physical",
+        "evidence": "row_health: 331 corrupted rows (166 NaN in dbytes/sload, 165 negative dur/spkts/sbytes), corrupted_row_rate=0.01383."
+      },
+      {
+        "action": "rescale",
+        "node": "node_2",
+        "cols": [
+          "sbytes",
+          "dbytes",
+          "sload",
+          "dload"
+        ],
+        "factor": 0.0009765625,
+        "evidence": "Conservation sbytes=spkts*smean and dbytes=dpkts*dmean both median_ratio_lhs_over_rhs=1024.0 (violation_rate=1.0, n=23771/13222) with benign medians sbytes 546816 vs ref 584 (936x), dbytes 182272 vs 223 (817x), sload 626851136 vs 606329 (1034x), dload 1984160 vs 2543 (780x); reciprocal of 1024 is 0.0009765625."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "evidence": "With telemetry_bucket_id excluded, node_1 shows suspected_noise_rate 0.1971, high_conf_conflict_rate 0.1314, mean_self_confidence 0.4763, cv_macro_f1 0.4925 vs peer baseline 0.0396/0.0445, 0.0226/0.0235, ~0.819, ~0.717."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Row health clean, all four conservation laws ok (primary ratios 1.0, auxiliary 0.901/0.876), telemetry_bucket_id mi_norm=0.0, and noise 0.0445 / conflict 0.0226 / confidence 0.819 match the healthy peer baseline."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Rare-class Non-IID host (Analysis/Backdoor/Shellcode/Worms 100% local) with clean row health, all conservation laws ok (primary ratios 1.0, so dur 17.4x / tcprtt 0.0065x shifts are distributional, not unit drift), 0.0 noise on exempted rare classes, and telemetry_bucket_id mi_norm=0.0."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 7,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 19218,
+      "node_2": 23605,
+      "node_3": 25777,
+      "node_4": 8684
+    },
+    "merged_rows": 77284,
+    "merged_cols": 36,
+    "steps": [
+      {
+        "action": "rename_columns",
+        "node": "node_2",
+        "applied_mapping": {
+          "tcp_setup_latency": "tcprtt",
+          "ack_data_interval": "ackdat",
+          "server_body_octets": "response_body_len"
+        },
+        "evidence": "Only node_2 lacks tcprtt/ackdat/response_body_len; unmapped profiles match refs (p50_pos 0.0939/0.0344/0.0 vs ref p90 0.1766/0.0831/0.0; zero_frac 0.2957/0.2959/0.8953 vs 0.5063/0.5065/0.9324), while telemetry_bucket_id (mi=0.0) is bookkeeping and left unmapped."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_2",
+        "rule": "nan_or_negative_physical",
+        "rows_removed": 331,
+        "rows_remaining": 23605,
+        "evidence": "row_health: 331 corrupted rows (166 NaN in dbytes/sload, 165 negative dur/spkts/sbytes), corrupted_row_rate=0.01383."
+      },
+      {
+        "action": "rescale",
+        "node": "node_2",
+        "cols": [
+          "sbytes",
+          "dbytes",
+          "sload",
+          "dload"
+        ],
+        "factor": 0.0009765625,
+        "evidence": "Conservation sbytes=spkts*smean and dbytes=dpkts*dmean both median_ratio_lhs_over_rhs=1024.0 (violation_rate=1.0, n=23771/13222) with benign medians sbytes 546816 vs ref 584 (936x), dbytes 182272 vs 223 (817x), sload 626851136 vs 606329 (1034x), dload 1984160 vs 2543 (780x); reciprocal of 1024 is 0.0009765625."
+      },
+      {
+        "action": "drop_column",
+        "col": "telemetry_bucket_id",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "Cross-node MI outlier: mi_norm=1.0002 on node_1 (mi=1.616 vs label entropy 1.616 nats) but 0.0 on node_2, node_3 and node_4 (robust_z=50.0)."
+      },
+      {
+        "action": "local_cl_clean",
+        "node": "node_1",
+        "exempt_classes": [
+          "Analysis",
+          "Backdoor",
+          "Shellcode",
+          "Worms"
+        ],
+        "disable_rare_exempt": false,
+        "rows_removed": 4717,
+        "rows_remaining": 19218,
+        "cl_stats": {
+          "n_evaluated": 23935,
+          "suspected_noise_count": 4717,
+          "suspected_noise_rate": 0.1971,
+          "high_conf_conflict_count": 3145,
+          "high_conf_conflict_rate": 0.1314,
+          "mean_self_confidence": 0.4763,
+          "cv_macro_f1": 0.4925,
+          "per_class_suspected_rate": {
+            "DoS": 0.3999,
+            "Exploits": 0.2498,
+            "Fuzzers": 0.3161,
+            "Generic": 0.1349,
+            "Normal": 0.075,
+            "Reconnaissance": 0.4979
+          }
+        },
+        "evidence": "With telemetry_bucket_id excluded, node_1 shows suspected_noise_rate 0.1971, high_conf_conflict_rate 0.1314, mean_self_confidence 0.4763, cv_macro_f1 0.4925 vs peer baseline 0.0396/0.0445, 0.0226/0.0235, ~0.819, ~0.717."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "Row health clean, all four conservation laws ok (primary ratios 1.0, auxiliary 0.901/0.876), telemetry_bucket_id mi_norm=0.0, and noise 0.0445 / conflict 0.0226 / confidence 0.819 match the healthy peer baseline."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "Rare-class Non-IID host (Analysis/Backdoor/Shellcode/Worms 100% local) with clean row health, all conservation laws ok (primary ratios 1.0, so dur 17.4x / tcprtt 0.0065x shifts are distributional, not unit drift), 0.0 noise on exempted rare classes, and telemetry_bucket_id mi_norm=0.0."
+      }
+    ],
+    "cl_flagged_counts": {
+      "node_1": 4717
+    }
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 10,
+      "prompt_tokens": 51529,
+      "completion_tokens": 10750,
+      "total_tokens": 62279,
+      "total_latency_s": 75.995,
+      "json_retries": 0
+    },
+    "coord_query_rounds": 1,
+    "llm_elapsed_s": 97.51,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 7.557
+}

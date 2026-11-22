@@ -1,0 +1,32 @@
+{
+  "diagnosis_summary": "PLAN_VALIDATION_FAILED: Could not extract a valid JSON object from response.",
+  "globally_rare_classes": [
+    "Analysis",
+    "Backdoor",
+    "Shellcode",
+    "Worms"
+  ],
+  "actions": [
+    {
+      "action": "no_op",
+      "node": "node_1",
+      "evidence": "fallback due to parse error: Could not extract a valid JSON object from response."
+    },
+    {
+      "action": "no_op",
+      "node": "node_2",
+      "evidence": "fallback due to parse error: Could not extract a valid JSON object from response."
+    },
+    {
+      "action": "no_op",
+      "node": "node_3",
+      "evidence": "fallback due to parse error: Could not extract a valid JSON object from response."
+    },
+    {
+      "action": "no_op",
+      "node": "node_4",
+      "evidence": "fallback due to parse error: Could not extract a valid JSON object from response."
+    }
+  ],
+  "validation_failed": true
+}

@@ -1,0 +1,233 @@
+{
+  "seed": 106,
+  "clean_control": false,
+  "method": "Ours-wo-Anchor",
+  "downstream": {
+    "train_rows": 81920,
+    "rare4_kept": 1682,
+    "rare4_train_retention": 1.0,
+    "RF": {
+      "macro_f1": 0.5055,
+      "rare4_recall": 0.2066,
+      "binary_attack_f1": 0.9266,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8658,
+        "Generic": 0.9762,
+        "Exploits": 0.648,
+        "Fuzzers": 0.4258,
+        "DoS": 0.4289,
+        "Reconnaissance": 0.8057,
+        "Analysis": 0.0532,
+        "Backdoor": 0.1036,
+        "Shellcode": 0.4145,
+        "Worms": 0.3333
+      },
+      "per_class_recall": {
+        "Normal": 0.958,
+        "Generic": 0.9782,
+        "Exploits": 0.5392,
+        "Fuzzers": 0.3012,
+        "DoS": 0.5952,
+        "Reconnaissance": 0.731,
+        "Analysis": 0.0555,
+        "Backdoor": 0.1747,
+        "Shellcode": 0.3575,
+        "Worms": 0.2385
+      }
+    },
+    "HistGB": {
+      "macro_f1": 0.4569,
+      "rare4_recall": 0.1327,
+      "binary_attack_f1": 0.9167,
+      "n_features": 34,
+      "per_class_f1": {
+        "Normal": 0.8548,
+        "Generic": 0.9881,
+        "Exploits": 0.6689,
+        "Fuzzers": 0.34,
+        "DoS": 0.3713,
+        "Reconnaissance": 0.8187,
+        "Analysis": 0.002,
+        "Backdoor": 0.0877,
+        "Shellcode": 0.3899,
+        "Worms": 0.0471
+      },
+      "per_class_recall": {
+        "Normal": 0.9758,
+        "Generic": 0.9822,
+        "Exploits": 0.6674,
+        "Fuzzers": 0.2169,
+        "DoS": 0.4203,
+        "Reconnaissance": 0.7438,
+        "Analysis": 0.001,
+        "Backdoor": 0.0464,
+        "Shellcode": 0.3142,
+        "Worms": 0.1692
+      }
+    }
+  },
+  "control_plane": {
+    "clean_control": false,
+    "unit_drift_precision": 1.0,
+    "unit_drift_recall": 1.0,
+    "unit_drift_factor_acc": 1.0,
+    "shortcut_detected": 1,
+    "shortcut_fp_drops": 0,
+    "shortcut_exact": 1,
+    "residual_alias_acc": 1.0,
+    "noise_node_detected": 0,
+    "noise_node_fp": 0,
+    "noise_sample_precision": 0.0,
+    "noise_sample_recall": 0.0,
+    "noise_sample_f1": 0.0,
+    "dirty_rows_remediated": 1,
+    "node_d_false_remediation": 0,
+    "quarantined_nodes": []
+  },
+  "plan": {
+    "diagnosis_summary": "Node_1 shows three recoverable faults: residual aliases for djit/synack/ackdat, 412 corrupted rows, and x1000 inflation of sbytes/dbytes/dload. collector_tag_score is a local shortcut on node_3 (MI_norm 1.0002 vs <=0.0084 on peers) and should be dropped globally; node_2/3/4 otherwise pass schema, row-health, and conservation checks, with node_4's shifts attributable to legitimate rare-class Non-IID.",
+    "globally_rare_classes": [
+      "Analysis",
+      "Backdoor",
+      "Shellcode",
+      "Worms"
+    ],
+    "actions": [
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "evidence": "compare_mi: collector_tag_score MI_norm=1.0002 on node_3 versus <=0.0084 on peers (robust_z=49.74), while it is metadata-like across nodes."
+      },
+      {
+        "action": "rename_columns",
+        "node": "node_1",
+        "mapping": {
+          "rx_jitter_index": "djit",
+          "syn_reply_interval": "synack",
+          "payload_confirm_delay": "ackdat"
+        },
+        "evidence": "Missing djit/synack/ackdat; unmapped p90s 396.1/0.1103/0.0957 align with refs 328.3/0.0930/0.0831, while collector_tag_score is global metadata."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_1",
+        "rule": "nan_or_negative_physical",
+        "evidence": "row_health reports 206 NaN and 206 negative physical rows = 412 corrupted rows (1.72%)."
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "sbytes",
+          "dbytes",
+          "dload"
+        ],
+        "factor": 0.001,
+        "evidence": "sbytes/dbytes/dload anchor medians are 914x/798x/762x reference and byte laws show median LHS/RHS=1000.0 with 100% violation, matching x1000 inflation."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "row_health clean and primary conservation ratios are 1.0; only the global shortcut column is present."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "row_health clean and conservation consistent; the collector_tag_score shortcut is handled by the global drop_column action."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "row_health clean and conservation consistent; shifts reflect legitimate rare-class Non-IID with Analysis/Backdoor/Shellcode/Worms concentrated here."
+      }
+    ]
+  },
+  "audit": {
+    "n_actions_executed": 7,
+    "quarantined_nodes": [],
+    "per_node_final_rows": {
+      "node_1": 23524,
+      "node_2": 25777,
+      "node_3": 23935,
+      "node_4": 8684
+    },
+    "merged_rows": 81920,
+    "merged_cols": 36,
+    "steps": [
+      {
+        "action": "rename_columns",
+        "node": "node_1",
+        "applied_mapping": {
+          "rx_jitter_index": "djit",
+          "syn_reply_interval": "synack",
+          "payload_confirm_delay": "ackdat"
+        },
+        "evidence": "Missing djit/synack/ackdat; unmapped p90s 396.1/0.1103/0.0957 align with refs 328.3/0.0930/0.0831, while collector_tag_score is global metadata."
+      },
+      {
+        "action": "drop_rows",
+        "node": "node_1",
+        "rule": "nan_or_negative_physical",
+        "rows_removed": 412,
+        "rows_remaining": 23524,
+        "evidence": "row_health reports 206 NaN and 206 negative physical rows = 412 corrupted rows (1.72%)."
+      },
+      {
+        "action": "rescale",
+        "node": "node_1",
+        "cols": [
+          "sbytes",
+          "dbytes",
+          "dload"
+        ],
+        "factor": 0.001,
+        "evidence": "sbytes/dbytes/dload anchor medians are 914x/798x/762x reference and byte laws show median LHS/RHS=1000.0 with 100% violation, matching x1000 inflation."
+      },
+      {
+        "action": "drop_column",
+        "col": "collector_tag_score",
+        "dropped_from_nodes": [
+          "node_1",
+          "node_2",
+          "node_3",
+          "node_4"
+        ],
+        "evidence": "compare_mi: collector_tag_score MI_norm=1.0002 on node_3 versus <=0.0084 on peers (robust_z=49.74), while it is metadata-like across nodes."
+      },
+      {
+        "action": "no_op",
+        "node": "node_2",
+        "evidence": "row_health clean and primary conservation ratios are 1.0; only the global shortcut column is present."
+      },
+      {
+        "action": "no_op",
+        "node": "node_3",
+        "evidence": "row_health clean and conservation consistent; the collector_tag_score shortcut is handled by the global drop_column action."
+      },
+      {
+        "action": "no_op",
+        "node": "node_4",
+        "evidence": "row_health clean and conservation consistent; shifts reflect legitimate rare-class Non-IID with Analysis/Backdoor/Shellcode/Worms concentrated here."
+      }
+    ],
+    "cl_flagged_counts": {}
+  },
+  "llm_meta": {
+    "llm_usage": {
+      "calls": 10,
+      "prompt_tokens": 50046,
+      "completion_tokens": 15368,
+      "total_tokens": 65414,
+      "total_latency_s": 104.457,
+      "json_retries": 1
+    },
+    "coord_query_rounds": 0,
+    "llm_elapsed_s": 108.385,
+    "prompt_hashes": {
+      "node_agent.md": "67f1ba2cd5bb521ad01554ac86d1f1e79e962333d053003818110111a10f6602",
+      "coordinator_agent.md": "b479ebeb457d7b562f28f340c1fff8cee8781d8bbea083f87a4e817feb8ece7d"
+    }
+  },
+  "eval_elapsed_s": 5.794
+}
